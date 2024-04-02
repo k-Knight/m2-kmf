@@ -1,0 +1,9 @@
+*/**/bin
+*/**/.cmake_cache
+*/**/.vscode
+*/**/libs/*/*
+!*/**/libs/*/.gitkeep
+*/**/graphics/orig
+*/**/files_to_install*/*
+*/**/files_to_install
+*/**/mem_resources/*
