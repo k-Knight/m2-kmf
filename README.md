@@ -6,3 +6,6 @@ So far only Windows is supported.
 
 
 ### >>> <a href="https://github.com/k-Knight/m2-kmf/raw/master/installer.exe">DOWNLOAD</a> <<<
+
+
+in you are interested here is <a href="https://github.com/k-Knight/m2-kmf/commits">changelog</a>, kinda ...
