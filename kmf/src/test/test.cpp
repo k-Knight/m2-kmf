@@ -2,7 +2,9 @@
 #include <windows.h>
 #include <kmf_util.hpp>
 
-void print_mod_data_array(ModDataArray *arr) {
+#include <map>
+
+static void print_mod_data_array(ModDataArray *arr) {
     printf("mods config:\n");
     for (size_t i = 0; i < arr->length; i++) {
         ModData *data = &arr->data[i];
@@ -17,8 +19,66 @@ void print_mod_data_array(ModDataArray *arr) {
     }
 }
 
-int main()
-{
+static void gen_random_numbers() {
+    std::map<int, int> results;
+    size_t gen_count = 100000;
+    int min, max;
+
+    results.clear();
+    min = 0;
+    max = 100;
+    printf("testing generate_uniform_from_to() ::    min %u    max%u\n", min, max);
+    for (size_t i = 0; i < gen_count; i++) {
+        int val = generate_uniform_from_to(min, max);
+        if (!results.count(val))
+            results[val] = 1;
+        else
+            results[val]++;
+    }
+
+    for (const auto &val : results) {
+        printf("    %u :: %0.3f\n", val.first, val.second / double(gen_count));
+    }
+
+    results.clear();
+    min = 3;
+    max = 9;
+    printf("testing generate_my_random_from_to() ::    min %u    max%u\n", min, max);
+    for (size_t i = 0; i < gen_count; i++) {
+        int val = generate_my_random_from_to(min, max);
+        if (!results.count(val))
+            results[val] = 1;
+        else
+            results[val]++;
+    }
+
+    for (const auto &val : results) {
+        printf("    %u :: %0.3f\n", val.first, val.second / double(gen_count));
+    }
+
+    results.clear();
+    min = 1;
+    max = 4;
+    printf("testing generate_bernoulli() ::    p (%u / %u)\n", min, max);
+    for (size_t i = 0; i < gen_count; i++) {
+        int val = generate_bernoulli(min / double(max));
+        if (!results.count(val ? 1 : 0))
+            results[val ? 1 : 0] = 1;
+        else
+            results[val ? 1 : 0]++;
+    }
+
+    for (const auto &val : results) {
+        printf("    %u :: %0.3f\n", val.first, val.second / double(gen_count));
+    }
+}
+
+int main(int argc, char *argv[]) {
+    if (argc > 1) {
+        gen_random_numbers();
+        return 1;
+    }
+
     auto cur_path = std::filesystem::current_path();
     ModDataArray *mod_data_array;
     printf("%s\n", cur_path.generic_string().c_str());
