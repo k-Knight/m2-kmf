@@ -14,7 +14,6 @@
 #include <cstdlib>
 
 #include "input_handler.hpp"
-#include "debug_logger.hpp"
 
 #define MAX_MOD_COUNT 1024
 #define MAX_MOD_SETTING_COUNT 32
@@ -34,6 +33,10 @@ std::mutex libary_function_mutex;
 std::unique_lock<std::mutex> external_lock;
 
 static volatile ModDataArray mod_data_arr;
+
+#if defined(DEBUG) || defined(_DEBUG)
+debug_logger_state_t debug_logger_state;
+#endif //DEBUG
 
 static struct {
     vector<ModDataEntry> first, second, *current, *unused;

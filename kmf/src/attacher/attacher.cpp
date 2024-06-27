@@ -5,6 +5,7 @@
 #include <thread>
 #include <mutex>
 #include <queue>
+#include <string>
 
 #include <windows.h>
 #include <shlwapi.h>
@@ -20,7 +21,6 @@ using namespace std;
 
 #if defined(DEBUG) || defined(_DEBUG)
 #include <fstream>
-#include <mutex>
 
 std::mutex debug_log_mutex;
 std::ofstream dbg_log;
@@ -34,6 +34,7 @@ static inline void log_write(const char *str) {
     std::unique_lock<std::mutex> lock(debug_log_mutex);
     init_exception_catcher();
 
+    dbg_log.seekp(0, std::ios::end);
     dbg_log.write(str, strlen(str));
     dbg_log.flush();
 #endif //DEBUG
@@ -88,6 +89,7 @@ extern "C" {
     
     volatile bool          exiting = false;
     volatile bool          restarting = false;
+    volatile bool          stdout_thread_started = false;
     HANDLE                 console_pipe, execute_pipe;
     const char             *hello_msg = "Magicka 2 successfully attached with PID [%d]";
     LPWSTR                 console_pipe_name = (LPWSTR)L"\\\\.\\pipe\\m2_debug_console";
@@ -96,9 +98,10 @@ extern "C" {
     queue<char *>          exec_queue;
     deque<console_msg_t *> console_output;
     mutex                  ipc_mutex;
-    thread                 con_thread, exe_thread;
-    FILE                   *stdout_file = NULL;
-    std::string            stdout_file_path = "";
+    mutex                  stdout_mutex;
+    thread                 con_thread, exe_thread, stdout_thread;
+    string                 stdout_file_path = "";
+    queue<string>          stdout_messages;
     
     static void get_dll_path() {
         std::string thisPath = "";
@@ -122,15 +125,39 @@ extern "C" {
         stdout_file_path = thisPath + "stdout.txt";
     }
 
+    static void stdout_output_thread() {
+        while (!exiting) {
+            {
+                std::unique_lock<std::mutex> lock(stdout_mutex);
+
+                if (stdout_messages.size() > 0) {
+                    FILE *stdout_file = fopen(stdout_file_path.c_str(), "a");;
+
+                    while (stdout_messages.size()) {
+                        fprintf(stdout_file, "%s\n", stdout_messages.front().c_str());
+                        stdout_messages.pop();
+                    }
+
+                    fclose(stdout_file);
+                }
+            }
+
+            Sleep(10);
+        }
+    }
+
     static void write_stdout_to_file(const char *msg) {
-        if (!stdout_file) {
+        std::unique_lock<std::mutex> lock(stdout_mutex);
+
+        if (!stdout_thread_started) {
+            stdout_thread_started = true;
             get_dll_path();
-            stdout_file = fopen(stdout_file_path.c_str(), "w");
+
+            stdout_thread = thread(stdout_output_thread);
+            stdout_thread.detach();
         }
 
-        fprintf(stdout_file, "%s", msg);
-        fprintf(stdout_file, "\n");
-        fflush(stdout_file);
+        stdout_messages.push(msg);
     }
 
     __declspec(dllexport) void send_debugger_message(unsigned char type, const char *message) {

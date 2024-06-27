@@ -3,6 +3,7 @@
 #include <kmf_util.hpp>
 
 #include <map>
+#include <thread>
 
 static void print_mod_data_array(ModDataArray *arr) {
     printf("mods config:\n");
@@ -73,12 +74,7 @@ static void gen_random_numbers() {
     }
 }
 
-int main(int argc, char *argv[]) {
-    if (argc > 1) {
-        gen_random_numbers();
-        return 1;
-    }
-
+void run_test() {
     auto cur_path = std::filesystem::current_path();
     ModDataArray *mod_data_array;
     printf("%s\n", cur_path.generic_string().c_str());
@@ -144,17 +140,126 @@ int main(int argc, char *argv[]) {
     printf("\n\nupdating mod config ...\n\n\n");
     update_config_file((char *)mod_config_str);
 
-    display_settings_menu();
+    //display_settings_menu();
 
     lock_mod_settings();
     mod_data_array = get_mod_settings();
     print_mod_data_array(mod_data_array);
     unlock_mod_settings();
 
-    //for (size_t i = 0; i < 300; i++) {
-    //    if (gamepad_btn_pressed(gamepad_x))
-    //        printf("gamepad button x is pressed\n");
-    //    Sleep(100);
-    //}
+    if (try_init_keyboard_watcher())
+        printf("try_init_keyboard_watcher() :: success\n");
+    else
+        printf("try_init_keyboard_watcher() :: failure\n");
+
+    const char *example_mapping = "stop_move:lEft ctrl;lightning:a;arCane:s;earth:w;fire:f;asdaSdasd;water:q;life:d;shield:e;cold:r;activate_uP:;;pause:Esc;";
+    set_kbd_mapping(example_mapping);
+    const auto &mapping = get_kbd_mapping();
+
+    printf("mapping length :: %zu\n", mapping.size());
+
+    for (const auto &map : mapping) {
+        const char *kf_name = get_key_function_name(map.first);
+        const char *key_name = get_key_name(map.second);
+
+        printf("%s :: %s\n", key_name ? key_name : "(null)", kf_name ? kf_name : "(null)");
+    }
+
+}
+
+HWND hwnd;
+
+LRESULT CALLBACK WndProc(HWND hwnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+    switch(Msg) {
+        case WM_DESTROY:
+            std::terminate();
+            break;
+        case WM_PAINT: {
+            PAINTSTRUCT ps;
+            HDC         hdc;
+            RECT        rc;
+    
+            hdc = BeginPaint(hwnd, &ps);
+
+            GetClientRect(hwnd, &rc);
+            SetTextColor(hdc, 0);
+            SetBkMode(hdc, TRANSPARENT);
+            DrawTextA(hdc, "test.exe running", -1, &rc, DT_CENTER|DT_SINGLELINE|DT_VCENTER);
+
+            EndPaint(hwnd, &ps);
+        } break;
+        default:
+            return DefWindowProc(hwnd, Msg, wParam, lParam);
+    }
+
+    return 0;
+}
+
+int wmain() {
+    if (__argc > 1) {
+        gen_random_numbers();
+        std::terminate();
+    }
+
+    const wchar_t CLASS_NAME[]  = L"test_class";
+
+    WNDCLASS wc = { };
+
+    wc.lpfnWndProc   = WndProc;
+    wc.hInstance     = NULL;
+    wc.lpszClassName = CLASS_NAME;
+
+    RegisterClass(&wc);
+
+    // Create the window.
+
+    HWND hwnd = CreateWindowEx(
+        0,
+        CLASS_NAME,
+        L"test.exe",
+        WS_OVERLAPPEDWINDOW,
+        200, 200, 200, 200,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+    );
+
+    if (hwnd == NULL) {
+        return 1;
+    }
+
+    ShowWindow(hwnd, SW_SHOW);
+    UpdateWindow(hwnd);
+
+    run_test();
+
+    MSG Msg;
+    uint64_t counter = 0;
+
+
+    while(true) {
+        if (PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&Msg);
+            DispatchMessage(&Msg);
+        }
+        
+        if (counter % 10 == 0) {
+            if (gamepad_btn_pressed(gamepad_x))
+                printf("gamepad button x is pressed\n");
+        }
+
+        if (counter % 100 == 0) {
+            std::string elems = "asf\0";
+
+            printf("ordering elements [%s]\n", elems.data());
+            order_inputs_by_time(elems.data());
+            printf("press order       [%s]\n", elems.data());
+        }
+
+        Sleep(10);
+        counter++;
+    }
+
     return 0;
 }

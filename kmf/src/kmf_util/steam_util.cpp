@@ -4,8 +4,6 @@
 #include <steam_api.h>
 #include <mutex>
 
-#include "debug_logger.hpp"
-
 typedef decltype(&SteamFriends) steam_friends_t;
 extern std::mutex libary_function_mutex;
 

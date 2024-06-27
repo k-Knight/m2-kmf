@@ -3,8 +3,15 @@
 
 #include <vector>
 #include <unordered_map>
+#include <map>
 #include <filesystem>
+#include <string>
+
+#include <stdint.h>
+
 #include <sdl_gamepad_state.hpp>
+
+#include "debug_logger.hpp"
 
 struct ModDataEntry {
     std::string name;
@@ -53,6 +60,26 @@ __declspec(dllexport) void parse_file_mods_settings(bool clear_unused = true);
 __declspec(dllexport) bool validate_value(const std::string *setting, const char *value);
 __declspec(dllexport) const SettingPossibleValues *get_setting_possible_values(const std::string *setting);
 
+enum class key_function_t {
+    unknown = 0,
+    water,
+    life,
+    shield,
+    cold,
+    lightning,
+    arcane,
+    earth,
+    fire,
+    magick_tier1,
+    magick_tier2,
+    magick_tier3,
+    magick_tier4
+};
+
+__declspec(dllexport) const std::map<key_function_t, uint8_t> &get_kbd_mapping();
+__declspec(dllexport) const char *get_key_function_name(const key_function_t &kf);
+__declspec(dllexport) const char *get_key_name(const uint8_t code);
+
 extern "C" {
     struct ModSetting {
         char *name;
@@ -84,6 +111,10 @@ extern "C" {
     __declspec(dllexport) int generate_uniform_from_to(int min, int max);
     __declspec(dllexport) int generate_my_random_from_to(int min, int max);
     __declspec(dllexport) bool generate_bernoulli(float p);
+
+    __declspec(dllexport) bool try_init_keyboard_watcher();
+    __declspec(dllexport) void set_kbd_mapping(const char *mapping);
+    __declspec(dllexport) void order_inputs_by_time(char *elem_str);
 }
 
 #endif //KMF_UTIL
