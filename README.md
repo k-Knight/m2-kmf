@@ -6,6 +6,16 @@ So far only Windows is supported.
 
 
 ### >>> <a href="https://github.com/k-Knight/m2-kmf/raw/master/installer.exe">DOWNLOAD</a> <<<
+<br>
+
+# Magicka 2 Bugfixes
+
+This is the version with just the optional bugfixes (you can toggle them on and off in the main menu).
+
+No mods are available in this version. Everything else is the same.
+
+
+### >>> <a href="https://github.com/k-Knight/m2-kmf/raw/master/installer_bugfix.exe">DOWNLOAD</a> <<<
 
 <br><br>
 ## Notes
