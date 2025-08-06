@@ -34,6 +34,9 @@
 
 #include "resource.h"
 
+#define WTEXT2(x) L ## x
+#define WTEXT(x) WTEXT2(x)
+
 HWND m2_hwnd = NULL;
 RECT wnd_rect = {20, 20, 405, 720};
 HFONT hFont = NULL;
@@ -242,21 +245,27 @@ static void save_mod_settings_wrapper() {
 }
 
 static void open_sponsor_link() {
-    if ((int)ShellExecuteW(0, 0, L"https://discord.com/invite/YufuZQWtub", 0, 0, SW_SHOW) > 32)
+#define SPONSOR_LINK "https://pepega.online"
+
+    constexpr auto w_sponsor_link = WTEXT(SPONSOR_LINK);
+
+    if ((int)ShellExecuteW(0, 0, w_sponsor_link, 0, 0, SW_SHOW) > 32)
         return;
     
-    if ((int)ShellExecuteA(0, "open", "https://discord.com/invite/YufuZQWtub", 0, 0, SW_SHOWNORMAL) > 32)
+    if ((int)ShellExecuteA(0, "open", SPONSOR_LINK, 0, 0, SW_SHOWNORMAL) > 32)
         return;
 
     SHELLEXECUTEINFOW sei = { sizeof(sei) };
     sei.lpVerb = L"open";
-    sei.lpFile = L"https://discord.com/invite/YufuZQWtub";
+    sei.lpFile = w_sponsor_link;
     sei.hwnd = NULL;
     sei.nShow = SW_NORMAL;
 
     if (!ShellExecuteExW(&sei)) {
-        system("start https://discord.com/invite/YufuZQWtub");
+        system("start " SPONSOR_LINK);
     }
+
+#undef SPONSOR_LINK 
 }
 
 static void display_setting_help(MagicModSettingLabel *label, const std::string *setting) {
@@ -1360,7 +1369,7 @@ ModSettingsFrame::ModSettingsFrame()
 
     auto* sponsor_text = new DoubleBufferedText(
         bg_panel,
-        "made by Magicka College",
+        "Magicka College is DEAD",
         wxPoint(padding * 1.4, next_y_pos - padding * 3),
         wxSize(tmp_x / 1.5, padding * 4));
     sponsor_text->drop_shadow = true;
@@ -1368,9 +1377,9 @@ ModSettingsFrame::ModSettingsFrame()
 
     auto* join_btn = MagicButton::CreateMagicButton(
         bg_panel,
-        "Join Now",
+        "My Website",
         open_sponsor_link,
-        wxPoint(tmp_x * 0.7, next_y_pos - padding * 3),
+        wxPoint(tmp_x * 0.675, next_y_pos - padding * 3),
         wxSize(inner_w / 2 - padding * 2.5, padding * 4));
     join_btn->SetColors(&color_sponsor, &color_sponsor_h);
     join_btn->drawGUI = false;
