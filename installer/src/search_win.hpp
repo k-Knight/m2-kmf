@@ -23,7 +23,6 @@ namespace search_win {
     };
 
     using paths_t = std::vector<path_t>;
-    using paths_t = std::vector<path_t>;
     using names_t = std::vector<std::wstring>;
     using paths_typed_t =std::vector<path_entry_t>;
 
