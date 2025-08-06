@@ -247,9 +247,7 @@ static void save_mod_settings_wrapper() {
 static void open_sponsor_link() {
 #define SPONSOR_LINK "https://pepega.online"
 
-    constexpr auto w_sponsor_link = WTEXT(SPONSOR_LINK);
-
-    if ((int)ShellExecuteW(0, 0, w_sponsor_link, 0, 0, SW_SHOW) > 32)
+    if ((int)ShellExecuteW(0, 0, WTEXT(SPONSOR_LINK), 0, 0, SW_SHOW) > 32)
         return;
     
     if ((int)ShellExecuteA(0, "open", SPONSOR_LINK, 0, 0, SW_SHOWNORMAL) > 32)
@@ -257,7 +255,7 @@ static void open_sponsor_link() {
 
     SHELLEXECUTEINFOW sei = { sizeof(sei) };
     sei.lpVerb = L"open";
-    sei.lpFile = w_sponsor_link;
+    sei.lpFile = WTEXT(SPONSOR_LINK);
     sei.hwnd = NULL;
     sei.nShow = SW_NORMAL;
 

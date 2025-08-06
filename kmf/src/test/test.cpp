@@ -5,6 +5,12 @@
 #include <map>
 #include <thread>
 
+char *__cdecl (*try_get_request)(char *url);
+
+static void attacher_request_test() {
+    HINSTANCE hGetProcIDDLL = LoadLibrary(".\\attacher.dll");
+}
+
 static void print_mod_data_array(ModDataArray *arr) {
     printf("mods config:\n");
     for (size_t i = 0; i < arr->length; i++) {
