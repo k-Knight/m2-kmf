@@ -6,6 +6,7 @@
 #include <mutex>
 #include <queue>
 #include <string>
+#include <format>
 
 #include <windows.h>
 #include <shlwapi.h>
@@ -14,55 +15,10 @@
 using namespace std;
 
 #define BUFSIZE 64 * 1024
-#define NET_BUF_SIZE 1024
+#define NET_BUF_SIZE 1024 * 4
 #ifndef min
 #define min(a,b)    (((a) < (b)) ? (a) : (b))
 #endif
-
-#if defined(DEBUG) || defined(_DEBUG)
-#include <fstream>
-
-std::mutex debug_log_mutex;
-std::ofstream dbg_log;
-volatile bool dbg_initialized = false;
-
-static void init_exception_catcher();
-#endif //DEBUG
-
-static inline void log_write(const char *str) {
-#if defined(DEBUG) || defined(_DEBUG)
-    std::unique_lock<std::mutex> lock(debug_log_mutex);
-    init_exception_catcher();
-
-    dbg_log.seekp(0, std::ios::end);
-    dbg_log.write(str, strlen(str));
-    dbg_log.flush();
-#endif //DEBUG
-}
-
-#if defined(DEBUG) || defined(_DEBUG)
-#include <stacktrace.hpp>
-
-LONG WINAPI DumpStackTrace(PEXCEPTION_POINTERS ExceptionInfo)
-{
-    log_write("caught exception ::\n");
-    log_write(get_stacktrace().c_str());
-    MessageBoxA(NULL, get_stacktrace().c_str(), "Error found!", MB_OK);
-
-    return EXCEPTION_CONTINUE_SEARCH; // or EXCEPTION_CONTINUE_EXECUTION
-}
-
-static void init_exception_catcher() {
-    if (!dbg_initialized) {
-        if (!dbg_log.is_open())
-            dbg_log = std::ofstream("./attacher_log.txt", std::ios::binary);
-
-        //AddVectoredExceptionHandler(0, DumpStackTrace);
-        dbg_initialized = true;
-    }
-}
-
-#endif //DEBUG
 
 extern "C" {
     typedef struct {
@@ -208,12 +164,11 @@ extern "C" {
         DWORD dwRead;
         size_t ret_sz, ret_offset = 0;
         std::vector<std::string> cmds;
-        //std::ofstream log("./test_out.txt", std::ios::binary);
-        char *my_tmp = (char *)malloc(128 * 1024);
 
         // this is borderline retarded, i know
         cmds.push_back(std::string("curl.exe -s ") + url);
         cmds.push_back(std::string("powershell -Command \"$webclient = new-object system.net.webclient; $webclient.DownloadString('") + url + "');\"");
+
         for (auto& cmd : cmds)
             cmd.resize(MAX_PATH);
 
@@ -235,9 +190,6 @@ extern "C" {
         info.dwFlags |= STARTF_USESTDHANDLES;
 
         for (auto cmd : cmds) {
-            sprintf(my_tmp, "trying [%s]\n", cmd.c_str());
-            log_write(my_tmp);
-
             if (CreateProcessA(NULL, &cmd[0], NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &info, &processInfo))
             {
                 CloseHandle(processInfo.hProcess);
@@ -248,14 +200,8 @@ extern "C" {
             else
                 continue;
 
-            sprintf(my_tmp, "  success\n");
-            log_write(my_tmp);
-
             while (true) {
                 bSuccess = ReadFile(hPipe_r, tmp, sizeof(tmp), &dwRead, NULL);
-
-                sprintf(my_tmp, "    read :: continue [%s] got %lu\n", !bSuccess || dwRead == 0 ? "false" : "true", dwRead);
-                log_write(my_tmp);
 
                 if (!bSuccess || dwRead == 0)
                     break;
@@ -275,9 +221,6 @@ extern "C" {
             if (ret)
                 ret[ret_sz - 1] = '\0';
 
-            sprintf(my_tmp, "  received total %zu\n", ret_offset);
-            log_write(my_tmp);
-
             break;
         }
 
@@ -287,12 +230,6 @@ extern "C" {
     out:
         CloseHandle(hPipe_r);
 
-        if (ret) {
-            sprintf(my_tmp, "%s\n", ret);
-            log_write(my_tmp);
-        }
-
-        free(my_tmp);
         return ret;
     }
     

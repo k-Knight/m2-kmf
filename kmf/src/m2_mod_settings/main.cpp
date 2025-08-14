@@ -1,3 +1,4 @@
+#include <cstring>
 #define wxNO_HTML_LIB
 #define wxNO_QA_LIB
 #define wxNO_XRC_LIB
@@ -230,6 +231,11 @@ static void constraint_image(wxImage* img, const wxSize* size) {
 
     img->Rescale(new_width, new_height, wxIMAGE_QUALITY_BICUBIC);
 }
+
+//    std::thread t([](){
+//        main_window->CallAfter(&ModSettingsFrame::InitMainPage);
+//    });
+//    t.detach();
 
 static void close_program() {
     program_closing = true;
@@ -502,7 +508,7 @@ void DoubleBufferedTextCtrl::OnTextChanged(wxCommandEvent &event) {
 
 // class DoubleBufferedText
 
-DoubleBufferedText::DoubleBufferedText(wxWindow* parent, const char* label, const wxPoint& pos, const wxSize& size)
+DoubleBufferedText::DoubleBufferedText(wxWindow* parent, const char* label, bool free_label, const wxPoint& pos, const wxSize& size)
     : wxPanel(parent, wxID_ANY, pos, size, 0)
 {
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
@@ -510,9 +516,11 @@ DoubleBufferedText::DoubleBufferedText(wxWindow* parent, const char* label, cons
     Bind(wxEVT_ERASE_BACKGROUND, erase_bg_handler);
 
     this->label = label;
+    this->free_label = free_label;
     font = &font_text;
     drop_shadow = false;
     color = &color_text;
+    align = wxALIGN_CENTER;
 
     int w, h;
     w = size.x;
@@ -526,6 +534,11 @@ DoubleBufferedText::DoubleBufferedText(wxWindow* parent, const char* label, cons
             h + offset.second));
 }
 
+DoubleBufferedText::~DoubleBufferedText() {
+    if (free_label)
+        delete label;
+}
+
 void DoubleBufferedText::OnPaint(wxPaintEvent& event) {
     setDoubleBuffered(this);
     wxPaintDC dc(this);
@@ -535,11 +548,11 @@ void DoubleBufferedText::OnPaint(wxPaintEvent& event) {
     if (drop_shadow) {
         dc.SetTextForeground(color_shadow);
         for (auto rect : outline_positions)
-            dc.DrawLabel(label, rect, wxALIGN_CENTER);
+            dc.DrawLabel(label, rect, align);
     }
 
     dc.SetTextForeground(*color);
-    dc.DrawLabel(label, { 0, 0, GetSize().x, GetSize().y }, wxALIGN_CENTER);
+    dc.DrawLabel(label, { 0, 0, GetSize().x, GetSize().y }, align);
 }
 
 // class MagicTextFilterCtrl
@@ -1061,7 +1074,131 @@ void ModList::SetScrollPos(double pos) {
 }
 
 void ModList::OnMouseWheel(wxMouseEvent& event) {
+    if (!display_length || display_length <= GetSize().y)
+        return;
+
+    int amt = event.GetWheelRotation();
+    int elem_size = content->GetChildren()[0]->GetSize().y * 1.2;
+    int content_pos = content->GetPosition().y;
+    int scrollable_height = display_length - GetSize().y;
+
+    amt = (amt > 0 ? 1 : -1) * elem_size;
+    content_pos += amt;
+
+    if (content_pos > 0)
+        content_pos = 0;
+    if (content_pos < -scrollable_height)
+        content_pos = -scrollable_height;
+   
+    double pos = (-content_pos) / (double)scrollable_height;
+
+    scrollbar->SetPos(pos);
+    content->SetPosition({0, content_pos});
+    main_window->Redraw(this);
+}
+
+// class ModDescription
+
+ModDescription::ModDescription(wxWindow* parent, const wxPoint& pos, const wxSize& size)
+    : wxPanel(parent, wxID_ANY, pos, size, 0)
+{
+    SetBackgroundStyle(wxBG_STYLE_CUSTOM);
+    Bind(wxEVT_ERASE_BACKGROUND, erase_bg_handler);
+
+    content = new wxPanel(this, wxID_ANY, {0, 0}, { size.x, 32000 }, 0);
+    content->SetBackgroundStyle(wxBG_STYLE_CUSTOM);
+    content->Bind(wxEVT_ERASE_BACKGROUND, erase_bg_handler);
+
+    Bind(wxEVT_MOUSEWHEEL, &ModDescription::OnMouseWheel, this);
+
+    content_length = 0;
+}
+
+void ModDescription::LoadContent(const char *description) {
+    size_t desc_len;
+
+    if (description == NULL || (desc_len = strlen(description)) < 2) {
+        display_length = content_length = GetSize().y;
+
+        return;
+    }
+
+    const int y_size = wnd_rect.bottom * 0.05;
+    const int y_setting_size = wnd_rect.bottom * 0.04;
+    const int margin = y_size * 0.15;
+    const int setting_margin = margin * 0.5;
+    const char *line_ptr = description;
+    const char *end = description + desc_len;
+    const char *new_line;
+    int next_y_pos = 0;
+
+    while (line_ptr < end && NULL != (new_line = strchr(line_ptr, '\n'))) {
+        int str_size = new_line - line_ptr;
+        int line_size = 0;
+
+        if (str_size > 0 && line_ptr[0] && line_ptr[0] != '\n') {
+            DoubleBufferedText *text = NULL;
+            char *tmp = new char[str_size + 1];
+
+            if (line_ptr[0] == '#') {
+                next_y_pos += margin * 1.5;
+                memmove(tmp, line_ptr + 1, str_size - 1);
+                tmp[str_size - 1] = '\0';
+
+                text = new DoubleBufferedText(content, tmp, true, {0, next_y_pos}, {GetSize().x, 35});
+                line_size = text->GetSize().y;
+            }
+            //else if (line_ptr[0] == '-') {
+//
+            //}
+            else {
+                memmove(tmp, line_ptr, str_size);
+                tmp[str_size] = '\0';
+
+                text = new DoubleBufferedText(content, tmp, true, {0, next_y_pos}, {GetSize().x, 30});
+                text->font = &font_mid;
+                text->color = &color_text_desc;
+                text->align = wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL;
+                line_size = text->GetSize().y;
+            }
+        }
+        else {
+            line_size = 10;
+        }
+
+        line_ptr = new_line + 1;
+        next_y_pos += line_size + margin;
+    }
+
+    display_length = content_length = next_y_pos - margin;
+}
+
+void ModDescription::AssociateScrollBar(MagicScrollbar* scrl_bar) {
+    if (!content_length)
+        return;
+
+    int y_size = GetSize().y;
+    double ratio = y_size / (double)display_length;
+
+    scrl_bar->SetHeight(ratio);
+    scrl_bar->SetPos(0);
+
+    scrollbar = scrl_bar;
+    scrollbar->Subscribe(this);
+}
+
+void ModDescription::SetScrollPos(double pos) {
     if (!display_length || display_length < GetSize().y)
+        return;
+
+    int scroll_pos = wxRound(pos * (display_length - GetSize().y));
+
+    content->SetPosition({0, -scroll_pos});
+    main_window->Redraw(this);
+}
+
+void ModDescription::OnMouseWheel(wxMouseEvent& event) {
+    if (!display_length || display_length <= GetSize().y)
         return;
 
     int amt = event.GetWheelRotation();
@@ -1227,19 +1364,63 @@ void MagicModSettingLabel::InitImages(const wxSize &size) {
     constraint_image(&qustionmark, &img_size);
 }
 
+// class MagicModDescButton
+
+MagicModDescButton *MagicModDescButton::CreateMagicModDescButton(wxWindow *parent, const std::string &name, const wxPoint &pos, const wxSize &size) {
+    MagicModDescButton *obj = new MagicModDescButton(parent, pos, size);
+    obj->name = name;
+
+    return obj;
+}
+
+MagicModDescButton::MagicModDescButton(wxWindow *parent, const wxPoint &pos, const wxSize &size)
+    : MagicButton(parent, pos, size)
+{
+    InitImages(size);
+
+    Bind(wxEVT_PAINT, &MagicModDescButton::OnPaint, this);
+    Bind(wxEVT_BUTTON, &MagicModDescButton::OnClick, this);
+}
+
+void MagicModDescButton::OnPaint(wxPaintEvent &event) {
+    setDoubleBuffered(this);
+    wxPaintDC dc(this);
+
+    dc.DrawBitmap(qustionmark, 0, 0);
+}
+
+void MagicModDescButton::OnClick(wxEvent &event) {
+    const char *mod_dec = get_mod_description(&name);
+    main_window->InitModDescPage(name.c_str(), mod_dec);
+}
+
+void MagicModDescButton::InitImages(const wxSize &size) {
+    qustionmark = image_from_resource("resources_questionmark_png");
+    constraint_image(&qustionmark, &size);
+}
+
 // class MagicModEnrty
 
 MagicModEnrty *MagicModEnrty::CreateMagicModEntry(wxWindow* parent, ModDataEntry* data, const wxPoint& pos, const wxSize& size, const int margin, const int h_checkbox, const int h_setting) {
     MagicModEnrty *obj = new MagicModEnrty(parent, pos, size);
     int next_y_pos = h_checkbox + margin;
+    int h_mod_desc_btn = h_checkbox / 1.5;
 
     obj->data = data;
 
+    MagicModDescButton::CreateMagicModDescButton(obj, data->name, { size.x - h_mod_desc_btn, (h_checkbox - h_mod_desc_btn) / 2 }, { h_mod_desc_btn, h_mod_desc_btn });
     MagicTextCheckbox::CreateMagicTextCheckbox(obj, data, { 0, 0 }, { size.x, h_checkbox });
+    
+    new ImgPanel(
+        obj,
+        "resources_hor_bar_png",
+        wxPoint(h_checkbox / 2.0, h_checkbox * 0.02),
+        wxSize(size.x - h_checkbox, h_checkbox),
+        true
+    );
 
     for (auto &setting : data->settings) {
         new MagicModSetting(obj, { 0, next_y_pos }, { size.x, h_setting }, &setting);
-        //MagicModSettingLabel::CreateMagicModSettingLabel(obj, &setting, { 0, next_y_pos }, { size.x, h_setting });
         next_y_pos += h_setting + margin;
     }
 
@@ -1303,8 +1484,6 @@ void CustomCursor::OnPaint(wxPaintEvent &event) {
 ModSettingsFrame::ModSettingsFrame()
     : wxFrame(nullptr, wxID_ANY, "Magicka 2 Mod Settings", {wnd_rect.left, wnd_rect.top}, wxSize(wnd_rect.right, wnd_rect.bottom), 0)
 {
-    int inner_w, inner_h, padding, next_y_pos = 0, tmp_x, tmp_y;
-    wxSize tmp;
     HINSTANCE hInstance = GetModuleHandle(NULL);
     HICON hMyIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
     HWND hwnd = (HWND)this->GetHandle();
@@ -1322,11 +1501,54 @@ ModSettingsFrame::ModSettingsFrame()
     Bind(wxEVT_PAINT, &ModSettingsFrame::OnPaint, this);
 
     wxMemoryInputStream bg_fhd_png_stream = getDataStream(graphic_map["resources_bg_fhd_png"]);
-    auto *bg_panel = new ImgPanel(
+    container = new ImgPanel(
         this,
         &bg_fhd_png_stream,
         wxPoint(0, 0),
-        wxSize(inner_w, inner_h));
+        wxSize(inner_w, inner_h)
+    );
+    settings_container = new wxPanel(
+        container,
+        wxID_ANY,
+        wxPoint(0, 0),
+        wxSize(inner_w, inner_h)
+    );
+    settings_container->SetBackgroundStyle(wxBG_STYLE_CUSTOM);
+    description_container = new wxPanel(
+        container,
+        wxID_ANY,
+        wxPoint(0, 0),
+        wxSize(inner_w, inner_h)
+    );
+    description_container->SetBackgroundStyle(wxBG_STYLE_CUSTOM);
+    description_container->Show(false);
+
+    InitMainPage();
+
+    if (mouse_hook != NULL) {
+        this->SetCursor(cursor_blank);
+        int cursor_size = (inner_w > inner_h ? inner_h : inner_w) * 0.07;
+
+        cursor = new CustomCursor(
+            container,
+            "resources_cursor_png",
+            wxPoint(0, 0),
+            wxSize(inner_w, inner_h),
+            cursor_size);
+    }
+    else
+        cursor = NULL;
+}
+
+void ModSettingsFrame::InitModDescPage(const char *mod_name, const char *mod_desc_text) {
+    if (mod_desc_text == NULL)
+        return;
+    else
+        cur_mod_desc = mod_desc_text;
+
+    int tmp_x, tmp_y, next_y_pos = 0;
+    wxSize tmp;
+    auto *bg_panel = description_container;
 
     wxMemoryInputStream elem_bg_r_png_stream = getDataStream(graphic_map["resources_elem_bg_r_png"]);
     auto *filter_panel = new ImgPanel(
@@ -1338,7 +1560,117 @@ ModSettingsFrame::ModSettingsFrame()
     tmp_x = filter_panel->GetSize().x - padding * 2;
     tmp_y = filter_panel->GetSize().y - padding * 2;
 
-    new DoubleBufferedText(filter_panel, "Filter mods by name:", {padding, padding}, {tmp_x / 2, tmp_y});
+    new DoubleBufferedText(filter_panel, mod_name, false, {padding, padding}, {tmp_x, tmp_y});
+
+    next_y_pos += filter_panel->GetPosition().y + filter_panel->GetSize().y;
+
+    wxMemoryInputStream elem_bg_s_png_stream = getDataStream(graphic_map["resources_elem_bg_s_png"]);
+    auto* mods_panel = new ImgPanel(
+        bg_panel,
+        &elem_bg_s_png_stream,
+        wxPoint(padding * 4.5, next_y_pos + padding),
+        wxSize(inner_w - padding * 5.5, inner_h - next_y_pos - padding * 9.6));
+
+    auto* scrollbar = new MagicScrollbar(
+        bg_panel,
+        wxPoint(padding * 1.5, next_y_pos + padding),
+        wxSize(padding * 4, mods_panel->GetSize().y));
+
+    auto *mod_desc = new ModDescription(
+        mods_panel,
+        {padding, padding},
+        {mods_panel->GetSize().x - padding * 2, mods_panel->GetSize().y - padding * 2});
+    mod_desc->LoadContent(mod_desc_text);
+    mod_desc->AssociateScrollBar(scrollbar);
+
+    next_y_pos = mods_panel->GetPosition().y + mods_panel->GetSize().y + padding * 2.6;
+
+    auto* sponsor_text = new DoubleBufferedText(
+        bg_panel,
+        "Magicka College is \"dead\"",
+        false,
+        wxPoint(padding * 1.1, next_y_pos - padding * 3),
+        wxSize(tmp_x / 1.5, padding * 4));
+    sponsor_text->drop_shadow = true;
+    sponsor_text->color = &color_sponsor;
+
+    auto* join_btn = MagicButton::CreateMagicButton(
+        bg_panel,
+        "My Website",
+        open_sponsor_link,
+        wxPoint(tmp_x * 0.675, next_y_pos - padding * 3),
+        wxSize(inner_w / 2 - padding * 2.5, padding * 4));
+    join_btn->SetColors(&color_sponsor, &color_sponsor_h);
+    join_btn->drawGUI = false;
+    join_btn->drop_shadow = true;
+
+    tmp_x = inner_w / 2 - padding * 2.5;
+    auto* close_btn = MagicButton::CreateMagicButton(
+        bg_panel,
+        "Back",
+        [] {main_window->BackToModSettings();},
+        wxPoint(padding * 1.5, next_y_pos + padding),
+        wxSize(tmp_x, padding * 4)
+    );
+    auto* copy_btn = MagicButton::CreateMagicButton(
+        bg_panel,
+        "Copy",
+        [] {
+            const char *txt = main_window->cur_mod_desc;
+            if(txt == NULL || !OpenClipboard(NULL))
+                return;
+
+            HGLOBAL clipbuffer;
+            char * buffer;
+
+            EmptyClipboard();
+
+            clipbuffer = GlobalAlloc(GMEM_DDESHARE, strlen(txt)+1);
+            buffer = (char*)GlobalLock(clipbuffer);
+            strcpy(buffer, LPCSTR(txt));
+
+            GlobalUnlock(clipbuffer);
+            SetClipboardData(CF_TEXT, clipbuffer);
+
+            CloseClipboard();
+        },
+        wxPoint(close_btn->GetPosition().x + close_btn->GetSize().x + padding * 2, next_y_pos + padding),
+        wxSize(tmp_x, padding * 4)
+    );
+
+    settings_container->Show(false);
+    bg_panel->Show(true);
+}
+
+void ModSettingsFrame::BackToModSettings() {
+    description_container->Destroy();
+    settings_container->Show(true);
+    description_container = new wxPanel(
+        container,
+        wxID_ANY,
+        wxPoint(0, 0),
+        wxSize(inner_w, inner_h)
+    );
+    description_container->SetBackgroundStyle(wxBG_STYLE_CUSTOM);
+    description_container->Show(false);
+}
+
+void ModSettingsFrame::InitMainPage() {
+    int tmp_x, tmp_y, next_y_pos = 0;
+    wxSize tmp;
+    auto *bg_panel = settings_container;
+
+    wxMemoryInputStream elem_bg_r_png_stream = getDataStream(graphic_map["resources_elem_bg_r_png"]);
+    auto *filter_panel = new ImgPanel(
+        bg_panel,
+        &elem_bg_r_png_stream,
+        wxPoint(padding, next_y_pos + padding),
+        wxSize(inner_w - padding * 2, inner_w / 6));
+
+    tmp_x = filter_panel->GetSize().x - padding * 2;
+    tmp_y = filter_panel->GetSize().y - padding * 2;
+
+    new DoubleBufferedText(filter_panel, "Filter mods by name:", false, {padding, padding}, {tmp_x / 2, tmp_y});
     auto *filter_ctrl = new MagicTextFilterCtrl(filter_panel, "filter", {padding + tmp_x / 2, padding}, {tmp_x / 2, tmp_y});
 
     next_y_pos += filter_panel->GetPosition().y + filter_panel->GetSize().y;
@@ -1367,7 +1699,8 @@ ModSettingsFrame::ModSettingsFrame()
 
     auto* sponsor_text = new DoubleBufferedText(
         bg_panel,
-        "Magicka College is DEAD",
+        "Magicka College is \"dead\"",
+        false,
         wxPoint(padding * 1.4, next_y_pos - padding * 3),
         wxSize(tmp_x / 1.5, padding * 4));
     sponsor_text->drop_shadow = true;
@@ -1395,20 +1728,6 @@ ModSettingsFrame::ModSettingsFrame()
         save_mod_settings_wrapper,
         wxPoint(close_btn->GetPosition().x + close_btn->GetSize().x + padding * 2, next_y_pos + padding),
         wxSize(inner_w / 2 - padding * 2.5, padding * 4));
-
-    if (mouse_hook != NULL) {
-        this->SetCursor(cursor_blank);
-        int cursor_size = (inner_w > inner_h ? inner_h : inner_w) * 0.07;
-
-        cursor = new CustomCursor(
-            bg_panel,
-            "resources_cursor_png",
-            wxPoint(0, 0),
-            wxSize(inner_w, inner_h),
-            cursor_size);
-    }
-    else
-        cursor = NULL;
 }
 
 void ModSettingsFrame::UpdateCustomCursorPos() {

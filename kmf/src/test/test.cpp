@@ -5,10 +5,24 @@
 #include <map>
 #include <thread>
 
-char *__cdecl (*try_get_request)(char *url);
 
 static void attacher_request_test() {
-    HINSTANCE hGetProcIDDLL = LoadLibrary(".\\attacher.dll");
+    typedef char *__cdecl (*try_get_request_t)(char *url);
+
+    HINSTANCE hGetProcIDDLL = LoadLibraryA(".\\attacher.dll");
+
+    if (!hGetProcIDDLL) {
+        printf("attacher.dll test | could not load the dynamic library\n");
+        return;
+    }
+
+    try_get_request_t try_get_request = (try_get_request_t)GetProcAddress(hGetProcIDDLL, "try_get_request");
+    if (!try_get_request) {
+        printf("attacher.dll test | could not locate the try_get_request()\n");
+        return;
+    }
+
+    printf("attacher.dll test | try_get_request() returned ::\n%s\n", try_get_request("https://raw.githubusercontent.com/k-Knight/m2-kmf/b401ea1e3ff61e703bf6ac123656f48eade3544c/kmf_loader.lua"));
 }
 
 static void print_mod_data_array(ModDataArray *arr) {
@@ -202,6 +216,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
 }
 
 int wmain() {
+    attacher_request_test();
+
     if (__argc > 1) {
         gen_random_numbers();
         std::terminate();
