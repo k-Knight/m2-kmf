@@ -43,9 +43,18 @@ public:
     ModSettingsFrame();
     void Redraw(wxWindow* wnd);
     void UpdateCustomCursorPos();
+    void BackToModSettings();
+    void InitMainPage();
+    void InitModDescPage(const char *mod_name, const char *mod_desc_text);
+
+    const char *cur_mod_desc = NULL;
 
 protected:
     CustomCursor *cursor;
+    int inner_w, inner_h, padding;
+    wxWindow *settings_container;
+    wxWindow *description_container;
+    wxWindow *container;
 
     void OnPaint(wxPaintEvent &event);
 };
@@ -81,11 +90,14 @@ public:
     wxFont *font;
     volatile bool drop_shadow;
     wxColour *color;
+    int align;
 
-    DoubleBufferedText(wxWindow* parent, const char* label, const wxPoint& pos, const wxSize& size);
+    DoubleBufferedText(wxWindow* parent, const char* label, bool free_label, const wxPoint& pos, const wxSize& size);
+    ~DoubleBufferedText();
 
 protected:
     const char *label;
+    bool free_label;
     std::vector<wxRect> outline_positions;
 
     void OnPaint(wxPaintEvent& event);
@@ -244,6 +256,21 @@ protected:
     virtual void OnClick(wxEvent& event);
 };
 
+class MagicModDescButton : public MagicButton {
+public:
+    static MagicModDescButton *CreateMagicModDescButton(wxWindow *parent, const std::string &name, const wxPoint &pos, const wxSize &size);
+
+protected:
+    wxImage qustionmark;
+    std::string name;
+
+    MagicModDescButton(wxWindow *parent, const wxPoint &pos, const wxSize &size);
+    virtual void InitImages(const wxSize& size);
+    virtual void OnPaint(wxPaintEvent &event);
+    virtual void OnClick(wxEvent& event);
+};
+
+
 class ModList : public wxPanel, public Scrollable, public Filterable {
 public:
     ModList(wxWindow* parent, const wxPoint& pos, const wxSize& size);
@@ -263,9 +290,26 @@ protected:
     void OnMouseWheel(wxMouseEvent& event);
 };
 
+class ModDescription : public wxPanel, public Scrollable {
+public:
+    ModDescription(wxWindow* parent, const wxPoint& pos, const wxSize& size);
+
+    void LoadContent(const char *description);
+    void AssociateScrollBar(MagicScrollbar *scrl_bar);
+    void SetScrollPos(double pos);
+
+protected:
+    wxPanel *content;
+    int content_length, display_length;
+    MagicScrollbar *scrollbar;
+
+    void OnMouseWheel(wxMouseEvent& event);
+};
+
 wxColour color_shadow    = {   0,   0,   0 };
 wxColour color_scroll    = { 255, 229, 179 };
 wxColour color_text      = { 245, 200, 155 };
+wxColour color_text_desc = { 245, 235, 210 };
 wxColour color_error     = { 245,  50,   0 };
 wxColour color_sponsor   = { 155, 242, 203 };
 wxColour color_sponsor_h = { 209, 255, 234 };

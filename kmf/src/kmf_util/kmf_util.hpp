@@ -59,6 +59,7 @@ __declspec(dllexport) void parse_file_mods_settings(bool clear_unused = true);
 
 __declspec(dllexport) bool validate_value(const std::string *setting, const char *value);
 __declspec(dllexport) const SettingPossibleValues *get_setting_possible_values(const std::string *setting);
+__declspec(dllexport) const char *get_mod_description(const std::string *mod);
 
 enum class key_function_t {
     unknown = 0,
