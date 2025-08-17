@@ -12,6 +12,7 @@
 #include <sstream>
 #include <mutex>
 #include <cstdlib>
+#include <map>
 
 #include "input_handler.hpp"
 
@@ -24,6 +25,7 @@ static volatile bool initialized = false;
 static volatile bool file_paths_initialized = false;
 static std::filesystem::path mod_config_path;
 static std::filesystem::path settings_gui_path;
+static std::filesystem::path installer_path;
 static std::filesystem::path debug_log_path;
 static std::filesystem::path gamepad_listener_path;
 
@@ -33,6 +35,7 @@ std::mutex libary_function_mutex;
 std::unique_lock<std::mutex> external_lock;
 
 static volatile ModDataArray mod_data_arr;
+static std::map<std::string, bool> temp_mod_status;
 
 #if defined(DEBUG) || defined(_DEBUG)
 debug_logger_state_t debug_logger_state;
@@ -263,7 +266,11 @@ static void construct_moda_data_array() {
         size_t setting_count = 0;
         ModData *mod_data = &(mod_data_arr.data[mod_count]);
 
-        mod_data->enabled = entry.status;
+        if (temp_mod_status.count(entry.name))
+            mod_data->enabled = temp_mod_status[entry.name];
+        else
+            mod_data->enabled = entry.status;
+
         mod_data->mod_name = const_cast<char*>(entry.name.c_str());
 
         for (auto& setting : entry.settings) {
@@ -368,6 +375,7 @@ void setup_file_paths() {
     debug_log_path = settings_gui_path = mod_config_path = gamepad_listener_path = exe_dir.parent_path();
     mod_config_path.append(L"m2_mods.cfg");
     settings_gui_path.append(L"m2_mod_settings.exe");
+    installer_path.append(L"installer.exe");
     debug_log_path.append(L"log.txt");
     gamepad_listener_path.append(L"sdl_gamepad_listener.exe");
 
@@ -459,6 +467,24 @@ extern "C" {
         execute(&settings_gui_path);
     }
 
+    void launch_installer() {
+        std::unique_lock<std::mutex> lock(libary_function_mutex);
+
+        initialize_manager();
+
+        debug_write("in launch_installer()\n");
+
+        std::wstring executable_path = installer_path.wstring();
+        std::wstring w_cmd = L"explorer \"" + executable_path + L"\"";
+        std::string cmd;
+    
+        cmd.resize(w_cmd.length() + 1);
+        size_t ret = wcstombs(cmd.data(), w_cmd.c_str(), w_cmd.length());
+        cmd[ret] = '\0';
+    
+        system(cmd.c_str());
+    }
+
     void update_config_file(char* config_str) {
         std::unique_lock<std::mutex> lock(libary_function_mutex);
 
@@ -533,14 +559,14 @@ extern "C" {
     }
 #endif //DEBUG
 
-     void lock_mod_settings() {
-         external_lock = std::unique_lock<std::mutex>(libary_function_mutex);
-     }
+    void lock_mod_settings() {
+        external_lock = std::unique_lock<std::mutex>(libary_function_mutex);
+    }
 
-     void unlock_mod_settings() {
-         if (external_lock.owns_lock())
-            external_lock.unlock();
-     }
+    void unlock_mod_settings() {
+        if (external_lock.owns_lock())
+           external_lock.unlock();
+    }
 
     ModDataArray *get_mod_settings() {
         initialize_manager();
@@ -555,6 +581,21 @@ extern "C" {
 #endif //DEBUG
 
         return const_cast<ModDataArray *>(&mod_data_arr);
+    }
+
+    void tmp_enable_mod(const char *mod) {
+        std::unique_lock<std::mutex> lk(libary_function_mutex);
+        temp_mod_status[mod] = true;
+    }
+
+    void tmp_disable_mod(const char *mod) {
+        std::unique_lock<std::mutex> lk(libary_function_mutex);
+        temp_mod_status[mod] = false;
+    }
+
+    void clear_tmp_mod_state() {
+        std::unique_lock<std::mutex> lk(libary_function_mutex);
+        temp_mod_status.clear();
     }
 
     bool gamepad_btn_pressed(gamepad_btn_t btn) {

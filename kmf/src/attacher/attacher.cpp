@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -21,11 +22,6 @@ using namespace std;
 #endif
 
 extern "C" {
-    typedef struct {
-        char *data;
-        size_t size;
-    } console_msg_t;
-    
     /* public use */
     typedef void(__cdecl *trigger_cb_t)(void);
     
@@ -33,7 +29,8 @@ extern "C" {
     __declspec(dllexport) void set_execute_callback(trigger_cb_t cb);
     __declspec(dllexport) void console_log(const char *message);
     __declspec(dllexport) void print(const char *message);
-    __declspec(dllexport) char *try_get_request(char *url);
+    __declspec(dllexport) char *try_get_request(const char *url);
+    __declspec(dllexport) int try_download_installer(const char *url);
     __declspec(dllexport) void my_free(void *data);
     __declspec(dllexport) int check_exec_queue(char **ptr, unsigned int *size);
     
@@ -52,7 +49,7 @@ extern "C" {
     LPWSTR                 execute_pipe_name = (LPWSTR)L"\\\\.\\pipe\\m2_debug_execute";
     trigger_cb_t           trigger_cb = NULL;
     queue<char *>          exec_queue;
-    deque<console_msg_t *> console_output;
+    deque<string>          console_output;
     mutex                  ipc_mutex;
     mutex                  stdout_mutex;
     thread                 con_thread, exe_thread, stdout_thread;
@@ -116,46 +113,8 @@ extern "C" {
         stdout_messages.push(msg);
     }
 
-    __declspec(dllexport) void send_debugger_message(unsigned char type, const char *message) {
-        console_msg_t *msg = NULL;
-
-        try {
-            size_t msg_size = strlen(message);
-
-            msg = new console_msg_t;
-            msg->data = new char[msg_size + 2];
-            *(msg->data) = type;
-            memmove(msg->data + 1, message, sizeof(char) * msg_size);
-            msg->data[msg_size + 1] = '\0';
-            msg->size = msg_size + 1;
-        }
-        catch (...) {
-            if (msg->data)
-                free(msg->data);
-            if (msg)
-                free(msg);
-        }
-
-        static mutex       interact_mutex;
-        unique_lock<mutex> lock(interact_mutex);
-
-        console_output.push_back(msg);
-    }
-
-    __declspec(dllexport) void console_log(const char *message) {
-        send_debugger_message(0x01, message);
-    }
-
-    __declspec(dllexport) void print(const char *message) {
-        write_stdout_to_file(message);
-    }
-
-    __declspec(dllexport) void my_free(void *data) {
-        free(data);
-    }
-
-    __declspec(dllexport) char *try_get_request(char *url) {
-        char tmp[NET_BUF_SIZE], *ret = NULL;
+    static bool download_file_from_url_to_mem(const char *url, char** res, size_t *size) {
+        char tmp[NET_BUF_SIZE], *ret;
         STARTUPINFOA info;
         PROCESS_INFORMATION processInfo;
         SECURITY_ATTRIBUTES saAttr;
@@ -165,8 +124,15 @@ extern "C" {
         size_t ret_sz, ret_offset = 0;
         std::vector<std::string> cmds;
 
+        *res = NULL;
+        *size = 0;
+
+        ret_sz = 1;
+        ret = (char *)malloc(1 * sizeof(char));
+        ret[0] = 0;
+
         // this is borderline retarded, i know
-        cmds.push_back(std::string("curl.exe -s ") + url);
+        cmds.push_back(std::string("curl.exe -s --output - ") + url);
         cmds.push_back(std::string("powershell -Command \"$webclient = new-object system.net.webclient; $webclient.DownloadString('") + url + "');\"");
 
         for (auto& cmd : cmds)
@@ -177,7 +143,7 @@ extern "C" {
         saAttr.lpSecurityDescriptor = NULL;
 
         if (!CreatePipe(&hPipe_r, &hPipe_w, &saAttr, 0))
-            return NULL;
+            return false;
 
         if (!SetHandleInformation(hPipe_r, HANDLE_FLAG_INHERIT, 0))
             goto clean;
@@ -206,10 +172,7 @@ extern "C" {
                 if (!bSuccess || dwRead == 0)
                     break;
 
-                if (!ret)
-                    ret = (char*)malloc(ret_sz = dwRead + 1);
-                else
-                    ret = (char*)realloc(ret, ret_sz += dwRead);
+                ret = (char*)realloc(ret, ret_sz += dwRead);
 
                 if (!ret)
                     goto out;
@@ -230,14 +193,86 @@ extern "C" {
     out:
         CloseHandle(hPipe_r);
 
-        return ret;
+        if (!ret || ret_sz < 2)
+            return false;
+
+        *res = ret;
+        *size = ret_sz - 1;
+
+        return true;
+    }
+
+    __declspec(dllexport) void console_log(const char *message) {
+        string str;
+        bool success = true;
+
+        try {
+            str = string(message);
+        }
+        catch (...) {
+            success = false;
+        }
+
+        if (!success)
+            return;
+
+        static mutex       interact_mutex;
+        unique_lock<mutex> lock(interact_mutex);
+
+        console_output.push_back(str);
+    }
+
+    __declspec(dllexport) void print(const char *message) {
+        write_stdout_to_file(message);
+    }
+
+    __declspec(dllexport) void my_free(void *data) {
+        if (data != NULL)
+            free(data);
+    }
+
+    __declspec(dllexport) char *try_get_request(const char *url) {
+        char *res;
+        size_t size;
+
+        download_file_from_url_to_mem(url, &res, &size);
+
+        return res;
+    }
+
+    __declspec(dllexport) int try_download_installer(const char *url) {
+        char *content;
+        size_t c_sz;
+
+        if (!download_file_from_url_to_mem(url, &content, &c_sz) || content == NULL) {
+            if (content)
+                free(content);
+
+            return 1;
+        }
+
+        FILE *file;
+        file = fopen("./installer.exe", "wb");
+
+        if (!file) {
+            free(content);
+            return 2;
+        }
+
+        size_t written = fwrite(content, sizeof(char), c_sz, file);
+        fclose(file);
+        free(content);
+
+        if (written < c_sz)
+            return 3;
+
+        return 0;
     }
     
     static void console_output_thread(void) {
         bool           result;
         char           *buf;
         DWORD          written;
-        console_msg_t  *msg;
     
         buf = (char *)malloc(BUFSIZE);
         sprintf(buf, hello_msg, GetCurrentProcessId());
@@ -246,12 +281,9 @@ extern "C" {
         while (!exiting && !restarting) {
             if (console_output.size() > 0) {
                 try {
-                    msg = (console_msg_t*)console_output.back();
+                    string msg = console_output.back();
                     console_output.pop_back();
-                    result = WriteFile(console_pipe, msg->data, msg->size, &written, NULL);
-
-                    delete msg->data;
-                    delete msg;
+                    result = WriteFile(console_pipe, msg.c_str(), msg.length(), &written, NULL);
 
                     if (!result) {
                         thread reset_thread(reset_ipc);

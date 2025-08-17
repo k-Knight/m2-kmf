@@ -29,7 +29,8 @@ add_compile_options(
     -target i686-pc-windows-msvc
     -m32
     -static
-    -O3
+    $<$<CONFIG:Release>:-O3>
+    $<$<CONFIG:Debug>:-O0>
     -DUNICODE
     -D_UNICODE
     -D_CRT_SECURE_NO_WARNINGS
@@ -39,7 +40,8 @@ add_compile_options(
 add_link_options(
     -m32
     -static
-    -O3
+    $<$<CONFIG:Release>:-O3>
+    $<$<CONFIG:Debug>:-O0>
 )
 
 add_subdirectory(attacher)

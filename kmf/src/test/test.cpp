@@ -7,12 +7,20 @@
 
 
 static void attacher_request_test() {
-    typedef char *__cdecl (*try_get_request_t)(char *url);
+    typedef char *__cdecl (*try_get_request_t)(const char *url);
+    typedef int __cdecl (*try_download_installer_t)(const char *url);
+    typedef void __cdecl (*my_free_t)(void *data);
 
     HINSTANCE hGetProcIDDLL = LoadLibraryA(".\\attacher.dll");
 
     if (!hGetProcIDDLL) {
         printf("attacher.dll test | could not load the dynamic library\n");
+        return;
+    }
+
+    my_free_t my_free = (my_free_t)GetProcAddress(hGetProcIDDLL, "my_free");
+    if (!my_free) {
+        printf("attacher.dll test | could not locate the my_free()\n");
         return;
     }
 
@@ -22,7 +30,20 @@ static void attacher_request_test() {
         return;
     }
 
-    printf("attacher.dll test | try_get_request() returned ::\n%s\n", try_get_request("https://raw.githubusercontent.com/k-Knight/m2-kmf/b401ea1e3ff61e703bf6ac123656f48eade3544c/kmf_loader.lua"));
+    char *res = try_get_request("https://raw.githubusercontent.com/k-Knight/m2-kmf/b401ea1e3ff61e703bf6ac123656f48eade3544c/kmf_loader.lua");
+    printf("attacher.dll test | try_get_request() returned ::\n%s\n", res);
+    printf("attacher.dll test | trying to free result ...\n");
+    fflush(stdout);
+    my_free(res);
+
+    try_download_installer_t try_download_installer = (try_download_installer_t)GetProcAddress(hGetProcIDDLL, "try_download_installer");
+    if (!try_download_installer) {
+        printf("attacher.dll test | could not locate the try_download_installer()\n");
+        return;
+    }
+
+    int status = try_download_installer("https://raw.githubusercontent.com/k-Knight/m2-kmf/master/installer.exe");
+    printf("attacher.dll test | try_download_installer() return value :: %d\n", status);
 }
 
 static void print_mod_data_array(ModDataArray *arr) {

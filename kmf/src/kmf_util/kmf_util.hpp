@@ -103,7 +103,11 @@ extern "C" {
     __declspec(dllexport) void lock_mod_settings();
     __declspec(dllexport) void unlock_mod_settings();
     __declspec(dllexport) ModDataArray *get_mod_settings();
+    __declspec(dllexport) void tmp_enable_mod(const char *mod);
+    __declspec(dllexport) void tmp_disable_mod(const char *mod);
+    __declspec(dllexport) void clear_tmp_mod_state();
     __declspec(dllexport) void display_settings_menu();
+    __declspec(dllexport) void launch_installer();
 
     __declspec(dllexport) bool gamepad_btn_pressed(gamepad_btn_t btn);
     __declspec(dllexport) void open_player_profile(const char *hex_id);

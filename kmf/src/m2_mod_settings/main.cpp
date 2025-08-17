@@ -1148,9 +1148,6 @@ void ModDescription::LoadContent(const char *description) {
                 text = new DoubleBufferedText(content, tmp, true, {0, next_y_pos}, {GetSize().x, 35});
                 line_size = text->GetSize().y;
             }
-            //else if (line_ptr[0] == '-') {
-//
-            //}
             else {
                 memmove(tmp, line_ptr, str_size);
                 tmp[str_size] = '\0';
