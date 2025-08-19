@@ -7,13 +7,15 @@ file(GLOB SRC_FILES "${CMAKE_CURRENT_LIST_DIR}/*.cpp")
 add_library(${TARGET} ${SRC_FILES})
 
 target_include_directories(${TARGET} PUBLIC
+    ${PROJECT_SOURCE_DIR}/../libs/detours/include
 )
 
 target_link_directories(${TARGET} PUBLIC
+    ${PROJECT_SOURCE_DIR}/../libs/detours/lib
 )
 
 target_link_libraries(${TARGET} PUBLIC
-    Shlwapi.lib
+    Shlwapi.lib detours.lib
 )
 
 target_compile_options(${TARGET} PUBLIC

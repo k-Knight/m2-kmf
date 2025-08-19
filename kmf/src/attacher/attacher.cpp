@@ -7,11 +7,12 @@
 #include <mutex>
 #include <queue>
 #include <string>
-#include <format>
 
 #include <windows.h>
 #include <shlwapi.h>
 #include <shellapi.h>
+
+#include <detours.h>
 
 using namespace std;
 
@@ -33,6 +34,9 @@ extern "C" {
     __declspec(dllexport) int try_download_installer(const char *url);
     __declspec(dllexport) void my_free(void *data);
     __declspec(dllexport) int check_exec_queue(char **ptr, unsigned int *size);
+
+    static void write_stdout_to_file(string &&msg);
+    static bool check_readable_string(const char *buf, size_t size);
     
     /* internal use */
     void reset_ipc(void);
@@ -55,7 +59,87 @@ extern "C" {
     thread                 con_thread, exe_thread, stdout_thread;
     string                 stdout_file_path = "";
     queue<string>          stdout_messages;
-    
+
+    static BOOL WINAPI (*Orig_WriteConsoleW) (
+        _In_ HANDLE hConsoleOutput,
+        _In_reads_(nNumberOfCharsToWrite) CONST VOID* lpBuffer,
+        _In_ DWORD nNumberOfCharsToWrite,
+        _Out_opt_ LPDWORD lpNumberOfCharsWritten,
+        _Reserved_ LPVOID lpReserved
+    ) = WriteConsoleW;
+
+    static BOOL WINAPI Hook_WriteConsoleW(
+        _In_ HANDLE hConsoleOutput,
+        _In_reads_(nNumberOfCharsToWrite) CONST VOID* lpBuffer,
+        _In_ DWORD nNumberOfCharsToWrite,
+        _Out_opt_ LPDWORD lpNumberOfCharsWritten,
+        _Reserved_ LPVOID lpReserved
+    ) {
+        BOOL res = Orig_WriteConsoleW(hConsoleOutput, lpBuffer, nNumberOfCharsToWrite, lpNumberOfCharsWritten, lpReserved);
+
+        printf("Hooked WriteConsoleW()\n");
+
+        return res;
+    }
+
+    static BOOL WINAPI (*Orig_WriteFile) (
+        _In_ HANDLE hFile,
+        _In_reads_bytes_opt_(nNumberOfBytesToWrite) LPCVOID lpBuffer,
+        _In_ DWORD nNumberOfBytesToWrite,
+        _Out_opt_ LPDWORD lpNumberOfBytesWritten,
+        _Inout_opt_ LPOVERLAPPED lpOverlapped
+    ) = WriteFile;
+
+    static BOOL WINAPI Hook_WriteFile(
+        _In_ HANDLE hFile,
+        _In_reads_bytes_opt_(nNumberOfBytesToWrite) LPCVOID lpBuffer,
+        _In_ DWORD nNumberOfBytesToWrite,
+        _Out_opt_ LPDWORD lpNumberOfBytesWritten,
+        _Inout_opt_ LPOVERLAPPED lpOverlapped
+    ) {
+        BOOL res = Orig_WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
+
+        size_t max_non_read = nNumberOfBytesToWrite / 20;
+        size_t bad_count = 0;
+        for (size_t i = 0; i < nNumberOfBytesToWrite / 2 && bad_count < max_non_read; i++) {
+            const char ch = ((char *)lpBuffer)[i];
+            if (ch <= 0x20 || ch >= 0x7f)
+                bad_count++;
+        }
+
+        if (check_readable_string((char *)lpBuffer, nNumberOfBytesToWrite))
+            write_stdout_to_file(std::string((char *)lpBuffer, nNumberOfBytesToWrite));
+        else {
+            std::string conversion;
+            conversion.resize(nNumberOfBytesToWrite);
+            size_t ret = wcstombs(conversion.data(), (wchar_t *)lpBuffer, nNumberOfBytesToWrite / 2);
+            conversion.resize(ret + 1);
+
+            if (check_readable_string(conversion.data(), conversion.length()))
+                write_stdout_to_file(std::string(conversion));
+        }
+
+
+        return res;
+    }
+
+    static bool check_readable_string(const char *buf, size_t size) {
+        size_t max_non_read = size / 20;
+        size_t bad_count = 0;
+
+        for (size_t i = 0; i < size / 2 && bad_count <= max_non_read; i++) {
+            const char ch = buf[i];
+
+            if (ch == '\0')
+                return false;
+
+            if ((ch <= 0x20 || ch >= 0x7f) && ch != '\r' && ch != '\n')
+                bad_count++;
+        }
+
+        return bad_count < max_non_read;
+    }
+
     static void get_dll_path() {
         std::string thisPath = "";
         CHAR path[MAX_PATH];
@@ -79,27 +163,66 @@ extern "C" {
     }
 
     static void stdout_output_thread() {
+        DWORD dwBytesWritten;
+
         while (!exiting) {
+            Sleep(10);
+
             {
                 std::unique_lock<std::mutex> lock(stdout_mutex);
 
                 if (stdout_messages.size() > 0) {
-                    FILE *stdout_file = fopen(stdout_file_path.c_str(), "a");;
+                    HANDLE hFile = CreateFileA(
+                        stdout_file_path.c_str(),
+                        FILE_APPEND_DATA,
+                        0x0,
+                        nullptr,
+                        OPEN_ALWAYS,
+                        FILE_ATTRIBUTE_NORMAL,
+                        nullptr
+                    );
+
+                    if ( hFile == INVALID_HANDLE_VALUE )
+                        continue;
+
+                    DWORD dwMoved = SetFilePointer(
+                        hFile,
+                        0l,
+                        nullptr,
+                        FILE_END
+                    );
+
+                    if ( dwMoved == INVALID_SET_FILE_POINTER )
+                        goto close_handle;
 
                     while (stdout_messages.size()) {
-                        fprintf(stdout_file, "%s\n", stdout_messages.front().c_str());
+                        const string &msg = stdout_messages.front();
+
+                        if (!Orig_WriteFile(
+                            hFile,
+                            msg.c_str(),
+                            msg.length(),
+                            &dwBytesWritten,
+                            NULL
+                        )) {
+                            printf("failed write !!!\n");
+                            break;
+                        }
+
+                        if (dwBytesWritten != msg.length()) {
+                            printf("incomplete write [%lu / %d]!!!\n", dwBytesWritten, msg.length());
+                        }
+
                         stdout_messages.pop();
                     }
-
-                    fclose(stdout_file);
+    close_handle:
+                    CloseHandle(hFile);
                 }
             }
-
-            Sleep(10);
         }
     }
 
-    static void write_stdout_to_file(const char *msg) {
+    static void write_stdout_to_file(string &&msg) {
         std::unique_lock<std::mutex> lock(stdout_mutex);
 
         if (!stdout_thread_started) {
@@ -108,6 +231,18 @@ extern "C" {
 
             stdout_thread = thread(stdout_output_thread);
             stdout_thread.detach();
+        }
+
+        size_t index = 0;
+
+        while (true) {
+            index = msg.find("\r\n", index);
+
+            if (index == std::string::npos)
+                break;
+
+            msg.replace(index, 2, "\n");
+            index += 1;
         }
 
         stdout_messages.push(msg);
@@ -223,7 +358,7 @@ extern "C" {
     }
 
     __declspec(dllexport) void print(const char *message) {
-        write_stdout_to_file(message);
+        write_stdout_to_file(std::string(message) + "\n");
     }
 
     __declspec(dllexport) void my_free(void *data) {
@@ -283,7 +418,7 @@ extern "C" {
                 try {
                     string msg = console_output.back();
                     console_output.pop_back();
-                    result = WriteFile(console_pipe, msg.c_str(), msg.length(), &written, NULL);
+                    result = Orig_WriteFile(console_pipe, msg.c_str(), msg.length(), &written, NULL);
 
                     if (!result) {
                         thread reset_thread(reset_ipc);
@@ -421,6 +556,18 @@ extern "C" {
         static mutex       interact_mutex;
         unique_lock<mutex> lock(interact_mutex);
 
+        if (DetourIsHelperProcess()) {
+            printf("process is a helper process, unable to detour !!!\n");
+        }
+        else {
+            DetourRestoreAfterWith();
+            DetourTransactionBegin();
+            DetourUpdateThread(GetCurrentThread());
+            DetourAttach(&(PVOID &)Orig_WriteConsoleW, Hook_WriteConsoleW);
+            DetourAttach(&(PVOID &)Orig_WriteFile, Hook_WriteFile);
+            DetourTransactionCommit();
+        }
+
         thread wait_thread(wait_for_pipes);
         wait_thread.detach();
         return 0;
@@ -472,5 +619,6 @@ BOOL APIENTRY DllMain(HMODULE hModule,
     case DLL_PROCESS_DETACH:
         break;
     }
+
     return TRUE;
 }
