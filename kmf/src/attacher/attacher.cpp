@@ -27,6 +27,7 @@ extern "C" {
     typedef void(__cdecl *trigger_cb_t)(void);
     
     __declspec(dllexport) int setup_IPC();
+    __declspec(dllexport) void enable_stdout_logging();
     __declspec(dllexport) void set_execute_callback(trigger_cb_t cb);
     __declspec(dllexport) void console_log(const char *message);
     __declspec(dllexport) void print(const char *message);
@@ -140,7 +141,7 @@ extern "C" {
         return bad_count < max_non_read;
     }
 
-    static void get_dll_path() {
+    static void initialize_stdout_writer() {
         std::string thisPath = "";
         CHAR path[MAX_PATH];
         HMODULE hm;
@@ -158,8 +159,38 @@ extern "C" {
             thisPath = tuh;
             thisPath += "\\";
         }
+
+        SYSTEMTIME st;
+        GetSystemTime(&st);
         
-        stdout_file_path = thisPath + "stdout.txt";
+        char buf[1024];
+        sprintf(buf,"kmf-logs/stdout-%04d-%02d-%02d-%02d-%02d-%02d.txt",
+            st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond
+        );
+        stdout_file_path = thisPath + buf;
+
+        string logs_dir_path = thisPath + "kmf-logs";
+        if (!CreateDirectoryA(logs_dir_path.c_str(), NULL) &&
+            ERROR_ALREADY_EXISTS != GetLastError()
+        )
+            printf("failed to create kmf-logs directory !!!\n");
+
+        if (DetourIsHelperProcess()) {
+            printf("process is a helper process, unable to detour !!!\n");
+        }
+        else {
+            DetourRestoreAfterWith();
+            DetourTransactionBegin();
+            DetourUpdateThread(GetCurrentThread());
+            DetourAttach(&(PVOID &)Orig_WriteConsoleW, Hook_WriteConsoleW);
+            DetourAttach(&(PVOID &)Orig_WriteFile, Hook_WriteFile);
+            DetourTransactionCommit();
+        }
+    }
+
+    __declspec(dllexport) void enable_stdout_logging() {
+        std::unique_lock<std::mutex> lock(stdout_mutex);
+        initialize_stdout_writer();
     }
 
     static void stdout_output_thread() {
@@ -227,8 +258,7 @@ extern "C" {
 
         if (!stdout_thread_started) {
             stdout_thread_started = true;
-            get_dll_path();
-
+    
             stdout_thread = thread(stdout_output_thread);
             stdout_thread.detach();
         }
@@ -555,18 +585,6 @@ extern "C" {
     __declspec(dllexport) int setup_IPC() {
         static mutex       interact_mutex;
         unique_lock<mutex> lock(interact_mutex);
-
-        if (DetourIsHelperProcess()) {
-            printf("process is a helper process, unable to detour !!!\n");
-        }
-        else {
-            DetourRestoreAfterWith();
-            DetourTransactionBegin();
-            DetourUpdateThread(GetCurrentThread());
-            DetourAttach(&(PVOID &)Orig_WriteConsoleW, Hook_WriteConsoleW);
-            DetourAttach(&(PVOID &)Orig_WriteFile, Hook_WriteFile);
-            DetourTransactionCommit();
-        }
 
         thread wait_thread(wait_for_pipes);
         wait_thread.detach();
