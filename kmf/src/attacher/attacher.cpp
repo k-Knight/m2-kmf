@@ -43,7 +43,7 @@ extern "C" {
     void reset_ipc(void);
     void console_output_thread(void);
     void execute_lua_thread(void);
-    void wait_for_pipes(void);
+    bool wait_for_pipes(void);
     
     volatile bool          exiting = false;
     volatile bool          restarting = false;
@@ -518,7 +518,7 @@ extern "C" {
         return;
     }
     
-    static void wait_for_pipes(void) {
+    static bool wait_for_pipes(void) {
         int err;
         ipc_mutex.lock();
     
@@ -526,6 +526,8 @@ extern "C" {
         execute_pipe = INVALID_HANDLE_VALUE;
     
         try {
+            int fail_count = 0;
+
             while (console_pipe == INVALID_HANDLE_VALUE) {
                 console_pipe = CreateFileW(
                     console_pipe_name,    // pipe name
@@ -538,14 +540,18 @@ extern "C" {
                 );
     
                 err = GetLastError();
-                if (err != ERROR_FILE_NOT_FOUND && err != ERROR_SUCCESS) {
+                if ((err != ERROR_FILE_NOT_FOUND || fail_count > 1) && err != ERROR_SUCCESS) {
                     ipc_mutex.unlock();
-                    return;
+                    return false;
                 }
                 else if (err != ERROR_SUCCESS)
                     Sleep(100);
+
+                fail_count++;
             }
     
+            fail_count = 0;
+
             while (execute_pipe == INVALID_HANDLE_VALUE) {
                 execute_pipe = CreateFileW(
                     execute_pipe_name,    // pipe name
@@ -558,12 +564,14 @@ extern "C" {
                 );
     
                 err = GetLastError();
-                if (err != ERROR_FILE_NOT_FOUND && err != ERROR_SUCCESS) {
+                if ((err != ERROR_FILE_NOT_FOUND || fail_count > 1) && err != ERROR_SUCCESS) {
                     ipc_mutex.unlock();
-                    return;
+                    return false;
                 }
                 else if (err != ERROR_SUCCESS)
                     Sleep(100);
+
+                fail_count++;
             }
 
             con_thread.~thread();
@@ -573,21 +581,25 @@ extern "C" {
             con_thread.detach();
             exe_thread.detach();
             ipc_mutex.unlock();
+
+            return true;
         }
         catch (...) {
             ipc_mutex.unlock();
         }
    
     
-        return;
+        return false;
     }
     
     __declspec(dllexport) int setup_IPC() {
         static mutex       interact_mutex;
         unique_lock<mutex> lock(interact_mutex);
 
-        thread wait_thread(wait_for_pipes);
-        wait_thread.detach();
+        if (wait_for_pipes())
+            return 1;
+        //thread wait_thread(wait_for_pipes);
+        //wait_thread.detach();
         return 0;
     }
     
@@ -608,7 +620,7 @@ extern "C" {
             CloseHandle(execute_pipe);
 
             restarting = false;
-            wait_for_pipes();
+            while (!wait_for_pipes()) { }
         }
         catch (...) {}
     
