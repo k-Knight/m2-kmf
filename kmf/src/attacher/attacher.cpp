@@ -28,6 +28,7 @@ extern "C" {
     
     __declspec(dllexport) int setup_IPC();
     __declspec(dllexport) void enable_stdout_logging();
+    __declspec(dllexport) void load_autoexec_scripts();
     __declspec(dllexport) void set_execute_callback(trigger_cb_t cb);
     __declspec(dllexport) void console_log(const char *message);
     __declspec(dllexport) void print(const char *message);
@@ -56,6 +57,7 @@ extern "C" {
     queue<char *>          exec_queue;
     deque<string>          console_output;
     mutex                  ipc_mutex;
+    mutex                  exec_mutex;
     mutex                  stdout_mutex;
     thread                 con_thread, exe_thread, stdout_thread;
     string                 stdout_file_path = "";
@@ -466,8 +468,7 @@ extern "C" {
     }
 
     __declspec(dllexport) int check_exec_queue(char **ptr, unsigned int *size) {
-        static mutex       interact_mutex;
-        unique_lock<mutex> lock(interact_mutex);
+        unique_lock<mutex> lock(exec_mutex);
 
         if (exec_queue.size() > 0) {
             try {
@@ -501,6 +502,7 @@ extern "C" {
 
                 if (result) {
                     msg = _strdup(buf);
+                    unique_lock<mutex> lock(exec_mutex);
                     exec_queue.push(msg);
                 }
                 else {
@@ -516,6 +518,49 @@ extern "C" {
         free(buf);
 
         return;
+    }
+
+    __declspec(dllexport) void load_autoexec_scripts() {
+        WIN32_FIND_DATAA find_file_data;
+        HANDLE hFind;
+
+        hFind = FindFirstFileA(".\\autoexec\\*.lua", &find_file_data);
+        if (hFind == INVALID_HANDLE_VALUE)
+            return;
+
+        do {
+            char file_path[1024];
+            snprintf(file_path, 1024, "./autoexec/%s", find_file_data.cFileName);
+
+            FILE *file;
+            file = fopen(file_path, "rb");
+    
+            if (!file)
+                continue;
+
+            fseek(file, 0, SEEK_END);
+            size_t fsize = ftell(file);
+            fseek(file, 0, SEEK_SET);
+
+            if (fsize < 2) {
+                fclose(file);
+                continue;
+            }
+
+            char *contents = new char[fsize + 1];
+            fread(contents, fsize, 1, file);
+            fclose(file);
+
+            contents[fsize] = '\0';
+            printf("adding file to exec queue :: \"%s\"\n", file_path);
+
+            {
+                unique_lock<mutex> lock(exec_mutex);
+                exec_queue.push(contents);
+            }
+        } while (FindNextFileA(hFind, &find_file_data) != 0);
+
+        FindClose(hFind);
     }
     
     static bool wait_for_pipes(void) {

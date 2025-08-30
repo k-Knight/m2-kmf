@@ -46,6 +46,25 @@ static void attacher_request_test() {
     printf("attacher.dll test | try_download_installer() return value :: %d\n", status);
 }
 
+void attacher_autoexec_test() {
+    typedef void __cdecl (*load_autoexec_scripts_t)();
+
+    HINSTANCE hGetProcIDDLL = LoadLibraryA(".\\attacher.dll");
+
+    if (!hGetProcIDDLL) {
+        printf("attacher.dll test | could not load the dynamic library\n");
+        return;
+    }
+
+    load_autoexec_scripts_t load_autoexec_scripts = (load_autoexec_scripts_t)GetProcAddress(hGetProcIDDLL, "load_autoexec_scripts");
+    if (!load_autoexec_scripts) {
+        printf("attacher.dll test | could not locate the load_autoexec_scripts()\n");
+        return;
+    }
+
+    load_autoexec_scripts();
+}
+
 static void print_mod_data_array(ModDataArray *arr) {
     printf("mods config:\n");
     for (size_t i = 0; i < arr->length; i++) {
@@ -236,11 +255,24 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
     return 0;
 }
 
-int wmain() {
-    attacher_request_test();
+int main(int argc, char *argv[ ]) {
+    const char *cmd = NULL;
+    if (argc > 1) {
+        cmd = argv[1];
+    }
 
-    if (__argc > 1) {
+    if (!strcmp(cmd, "request")) {
+        attacher_request_test();
+        std::terminate();
+    }
+
+    if (!strcmp(cmd, "rand_numbers")) {
         gen_random_numbers();
+        std::terminate();
+    }
+
+    if (!strcmp(cmd, "autoexec")) {
+        attacher_autoexec_test();
         std::terminate();
     }
 
