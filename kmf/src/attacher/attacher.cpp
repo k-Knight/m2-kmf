@@ -7,6 +7,8 @@
 #include <mutex>
 #include <queue>
 #include <string>
+#include <filesystem>
+#include <fstream>
 
 #include <windows.h>
 #include <shlwapi.h>
@@ -25,7 +27,7 @@ using namespace std;
 extern "C" {
     /* public use */
     typedef void(__cdecl *trigger_cb_t)(void);
-    
+
     __declspec(dllexport) int setup_IPC();
     __declspec(dllexport) void enable_stdout_logging();
     __declspec(dllexport) void load_autoexec_scripts();
@@ -39,13 +41,13 @@ extern "C" {
 
     static void write_stdout_to_file(string &&msg);
     static bool check_readable_string(const char *buf, size_t size);
-    
+
     /* internal use */
     void reset_ipc(void);
     void console_output_thread(void);
     void execute_lua_thread(void);
     bool wait_for_pipes(void);
-    
+
     volatile bool          exiting = false;
     volatile bool          restarting = false;
     volatile bool          stdout_thread_started = false;
@@ -111,15 +113,15 @@ extern "C" {
         }
 
         if (check_readable_string((char *)lpBuffer, nNumberOfBytesToWrite))
-            write_stdout_to_file(std::string((char *)lpBuffer, nNumberOfBytesToWrite));
+            write_stdout_to_file(string((char *)lpBuffer, nNumberOfBytesToWrite));
         else {
-            std::string conversion;
+            string conversion;
             conversion.resize(nNumberOfBytesToWrite);
             size_t ret = wcstombs(conversion.data(), (wchar_t *)lpBuffer, nNumberOfBytesToWrite / 2);
             conversion.resize(ret + 1);
 
             if (check_readable_string(conversion.data(), conversion.length()))
-                write_stdout_to_file(std::string(conversion));
+                write_stdout_to_file(string(conversion));
         }
 
 
@@ -144,12 +146,12 @@ extern "C" {
     }
 
     static void initialize_stdout_writer() {
-        std::string thisPath = "";
+        string thisPath = "";
         CHAR path[MAX_PATH];
         HMODULE hm;
         if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPSTR)&path, &hm)) {
             GetModuleFileNameA(hm, path, MAX_PATH);
-            
+
             PathRemoveFileSpecA(path);
             thisPath = path;
             if (!thisPath.empty() && thisPath.back() != '\\')
@@ -164,7 +166,7 @@ extern "C" {
 
         SYSTEMTIME st;
         GetSystemTime(&st);
-        
+
         char buf[1024];
         sprintf(buf,"kmf-logs/stdout-%04d-%02d-%02d-%02d-%02d-%02d.txt",
             st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond
@@ -191,7 +193,7 @@ extern "C" {
     }
 
     __declspec(dllexport) void enable_stdout_logging() {
-        std::unique_lock<std::mutex> lock(stdout_mutex);
+        unique_lock<mutex> lock(stdout_mutex);
         initialize_stdout_writer();
     }
 
@@ -202,7 +204,7 @@ extern "C" {
             Sleep(10);
 
             {
-                std::unique_lock<std::mutex> lock(stdout_mutex);
+                unique_lock<mutex> lock(stdout_mutex);
 
                 if (stdout_messages.size() > 0) {
                     HANDLE hFile = CreateFileA(
@@ -256,11 +258,11 @@ extern "C" {
     }
 
     static void write_stdout_to_file(string &&msg) {
-        std::unique_lock<std::mutex> lock(stdout_mutex);
+        unique_lock<mutex> lock(stdout_mutex);
 
         if (!stdout_thread_started) {
             stdout_thread_started = true;
-    
+
             stdout_thread = thread(stdout_output_thread);
             stdout_thread.detach();
         }
@@ -270,7 +272,7 @@ extern "C" {
         while (true) {
             index = msg.find("\r\n", index);
 
-            if (index == std::string::npos)
+            if (index == string::npos)
                 break;
 
             msg.replace(index, 2, "\n");
@@ -289,7 +291,7 @@ extern "C" {
         BOOL bSuccess = FALSE;
         DWORD dwRead;
         size_t ret_sz, ret_offset = 0;
-        std::vector<std::string> cmds;
+        vector<string> cmds;
 
         *res = NULL;
         *size = 0;
@@ -299,8 +301,8 @@ extern "C" {
         ret[0] = 0;
 
         // this is borderline retarded, i know
-        cmds.push_back(std::string("curl.exe -s --output - ") + url);
-        cmds.push_back(std::string("powershell -Command \"$webclient = new-object system.net.webclient; $webclient.DownloadString('") + url + "');\"");
+        cmds.push_back(string("curl.exe -s --max-time 2 --output - ") + url);
+        cmds.push_back(string("powershell -Command \"$webclient = new-object system.net.webclient; $webclient.DownloadString('") + url + "');\"");
 
         for (auto& cmd : cmds)
             cmd.resize(MAX_PATH);
@@ -309,29 +311,26 @@ extern "C" {
         saAttr.bInheritHandle = TRUE;
         saAttr.lpSecurityDescriptor = NULL;
 
-        if (!CreatePipe(&hPipe_r, &hPipe_w, &saAttr, 0))
-            return false;
-
-        if (!SetHandleInformation(hPipe_r, HANDLE_FLAG_INHERIT, 0))
-            goto clean;
-
-        ZeroMemory(&info, sizeof(STARTUPINFOA));
-        info.cb = sizeof(STARTUPINFOA);
-        info.hStdError = hPipe_w;
-        info.hStdOutput = hPipe_w;
-        info.hStdInput = NULL;
-        info.dwFlags |= STARTF_USESTDHANDLES;
-
         for (auto cmd : cmds) {
-            if (CreateProcessA(NULL, &cmd[0], NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &info, &processInfo))
-            {
-                CloseHandle(processInfo.hProcess);
-                CloseHandle(processInfo.hThread);
+            if (!CreatePipe(&hPipe_r, &hPipe_w, &saAttr, 0))
+                return false;
 
+            if (!SetHandleInformation(hPipe_r, HANDLE_FLAG_INHERIT, 0))
+                goto clean;
+
+            ZeroMemory(&info, sizeof(STARTUPINFOA));
+            info.cb = sizeof(STARTUPINFOA);
+            info.hStdError = NULL;
+            info.hStdOutput = hPipe_w;
+            info.hStdInput = NULL;
+            info.dwFlags |= STARTF_USESTDHANDLES;
+
+            if (CreateProcessA(NULL, &cmd[0], NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &info, &processInfo)) {
                 CloseHandle(hPipe_w);
             }
-            else
+            else{
                 continue;
+            }
 
             while (true) {
                 bSuccess = ReadFile(hPipe_r, tmp, sizeof(tmp), &dwRead, NULL);
@@ -350,6 +349,15 @@ extern "C" {
 
             if (ret)
                 ret[ret_sz - 1] = '\0';
+
+            DWORD exit;
+
+            if (!GetExitCodeProcess(processInfo.hProcess, &exit) || exit) {
+                continue;
+            }
+
+            CloseHandle(processInfo.hProcess);
+            CloseHandle(processInfo.hThread);
 
             break;
         }
@@ -390,7 +398,7 @@ extern "C" {
     }
 
     __declspec(dllexport) void print(const char *message) {
-        write_stdout_to_file(std::string(message) + "\n");
+        write_stdout_to_file(string(message) + "\n");
     }
 
     __declspec(dllexport) void my_free(void *data) {
@@ -403,6 +411,58 @@ extern "C" {
         size_t size;
 
         download_file_from_url_to_mem(url, &res, &size);
+
+        return res;
+    }
+
+    __declspec(dllexport) char *try_get_request_or_cache(const char *url, const char *file_name) {
+        char *res;
+        size_t size;
+        filesystem::path cache_path = "./cache/";
+
+        cache_path /= file_name;
+
+        if (download_file_from_url_to_mem(url, &res, &size)) {
+            DWORD dwBytesWritten;
+            printf("trying to write to a cache file :: %s\n", cache_path.string().c_str());
+
+            HANDLE hFile = CreateFileA(
+                cache_path.string().c_str(),
+                FILE_GENERIC_WRITE,
+                0x0,
+                nullptr,
+                CREATE_ALWAYS,
+                FILE_ATTRIBUTE_NORMAL,
+                nullptr
+            );
+
+            if (hFile != INVALID_HANDLE_VALUE) {
+                Orig_WriteFile(
+                    hFile,
+                    res,
+                    size,
+                    &dwBytesWritten,
+                    NULL
+                );
+
+                if (dwBytesWritten != size) {
+                    printf("incomplete write [%lu / %d] !!!\n", dwBytesWritten, size);
+                }
+            }
+            else {
+                printf("cannot open cache file for writing [%lu] !!!\n", GetLastError());
+            }
+        }
+        else if (filesystem::exists(cache_path)) {
+            printf("network error, getting loader from cache !!!\n");
+
+            size_t size = std::filesystem::file_size(cache_path);
+            res = new char[size + 1];
+
+            ifstream cached_file(cache_path);
+            cached_file.read(res, size);
+            res[size] = '\0';
+        }
 
         return res;
     }
@@ -435,16 +495,16 @@ extern "C" {
 
         return 0;
     }
-    
+
     static void console_output_thread(void) {
         bool           result;
         char           *buf;
         DWORD          written;
-    
+
         buf = (char *)malloc(BUFSIZE);
         sprintf(buf, hello_msg, GetCurrentProcessId());
         console_log(buf);
-    
+
         while (!exiting && !restarting) {
             if (console_output.size() > 0) {
                 try {
@@ -462,7 +522,7 @@ extern "C" {
             else
                 Sleep(10);
         }
-    
+
         free(buf);
         return;
     }
@@ -481,17 +541,17 @@ extern "C" {
             return 1;
         }
         else
-            return 0; 
+            return 0;
     }
-    
+
     static void execute_lua_thread(void) {
         bool  result;
         char  *msg;
         char  *buf;
         DWORD read;
-    
+
         buf = (char*)malloc(BUFSIZE);
-    
+
         while (!exiting && !restarting) {
             try {
                 result = ReadFile(execute_pipe, buf, BUFSIZE - 1, &read, NULL);
@@ -514,7 +574,7 @@ extern "C" {
             }
             catch (...) {}
         }
-    
+
         free(buf);
 
         return;
@@ -534,7 +594,7 @@ extern "C" {
 
             FILE *file;
             file = fopen(file_path, "rb");
-    
+
             if (!file)
                 continue;
 
@@ -562,14 +622,14 @@ extern "C" {
 
         FindClose(hFind);
     }
-    
+
     static bool wait_for_pipes(void) {
         int err;
         ipc_mutex.lock();
-    
+
         console_pipe = INVALID_HANDLE_VALUE;
         execute_pipe = INVALID_HANDLE_VALUE;
-    
+
         try {
             int fail_count = 0;
 
@@ -583,7 +643,7 @@ extern "C" {
                     FILE_FLAG_OVERLAPPED, // default attributes
                     NULL                  // no template file
                 );
-    
+
                 err = GetLastError();
                 if ((err != ERROR_FILE_NOT_FOUND || fail_count > 1) && err != ERROR_SUCCESS) {
                     ipc_mutex.unlock();
@@ -594,7 +654,7 @@ extern "C" {
 
                 fail_count++;
             }
-    
+
             fail_count = 0;
 
             while (execute_pipe == INVALID_HANDLE_VALUE) {
@@ -607,7 +667,7 @@ extern "C" {
                     FILE_FLAG_OVERLAPPED, // default attributes
                     NULL                  // no template file
                 );
-    
+
                 err = GetLastError();
                 if ((err != ERROR_FILE_NOT_FOUND || fail_count > 1) && err != ERROR_SUCCESS) {
                     ipc_mutex.unlock();
@@ -632,11 +692,11 @@ extern "C" {
         catch (...) {
             ipc_mutex.unlock();
         }
-   
-    
+
+
         return false;
     }
-    
+
     __declspec(dllexport) int setup_IPC() {
         static mutex       interact_mutex;
         unique_lock<mutex> lock(interact_mutex);
@@ -647,19 +707,19 @@ extern "C" {
         //wait_thread.detach();
         return 0;
     }
-    
+
     static void reset_ipc(void) {
         void *ret1, *ret2;
-    
+
         ipc_mutex.lock();
         if (restarting == true) {
             ipc_mutex.unlock();
             return;
         }
-    
+
         restarting = true;
         ipc_mutex.unlock();
-    
+
         try {
             CloseHandle(console_pipe);
             CloseHandle(execute_pipe);
@@ -668,10 +728,10 @@ extern "C" {
             while (!wait_for_pipes()) { }
         }
         catch (...) {}
-    
+
         return;
     }
-    
+
     __declspec(dllexport) void set_execute_callback(trigger_cb_t cb) {
         char buf[1024];
         sprintf(buf, "got callback ptr [%x]", (size_t)cb);
@@ -690,6 +750,7 @@ BOOL APIENTRY DllMain(HMODULE hModule,
     {
     case DLL_PROCESS_ATTACH:
     case DLL_THREAD_ATTACH:
+        filesystem::create_directory("./cache");
     case DLL_THREAD_DETACH:
     case DLL_PROCESS_DETACH:
         break;
