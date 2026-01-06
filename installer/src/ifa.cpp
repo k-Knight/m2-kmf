@@ -26,6 +26,7 @@ extern "C" {
     };
 }
 
+#ifdef ENABLE_MASKING
 static void mask_array(const uint64_t mask, char *arr, const size_t arr_size) {
     uint64_t bytes = 0;
     char *ptr = arr;
@@ -40,6 +41,7 @@ static void mask_array(const uint64_t mask, char *arr, const size_t arr_size) {
         memmove(ptr, &bytes, to_proc);
     }
 }
+#endif // ENABLE_MASKING
 
 bool validate_indexed_file_amalgamation(const std::vector<file_info> &files, const ifa_t &meta_data, std::string &error) {
     for (const auto &file : files) {
@@ -90,7 +92,12 @@ bool validate_indexed_file_amalgamation(const std::vector<file_info> &files, con
     return true;
 }
 
+#ifdef ENABLE_MASKING
 bool load_indexed_file_amalgamation(std::vector<char> &data, ifa_t &meta_data, const uint64_t mask) {
+#else
+bool load_indexed_file_amalgamation(std::vector<char> &data, ifa_t &meta_data) {
+#endif // ENABLE_MASKING
+
     data_index index = {0};
     char *ptr;
     const char *data_end;
@@ -134,8 +141,10 @@ bool load_indexed_file_amalgamation(std::vector<char> &data, ifa_t &meta_data, c
         ptr += entry.name_len;
         meta_data.push_back({name, entry.comp_size, entry.orig_size, data_start});
 
+#ifdef ENABLE_MASKING
         if (mask)
             mask_array(mask, data_start, entry.comp_size);
+#endif // ENABLE_MASKING
     }
 
     if (!valid) {
@@ -147,13 +156,25 @@ bool load_indexed_file_amalgamation(std::vector<char> &data, ifa_t &meta_data, c
     return true;
 }
 
+#ifdef ENABLE_MASKING
 bool read_indexed_file_amalgamation(const std::filesystem::path &path, std::vector<char> &data, ifa_t &meta_data, const uint64_t mask) {
     load_file(path, data);
 
     return load_indexed_file_amalgamation(data, meta_data, mask);
 }
+#else
+bool read_indexed_file_amalgamation(const std::filesystem::path &path, std::vector<char> &data, ifa_t &meta_data) {
+    load_file(path, data);
 
+    return load_indexed_file_amalgamation(data, meta_data);
+}
+#endif // ENABLE_MASKING
+
+#ifdef ENABLE_MASKING
 bool create_indexed_file_amalgamation(const std::filesystem::path &path, const std::vector<file_info> &files, const uint64_t mask) {
+#else
+bool create_indexed_file_amalgamation(const std::filesystem::path &path, const std::vector<file_info> &files) {
+#endif // ENABLE_MASKING
     std::vector<data_index_entry> entries;
     std::ofstream ifa(path, std::ios::binary);
     data_index index = {0};
@@ -187,8 +208,10 @@ bool create_indexed_file_amalgamation(const std::filesystem::path &path, const s
         entries[i].comp_size = deflated.size();
         entries[i].offset = ifa.tellp();
 
+#ifdef ENABLE_MASKING
         if (mask)
             mask_array(mask, deflated.data(), deflated.size());
+#endif // ENABLE_MASKING
 
         ifa.write(deflated.data(), deflated.size());
     }
