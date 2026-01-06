@@ -81,7 +81,11 @@ int main(int argc, char **argv) {
         printf("    %s\n", file.name.c_str());
     }
 
+#ifdef ENABLE_MASKING
     if (!create_indexed_file_amalgamation(out_path, files, mask)) {
+#else
+    if (!create_indexed_file_amalgamation(out_path, files)) {
+#endif // ENABLE_MASKING
         std::filesystem::remove(out_path);
         printf("Failed to create ifa\n");
         return 3;
@@ -89,7 +93,11 @@ int main(int argc, char **argv) {
 
     printf("\nLoading ifa :\n");
 
+#ifdef ENABLE_MASKING
     if (!read_indexed_file_amalgamation(out_path, data_ifa, ifa_meta, mask)) {
+#else
+    if (!read_indexed_file_amalgamation(out_path, data_ifa, ifa_meta)) {
+#endif // ENABLE_MASKING
         printf("Could not load ifa\n");
         return 4;
     }

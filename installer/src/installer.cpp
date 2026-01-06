@@ -181,8 +181,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     wchar_t *tmp;
     int ret;
     bool res;
+
+#ifdef ENABLE_MASKING
     volatile uint64_t num1 = 0x2c197f9df512bc40;
     volatile uint64_t num2 = 0x8b9fea92bf947ea5;
+#endif // ENABLE_MASKING
 
     bInfo.hwndOwner = NULL;
     bInfo.pidlRoot = NULL; 
@@ -218,7 +221,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     ifa_t ifa_meta;
     std::vector<char> data;
     std::string error;
+#ifdef ENABLE_MASKING
     volatile uint64_t mask = num1 * num2;
+#endif // ENABLE_MASKING
 
     printf("trying to load memory resource\n");
     if (!load_resource(IDI_DATA_IFA, RT_RCDATA, data, error)) {
@@ -227,8 +232,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     }
     printf("loaded memory resource :: %zu\n", data.size());
 
+#ifdef ENABLE_MASKING
     printf("reading resources with mask 0x%16llx\n", mask);
     res = load_indexed_file_amalgamation(data, ifa_meta, mask);
+#else
+    printf("reading resources\n");
+    res = load_indexed_file_amalgamation(data, ifa_meta);
+#endif // ENABLE_MASKING
     if (!res)  {
         MessageBoxW(NULL, L"Fucking HOW ???\nInstaller will exit.\n:/",  L"Epic Fail!", MB_ICONERROR);
         return 5;
