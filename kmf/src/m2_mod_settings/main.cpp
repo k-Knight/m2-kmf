@@ -984,6 +984,9 @@ void ModList::LoadContent(std::vector<ModDataEntry> *data) {
     const int setting_margin = margin * 0.5;
 
     for (auto& entry : *data) {
+        if (entry.disabled)
+            continue;
+
         int total_size = entry.settings.size() * (y_setting_size + setting_margin);
 
         total_size += y_size;
@@ -1861,7 +1864,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     debug_print("shit 4\n");
 
-    parse_file_mods_settings();
+    parse_file_mods_settings(true, true);
 
     debug_print("shit 5\n");
 

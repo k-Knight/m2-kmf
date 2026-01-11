@@ -46,26 +46,7 @@ static void attacher_request_test() {
     printf("attacher.dll test | try_download_installer() return value :: %d\n", status);
 }
 
-void attacher_autoexec_test() {
-    typedef void __cdecl (*load_autoexec_scripts_t)();
-
-    HINSTANCE hGetProcIDDLL = LoadLibraryA(".\\attacher.dll");
-
-    if (!hGetProcIDDLL) {
-        printf("attacher.dll test | could not load the dynamic library\n");
-        return;
-    }
-
-    load_autoexec_scripts_t load_autoexec_scripts = (load_autoexec_scripts_t)GetProcAddress(hGetProcIDDLL, "load_autoexec_scripts");
-    if (!load_autoexec_scripts) {
-        printf("attacher.dll test | could not locate the load_autoexec_scripts()\n");
-        return;
-    }
-
-    load_autoexec_scripts();
-}
-
-static void print_mod_data_array(ModDataArray *arr) {
+static void print_mod_data_array(const ModDataArray *arr) {
     printf("mods config:\n");
     for (size_t i = 0; i < arr->length; i++) {
         ModData *data = &arr->data[i];
@@ -136,7 +117,7 @@ static void gen_random_numbers() {
 
 void run_test() {
     auto cur_path = std::filesystem::current_path();
-    ModDataArray *mod_data_array;
+    const ModDataArray *mod_data_array;
     printf("%s\n", cur_path.generic_string().c_str());
 
     //Sleep(10 * 1000);
@@ -151,14 +132,6 @@ void run_test() {
     const char* mod_config_str = R"(
             [full focus on magic]
             target player=caster
-
-            [enable lok element]
-            keyboard hotkey=ctrl
-            gamepad hotkey=R3
-
-            [suspend element logic]
-            keyboard hotkey=alt
-            gamepad hotkey=L3
 
             [toggle element opposites]
             keyboard hotkey=ctrl + alt
@@ -261,18 +234,13 @@ int main(int argc, char *argv[ ]) {
         cmd = argv[1];
     }
 
-    if (!strcmp(cmd, "request")) {
+    if (cmd && !strcmp(cmd, "request")) {
         attacher_request_test();
         std::terminate();
     }
 
-    if (!strcmp(cmd, "rand_numbers")) {
+    if (cmd && !strcmp(cmd, "rand_numbers")) {
         gen_random_numbers();
-        std::terminate();
-    }
-
-    if (!strcmp(cmd, "autoexec")) {
-        attacher_autoexec_test();
         std::terminate();
     }
 

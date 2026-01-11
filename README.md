@@ -11,6 +11,8 @@ So far only Windows is supported.
 ## I get virus warnings!
 Those are false positives; here is why that happens:
 
+- The loader script is here for ***legacy reasons*** and will be deleted in the ***near future***.
+
 - The loader script is obfuscated so people cannot get tier 2 access without completing challenges.
 
 - The only thing the loader script does is check the Steam user ID locally (it does not send or record anything) to see if the user has tier 2 access or whether to activate extended functionality; nothing binary gets decoded.

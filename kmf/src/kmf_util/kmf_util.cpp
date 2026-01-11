@@ -23,23 +23,37 @@ using namespace std;
 
 static volatile bool initialized = false;
 static volatile bool file_paths_initialized = false;
-static std::filesystem::path mod_config_path;
-static std::filesystem::path settings_gui_path;
-static std::filesystem::path installer_path;
-static std::filesystem::path debug_log_path;
-static std::filesystem::path gamepad_listener_path;
+static filesystem::path mod_config_path;
+static filesystem::path settings_gui_path;
+static filesystem::path installer_path;
+static filesystem::path debug_log_path;
+static filesystem::path gamepad_listener_path;
 
 static bool double_buffer_initialized = false;
-static std::mutex file_io_mutex;
-std::mutex libary_function_mutex;
-std::unique_lock<std::mutex> external_lock;
+static mutex file_io_mutex;
+mutex libary_function_mutex;
+unique_lock<mutex> external_lock;
 
 static volatile ModDataArray mod_data_arr;
-static std::map<std::string, bool> temp_mod_status;
+static map<string, bool> temp_mod_status;
 
 #if defined(DEBUG) || defined(_DEBUG)
 debug_logger_state_t debug_logger_state;
 #endif //DEBUG
+
+ModDataEntry::ModDataEntry() { }
+
+ModDataEntry::ModDataEntry(const std::string &name, bool status, bool disabled, const std::unordered_map<std::string, std::string> &settings) {
+    this->name = std::string(name);
+    this->status = status;
+    this->disabled = disabled;
+    this->settings = std::unordered_map<std::string, std::string>(settings);
+}
+
+ModDataEntry::~ModDataEntry() {
+    name.clear();
+    settings.clear();
+}
 
 static struct {
     vector<ModDataEntry> first, second, *current, *unused;
@@ -61,10 +75,10 @@ static struct {
 } ModDataDoubleBuffer;
 
 static void *stubborn_malloc(size_t size) {
-    static std::mutex stubborn_malloc_mutex;
+    static mutex stubborn_malloc_mutex;
 
     for (size_t i = 0; i < 10; i++) {
-        std::unique_lock<std::mutex> lock(stubborn_malloc_mutex);
+        unique_lock<mutex> lock(stubborn_malloc_mutex);
         void *ret = malloc(size);
 
         if (ret != NULL)
@@ -72,11 +86,11 @@ static void *stubborn_malloc(size_t size) {
     }
 
     debug_write("malloc disaster or skill issue\n");
-    std::terminate();
+    terminate();
 }
 
-static void execute(std::filesystem::path *to_exec) {
-    std::wstring path = to_exec->wstring();
+static void execute(filesystem::path *to_exec) {
+    wstring path = to_exec->wstring();
     STARTUPINFOW info = { sizeof(info) };
     PROCESS_INFORMATION processInfo;
 
@@ -92,8 +106,7 @@ static void execute(std::filesystem::path *to_exec) {
         sei.hwnd = NULL;
         sei.nShow = SW_NORMAL;
 
-        if (!ShellExecuteExW(&sei))
-        {
+        if (!ShellExecuteExW(&sei)) {
             DWORD dwError = GetLastError();
             char *error = (char *)stubborn_malloc(1024);
 
@@ -110,9 +123,9 @@ enum parsing_state {
     read_field_value
 };
 
-std::string trimmed_string_ncpy(const std::string *src, size_t start, size_t end) {
+string trimmed_string_ncpy(const string *src, size_t start, size_t end) {
     if (!src)
-        return std::string();
+        return string();
 
     while (isspace(static_cast<unsigned char>((*src)[start])))
         start++;
@@ -121,13 +134,13 @@ std::string trimmed_string_ncpy(const std::string *src, size_t start, size_t end
         end--;
 
     if (end - start < 1)
-        return std::string();
+        return string();
 
     return (*src).substr(start, end - start);
 }
 
-static void parse_mods_settings(std::istream &infile, bool clear_unused) {
-    std::string line;
+static void parse_mods_settings(istream &infile, bool clear_unused, bool parse_comments = false) {
+    string line;
 
     if (!double_buffer_initialized) {
         ModDataDoubleBuffer.init();
@@ -136,34 +149,56 @@ static void parse_mods_settings(std::istream &infile, bool clear_unused) {
 
     vector<ModDataEntry> *modData = ModDataDoubleBuffer.unused;
     parsing_state state = read_mod_name;
-    std::string field_name, field_value;
+    string field_name, field_value;
     size_t start_pos, end_pos;
     ModDataEntry *entry = NULL;
 
-    while (std::getline(infile, line))
-    {
+    while (getline(infile, line)) {
         bool line_processed = false;
+        bool commented_line = false;
+        int comment_start = -1;
+
+        for (size_t i = 0; i < line.length(); i++) {
+            const char &ch = line.at(i);
+
+            if (!isspace(static_cast<unsigned char>(ch))) {
+                if(ch == '#')
+                    comment_start = i;
+
+                break;
+            }
+        }
+
+        if (comment_start >= 0) {
+            if (!parse_comments)
+                break;
+
+            commented_line = true;
+            line.erase(0, comment_start + 1);
+        }
 
         while (!line_processed) {
             switch (state) {
                 case read_mod_name: {
-                    if (((start_pos = line.find('[')) != std::string::npos) && ((end_pos = line.find(']')) != std::string::npos)) {
+                    if (((start_pos = line.find('[')) != string::npos) && ((end_pos = line.find(']')) != string::npos)) {
                         modData->push_back(ModDataEntry());
                         entry = &(modData->back());
                         entry->name = trimmed_string_ncpy(&line, start_pos + 1, end_pos);
                         state = read_field_name;
                         line_processed = true;
+
+                        entry->disabled = commented_line;
                     }
                     else
                         line_processed = true;
                 } break;
                 case read_field_name: {
-                    if ((start_pos = line.find('[')) != std::string::npos) {
+                    if ((start_pos = line.find('[')) != string::npos) {
                         state = read_mod_name;
                         break;
                     }
 
-                    if ((start_pos = line.find('=')) == std::string::npos) {
+                    if ((start_pos = line.find('=')) == string::npos) {
                         line_processed = true;
                         break;
                     }
@@ -183,20 +218,22 @@ static void parse_mods_settings(std::istream &infile, bool clear_unused) {
                         break;
                     }
 
-                    if (field_name == "status")
-                        entry->status = field_value == "enabled";
-                    else {
-                        entry->settings.emplace(field_name, field_value);
+                    if (commented_line == entry->disabled) {
+                        if (field_name == "status")
+                            entry->status = field_value == "enabled";
+                        else {
+                            entry->settings.emplace(field_name, field_value);
+                        }
                     }
 
                     line_processed = true;
                 } break;
                 case read_field_value: {
-                    if ((line.find('[')) != std::string::npos) {
+                    if ((line.find('[')) != string::npos) {
                         state = read_mod_name;
                         break;
                     }
-                    if ((line.find('=')) != std::string::npos) {
+                    if ((line.find('=')) != string::npos) {
                         state = read_field_name;
                         break;
                     }
@@ -208,10 +245,12 @@ static void parse_mods_settings(std::istream &infile, bool clear_unused) {
                         break;
                     }
 
-                    if (field_name == "status")
-                        entry->status = field_value == "enabled";
-                    else {
-                        entry->settings.emplace(field_name, field_value);
+                    if (commented_line == entry->disabled) {
+                        if (field_name == "status")
+                            entry->status = field_value == "enabled";
+                        else {
+                            entry->settings.emplace(field_name, field_value);
+                        }
                     }
 
                     line_processed = true;
@@ -223,48 +262,53 @@ static void parse_mods_settings(std::istream &infile, bool clear_unused) {
     ModDataDoubleBuffer.swap_buffer(clear_unused);
 }
 
-void parse_string_mods_settings(const char *config_str, bool clear_unused) {
-    std::unique_lock<std::mutex> lock(file_io_mutex);
-    std::string tmp_str(config_str);
-    std::istringstream instring(tmp_str);
+void parse_string_mods_settings(const char *config_str, bool clear_unused, bool parse_comments) {
+    unique_lock<mutex> lock(file_io_mutex);
+    string tmp_str(config_str);
+    istringstream instring(tmp_str);
 
-    parse_mods_settings(instring, clear_unused);
+    parse_mods_settings(instring, clear_unused, parse_comments);
 }
 
-void parse_file_mods_settings(bool clear_unused) {
-    std::unique_lock<std::mutex> lock(file_io_mutex);
+void parse_file_mods_settings(bool clear_unused, bool parse_comments) {
+    unique_lock<mutex> lock(file_io_mutex);
 
     if(!config_file_exists()) {
         ModDataDoubleBuffer.swap_buffer(clear_unused);
         return;
     }
 
-    std::ifstream infile(mod_config_path);
+    ifstream infile(mod_config_path);
 
-    infile.seekg(0, std::ios::end);
+    infile.seekg(0, ios::end);
 
     size_t size = infile.tellg();
-    std::string buffer(size, '\0');
+    string buffer(size, '\0');
 
     infile.seekg(0);
     infile.read(buffer.data(), size);
     infile.close();
 
-    std::istringstream instring(buffer);
+    istringstream instring(buffer);
 
-    parse_mods_settings(instring, clear_unused);
+    parse_mods_settings(instring, clear_unused, parse_comments);
 }
 
 static void construct_moda_data_array() {
-    std::unique_lock<std::mutex> lock(file_io_mutex);
+    unique_lock<mutex> lock(file_io_mutex);
     size_t mod_count = 0;
+    mod_data_arr.length = 0;
 
     for (auto &entry : *ModDataDoubleBuffer.current) {
         if (mod_count >= MAX_MOD_COUNT)
             break;
 
+        if (entry.disabled)
+            continue;
+
         size_t setting_count = 0;
         ModData *mod_data = &(mod_data_arr.data[mod_count]);
+        mod_data->setting_length = setting_count;
 
         if (temp_mod_status.count(entry.name))
             mod_data->enabled = temp_mod_status[entry.name];
@@ -291,7 +335,7 @@ static void construct_moda_data_array() {
 
 static void smart_mod_config_watcher() {
     char file_name[MAX_PATH];
-    std::wstring wstr(mod_config_path.parent_path());
+    wstring wstr(mod_config_path.parent_path());
     size_t fni_size = 2 * (sizeof(FILE_NOTIFY_INFORMATION) + MAX_PATH);
     unsigned char *buf = (unsigned char *)stubborn_malloc(fni_size);
     FILE_NOTIFY_INFORMATION *strFileNotifyInfo = (FILE_NOTIFY_INFORMATION *)buf;
@@ -303,12 +347,11 @@ static void smart_mod_config_watcher() {
     HANDLE  ch_handle = FindFirstChangeNotificationW(wstr.c_str(), FALSE, FILE_NOTIFY_CHANGE_LAST_WRITE);
 
     {
-        std::unique_lock<std::mutex> lock(libary_function_mutex);
+        unique_lock<mutex> lock(libary_function_mutex);
         parse_file_mods_settings();
     }
 
-    while (true)
-    {
+    while (true) {
         DWORD Wait = WaitForSingleObject(ch_handle, INFINITE);
 
         if (Wait == WAIT_OBJECT_0)
@@ -331,11 +374,11 @@ static void smart_mod_config_watcher() {
         file_name[str_size] = '\0';
 
         if (0 == strcmp("m2_mods.cfg", file_name)) {
-            std::unique_lock<std::mutex> lock(libary_function_mutex);
+            unique_lock<mutex> lock(libary_function_mutex);
 
 
             parse_file_mods_settings();
-            construct_moda_data_array();
+            //construct_moda_data_array();
         }
     }
 
@@ -347,10 +390,10 @@ static void smart_mod_config_watcher() {
 static void stupid_mod_config_watcher() {
     while (true) {
         if (config_file_exists()) {
-            std::unique_lock<std::mutex> lock(libary_function_mutex);
+            unique_lock<mutex> lock(libary_function_mutex);
 
             parse_file_mods_settings();
-            construct_moda_data_array();
+            //construct_moda_data_array();
         }
 
         Sleep(500);
@@ -358,7 +401,7 @@ static void stupid_mod_config_watcher() {
 }
 
 bool config_file_exists() {
-    return std::filesystem::exists(mod_config_path) && std::filesystem::is_regular_file(mod_config_path);
+    return filesystem::exists(mod_config_path) && filesystem::is_regular_file(mod_config_path);
 }
 
 void setup_file_paths() {
@@ -371,7 +414,7 @@ void setup_file_paths() {
     res = GetModuleFileNameW(NULL, w_file_name, MAX_PATH);
     w_file_name[res] = L'\0';
 
-    std::filesystem::path exe_dir(w_file_name);
+    filesystem::path exe_dir(w_file_name);
     debug_log_path = settings_gui_path = mod_config_path = gamepad_listener_path = exe_dir.parent_path();
     mod_config_path.append(L"m2_mods.cfg");
     settings_gui_path.append(L"m2_mod_settings.exe");
@@ -411,22 +454,30 @@ static void initialize_manager() {
 
     if (config_file_exists()) {
         parse_file_mods_settings();
-        construct_moda_data_array();
+        //construct_moda_data_array();
     }
 
-    std::thread watcher(stupid_mod_config_watcher);
+    thread watcher(stupid_mod_config_watcher);
     watcher.detach();
 }
 
 void save_mod_settings() {
-    std::unique_lock<std::mutex> lock(file_io_mutex);
-    std::ofstream outfile(mod_config_path);
+    unique_lock<mutex> lock(file_io_mutex);
+    ofstream outfile(mod_config_path);
 
-    for (auto &entry : *ModDataDoubleBuffer.current) {
+    for (const auto &entry : *ModDataDoubleBuffer.current) {
+        const bool disabled = entry.disabled;
+
+        if (disabled)
+            outfile.write("#", 1);
+
         outfile.write("[", 1);
         outfile.write(entry.name.c_str(), entry.name.length());
         outfile.write("]", 1);
         outfile.write("\n", 1);
+
+        if (disabled)
+            outfile.write("#", 1);
 
         outfile.write("status=", 7);
         if (entry.status)
@@ -436,6 +487,9 @@ void save_mod_settings() {
         outfile.write("\n", 1);
 
         for (auto& setting : entry.settings) {
+            if (disabled)
+                outfile.write("#", 1);
+
             outfile.write(setting.first.c_str(), setting.first.length());
             outfile.write("=", 1);
             outfile.write(setting.second.c_str(), setting.second.length());
@@ -446,19 +500,19 @@ void save_mod_settings() {
     }
 }
 
-std::filesystem::path get_mod_config_path() {
+filesystem::path get_mod_config_path() {
     setup_file_paths();
 
     return mod_config_path;
 }
 
-std::vector<ModDataEntry> *get_mod_config_entries() {
+vector<ModDataEntry> *get_mod_config_entries() {
     return ModDataDoubleBuffer.current;
 }
 
 extern "C" {
     void display_settings_menu() {
-        std::unique_lock<std::mutex> lock(libary_function_mutex);
+        unique_lock<mutex> lock(libary_function_mutex);
 
         initialize_manager();
 
@@ -468,39 +522,42 @@ extern "C" {
     }
 
     void launch_installer() {
-        std::unique_lock<std::mutex> lock(libary_function_mutex);
+        unique_lock<mutex> lock(libary_function_mutex);
 
         initialize_manager();
 
         debug_write("in launch_installer()\n");
 
-        std::wstring executable_path = installer_path.wstring();
-        std::wstring w_cmd = L"explorer \"" + executable_path + L"\"";
-        std::string cmd;
-    
+        wstring executable_path = installer_path.wstring();
+        wstring w_cmd = L"explorer \"" + executable_path + L"\"";
+        string cmd;
+
         cmd.resize(w_cmd.length() + 1);
         size_t ret = wcstombs(cmd.data(), w_cmd.c_str(), w_cmd.length());
         cmd[ret] = '\0';
-    
+
         system(cmd.c_str());
     }
 
     void update_config_file(char* config_str) {
-        std::unique_lock<std::mutex> lock(libary_function_mutex);
+        unique_lock<mutex> lock(libary_function_mutex);
 
         initialize_manager();
 
         debug_write("in update_config_file()\n");
 
         parse_string_mods_settings(config_str);
-        parse_file_mods_settings(false);
+        parse_file_mods_settings(false, true);
 
         vector<ModDataEntry>& cfg_file = *ModDataDoubleBuffer.current;
         vector<ModDataEntry>& cfg_update = *ModDataDoubleBuffer.unused;
 
         for (auto &entry_f : cfg_file) {
+            bool matched = false;
+
             for (auto &entry_u : cfg_update) {
                 if (entry_f.name == entry_u.name) {
+                    matched = true;
                     entry_u.status = entry_f.status;
 
                     for (auto &setting_f : entry_f.settings)
@@ -510,11 +567,15 @@ extern "C" {
                     break;
                 }
             }
+
+            if (!matched) {
+                cfg_update.emplace_back(entry_f.name, entry_f.status, true, entry_f.settings);
+            }
         }
 
         ModDataDoubleBuffer.swap_buffer(false);
 
-        construct_moda_data_array();
+        //construct_moda_data_array();
         save_mod_settings();
     }
 
@@ -560,7 +621,7 @@ extern "C" {
 #endif //DEBUG
 
     void lock_mod_settings() {
-        external_lock = std::unique_lock<std::mutex>(libary_function_mutex);
+        external_lock = unique_lock<mutex>(libary_function_mutex);
     }
 
     void unlock_mod_settings() {
@@ -568,7 +629,7 @@ extern "C" {
            external_lock.unlock();
     }
 
-    ModDataArray *get_mod_settings() {
+    const ModDataArray *get_mod_settings() {
         initialize_manager();
 
 #if defined(DEBUG) || defined(_DEBUG)
@@ -580,21 +641,23 @@ extern "C" {
         }
 #endif //DEBUG
 
+        construct_moda_data_array();
+
         return const_cast<ModDataArray *>(&mod_data_arr);
     }
 
     void tmp_enable_mod(const char *mod) {
-        std::unique_lock<std::mutex> lk(libary_function_mutex);
+        unique_lock<mutex> lk(libary_function_mutex);
         temp_mod_status[mod] = true;
     }
 
     void tmp_disable_mod(const char *mod) {
-        std::unique_lock<std::mutex> lk(libary_function_mutex);
+        unique_lock<mutex> lk(libary_function_mutex);
         temp_mod_status[mod] = false;
     }
 
     void clear_tmp_mod_state() {
-        std::unique_lock<std::mutex> lk(libary_function_mutex);
+        unique_lock<mutex> lk(libary_function_mutex);
         temp_mod_status.clear();
     }
 
@@ -603,18 +666,17 @@ extern "C" {
     }
 }
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
-{
-    switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
+BOOL APIENTRY DllMain(
+    HMODULE hModule,
+    DWORD  ul_reason_for_call,
+    LPVOID lpReserved
+) {
+    switch (ul_reason_for_call) {
+        case DLL_PROCESS_ATTACH:
+        case DLL_THREAD_ATTACH:
+        case DLL_THREAD_DETACH:
+        case DLL_PROCESS_DETACH:
+            break;
     }
     return TRUE;
 }
