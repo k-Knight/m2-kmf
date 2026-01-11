@@ -15,24 +15,13 @@
 
 struct ModDataEntry {
     std::string name;
-    bool status;
+    bool status = false;
+    bool disabled = false;
     std::unordered_map<std::string, std::string> settings;
 
-    ModDataEntry() {
-        status = false;
-    }
-
-    ModDataEntry(std::string &name, bool status, std::unordered_map<std::string, std::string> &settings) {
-        this->name = std::string(name);
-        this->status = status;
-        this->settings = std::unordered_map<std::string, std::string>(settings);
-    }
-
-    ~ModDataEntry() {
-        status = false;
-        name.clear();
-        settings.clear();
-    }
+    ModDataEntry();
+    ModDataEntry(const std::string &name, bool status, bool disabled, const std::unordered_map<std::string, std::string> &settings);
+    ~ModDataEntry();
 };
 
 enum class SettingType {
@@ -54,8 +43,8 @@ __declspec(dllexport) void setup_file_paths();
 __declspec(dllexport) std::filesystem::path get_mod_config_path();
 __declspec(dllexport) std::vector<ModDataEntry> *get_mod_config_entries();
 __declspec(dllexport) void save_mod_settings();
-__declspec(dllexport) void parse_string_mods_settings(const char* config_str, bool clear_unused = true);
-__declspec(dllexport) void parse_file_mods_settings(bool clear_unused = true);
+__declspec(dllexport) void parse_string_mods_settings(const char* config_str, bool clear_unused = true, bool parse_comments = false);
+__declspec(dllexport) void parse_file_mods_settings(bool clear_unused = true, bool parse_comments = false);
 
 __declspec(dllexport) bool validate_value(const std::string *setting, const char *value);
 __declspec(dllexport) const SettingPossibleValues *get_setting_possible_values(const std::string *setting);
@@ -83,12 +72,12 @@ __declspec(dllexport) const char *get_key_name(const uint8_t code);
 
 extern "C" {
     struct ModSetting {
-        char *name;
-        char *value;
+        const char *name;
+        const char *value;
     };
 
     struct ModData {
-        char *mod_name;
+        const char *mod_name;
         bool enabled;
         size_t setting_length;
         ModSetting *setting_data;
@@ -102,7 +91,7 @@ extern "C" {
     __declspec(dllexport) void update_config_file(char* config_str);
     __declspec(dllexport) void lock_mod_settings();
     __declspec(dllexport) void unlock_mod_settings();
-    __declspec(dllexport) ModDataArray *get_mod_settings();
+    __declspec(dllexport) const ModDataArray *get_mod_settings();
     __declspec(dllexport) void tmp_enable_mod(const char *mod);
     __declspec(dllexport) void tmp_disable_mod(const char *mod);
     __declspec(dllexport) void clear_tmp_mod_state();
