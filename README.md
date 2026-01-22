@@ -7,7 +7,7 @@ So far only Windows is supported.
 
 ### >>> <a href="https://github.com/k-Knight/m2-kmf/raw/master/installer.exe">DOWNLOAD</a> <<<
 
-<br>
+
 ## I get virus warnings!
 Those are false positives; here is why that happens:
 
