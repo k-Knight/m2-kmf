@@ -7,3 +7,6 @@
 */**/files_to_install*/*
 */**/files_to_install
 */**/mem_resources/*
+.vscode/
+*/**/.vscode/
+
