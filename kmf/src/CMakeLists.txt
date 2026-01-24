@@ -30,6 +30,7 @@ add_compile_options(
     -m32
     -static
     $<$<CONFIG:Release>:-O3>
+    $<$<CONFIG:Release>:-flto>
     $<$<CONFIG:Debug>:-O0>
     -DUNICODE
     -D_UNICODE
@@ -41,6 +42,7 @@ add_link_options(
     -m32
     -static
     $<$<CONFIG:Release>:-O3>
+    $<$<CONFIG:Release>:-flto>
     $<$<CONFIG:Debug>:-O0>
 )
 
