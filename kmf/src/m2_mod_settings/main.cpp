@@ -232,11 +232,6 @@ static void constraint_image(wxImage* img, const wxSize* size) {
     img->Rescale(new_width, new_height, wxIMAGE_QUALITY_BICUBIC);
 }
 
-//    std::thread t([](){
-//        main_window->CallAfter(&ModSettingsFrame::InitMainPage);
-//    });
-//    t.detach();
-
 static void close_program() {
     program_closing = true;
     UnhookWindowsHookEx(mouse_hook);
@@ -1488,6 +1483,9 @@ ModSettingsFrame::ModSettingsFrame()
     HICON hMyIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
     HWND hwnd = (HWND)this->GetHandle();
 
+    SetWindowLong(hwnd, GWL_EXSTYLE, WS_EX_TOPMOST);
+    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+
     SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hMyIcon);
     SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hMyIcon);
 
@@ -1900,7 +1898,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     if (0 != (magicka_pid = find_pid(L"Magicka2.exe"))) {
         m2_hwnd = find_hwnd_by_pid(magicka_pid);
 
-        if (GetWindowRect(m2_hwnd, &m2_wnd_rect)) {
+        if (m2_hwnd && GetWindowRect(m2_hwnd, &m2_wnd_rect)) {
             try_set_new_wnd_size(m2_wnd_rect);
         }
     }
@@ -1935,9 +1933,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     int ret = wxEntry(0, NULL);
 
-    PostMessage(m2_hwnd, WM_SYSCOMMAND, SC_RESTORE, 0);
-    if (m2_hwnd != NULL)
+    if (m2_hwnd != NULL) {
+        PostMessage(m2_hwnd, WM_SYSCOMMAND, SC_RESTORE, 0);
         SetFocus(m2_hwnd);
+    }
 
     return ret;
 }
