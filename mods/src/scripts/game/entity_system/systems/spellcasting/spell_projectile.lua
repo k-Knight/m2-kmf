@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_projectile.lua b/scripts/game/entity_system/systems/spellcasting/spell_projectile.lua
-index 1ce6e94..528c6dd 100644
+index e917c12..eeb3b4c 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_projectile.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_projectile.lua
 @@ -55,7 +55,8 @@ Spells_Projectile = {

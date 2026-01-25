@@ -1,5 +1,5 @@
 diff --git a/scripts/game/util/compiled_challenges/challenges/joa_cha_trial_veidirtorp.lua b/scripts/game/util/compiled_challenges/challenges/joa_cha_trial_veidirtorp.lua
-index eaeec5b..568d8d4 100644
+index 6f5a99a..249804d 100644
 --- a/scripts/game/util/compiled_challenges/challenges/joa_cha_trial_veidirtorp.lua
 +++ b/scripts/game/util/compiled_challenges/challenges/joa_cha_trial_veidirtorp.lua
 @@ -3,5 +3,40 @@
@@ -14,24 +14,24 @@ index eaeec5b..568d8d4 100644
 +		<name>joa_trial_summary_4_name</name>
 +		<description>joa_trial_summary_4_desc</description>
 +		<victory>joa_trial_summary_4_victory</victory>
-+		<defeat>joa_trial_summary_4_defeat</defeat>		
++		<defeat>joa_trial_summary_4_defeat</defeat>
 +		<artifactSets>
 +			<artifactSet level="wizard">
 +			</artifactSet>
 +			<artifactSet level="professor">
 +				<modifier name="TimerDeathPenalty">2</modifier>
-+				<modifier name="EnemyHealth">3</modifier>								
-+				<modifier name="EnemyHealthRegeneration">1</modifier>							
++				<modifier name="EnemyHealth">3</modifier>
++				<modifier name="EnemyHealthRegeneration">1</modifier>
 +				<modifier name="WizardHealth">3</modifier>
-+				<modifier name="WSpeed">3</modifier>				
-+				<modifier name="WFRegen">2</modifier>				
++				<modifier name="WSpeed">3</modifier>
++				<modifier name="WFRegen">2</modifier>
 +			</artifactSet>
-+			<artifactSet level="sage">						
++			<artifactSet level="sage">
 +				<modifier name="TimerDeathPenalty">3</modifier>
 +				<modifier name="EnemyHealth">4</modifier>
-+				<modifier name="EnemyHealthRegeneration">2</modifier>						
++				<modifier name="EnemyHealthRegeneration">2</modifier>
 +				<modifier name="WizardHealth">2</modifier>
-+				<modifier name="SpellWeight">2</modifier>				
++				<modifier name="SpellWeight">2</modifier>
 +				<modifier name="FRegenType">1</modifier>
 +			</artifactSet>
 +		</artifactSets>

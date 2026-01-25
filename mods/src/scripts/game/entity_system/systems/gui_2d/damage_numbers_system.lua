@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/gui_2d/damage_numbers_system.lua b/scripts/game/entity_system/systems/gui_2d/damage_numbers_system.lua
-index 6846fc5..d0f13b1 100644
+index ec7bcd7..8393775 100644
 --- a/scripts/game/entity_system/systems/gui_2d/damage_numbers_system.lua
 +++ b/scripts/game/entity_system/systems/gui_2d/damage_numbers_system.lua
 @@ -333,6 +333,23 @@ function DamageNumbersSystem:update(system_context)
@@ -10,7 +10,7 @@ index 6846fc5..d0f13b1 100644
 +		local unit_owner
 +		local no_dmg_num_display = kmf.vars.pvp_gamemode == true
 +		local send_dmg_num_data = false
-+		
++
 +		if no_dmg_num_display and kmf.unit_storage then
 +			unit_go_id = kmf.unit_storage:go_id(u)
 +			unit_owner = kmf.unit_storage:owner(u)
@@ -65,10 +65,10 @@ index 6846fc5..d0f13b1 100644
 +
 +			if no_dmg_num_display and unit_go_id and unit_owner and kmf.vars.net_dmg_states[unit_go_id] then
 +				local dmg_states = kmf.vars.net_dmg_states[unit_go_id]
-+				
++
 +				if #dmg_states > 0 then
 +					local new_dmg_states = {}
-+					
++
 +					damage_state = dmg_states[1]
 +
 +					for i, dmg_data in ipairs(dmg_states) do

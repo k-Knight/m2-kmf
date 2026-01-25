@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_fissure.lua b/scripts/game/entity_system/systems/spellcasting/spell_fissure.lua
-index 32d9b64..b112558 100644
+index e2bb1c5..7568881 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_fissure.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_fissure.lua
 @@ -112,7 +112,10 @@ Spells_Fissure = {
@@ -13,13 +13,10 @@ index 32d9b64..b112558 100644
  
  		if char_ext and not context.is_standalone then
  			local animation_event = "melee_attack_thrust"
-@@ -162,6 +165,55 @@ Spells_Fissure = {
+@@ -162,6 +165,52 @@ Spells_Fissure = {
  			scale_damage = context.scale_damage
  		}
  
-+		k_log("forward_table ::")
-+		kmf_log_table(data.forward_table, 1, "    ")
-+
 +		if kmf.vars.funprove_enabled and unique_id then
 +			if is_local then
 +				local query_callback = function(actors)
@@ -69,7 +66,7 @@ index 32d9b64..b112558 100644
  		function data.raycast_callback(any_hit, position, distance, normal, actor)
  			if any_hit then
  				local explosions_done = data.explosions_done
-@@ -188,6 +240,17 @@ Spells_Fissure = {
+@@ -188,6 +237,17 @@ Spells_Fissure = {
  
  		local damage, magnitudes = SETTINGS:get_fissure_damage(pvm, caster, elements)
  
@@ -87,7 +84,7 @@ index 32d9b64..b112558 100644
  		assert(damage, "no damage table for spell_fissure")
  		assert(magnitudes, "no magnitudes table for spell_fissure")
  
-@@ -217,11 +280,15 @@ Spells_Fissure = {
+@@ -217,11 +277,15 @@ Spells_Fissure = {
  						local damage_receiver = EntityAux_extension(unit, "damage_receiver")
  
  						if damage_receiver then
@@ -108,7 +105,7 @@ index 32d9b64..b112558 100644
  						end
  
  						if magnitudes then
-@@ -245,14 +312,157 @@ Spells_Fissure = {
+@@ -245,14 +309,157 @@ Spells_Fissure = {
  		local time_elapsed = data.time_elapsed + dt
  		local explosions_done = data.explosions_done
  		local effect_manager = context.effect_manager
@@ -269,7 +266,7 @@ index 32d9b64..b112558 100644
  
  			world:physics_overlap(data.area_callback, "shape", "sphere", "position", pos, "size", FISSURE_RADIUS, "types", "both", "collision_filter", "damage_query")
  
-@@ -267,7 +477,12 @@ Spells_Fissure = {
+@@ -267,7 +474,12 @@ Spells_Fissure = {
  
  		data.time_elapsed = time_elapsed
  

@@ -1,5 +1,5 @@
 diff --git a/scripts/game/managers/player_variable_manager.lua b/scripts/game/managers/player_variable_manager.lua
-index e568893..38cc21d 100644
+index 69360a1..66ca2ae 100644
 --- a/scripts/game/managers/player_variable_manager.lua
 +++ b/scripts/game/managers/player_variable_manager.lua
 @@ -17,7 +17,20 @@ function PlayerVariableManager:get_variable(unit, variable, assert_on_none_exist

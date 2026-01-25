@@ -1,5 +1,5 @@
 diff --git a/scripts/game/network/network_lobby_browser.lua b/scripts/game/network/network_lobby_browser.lua
-index 91763a5..147dec1 100644
+index e15d02c..53d9ca8 100644
 --- a/scripts/game/network/network_lobby_browser.lua
 +++ b/scripts/game/network/network_lobby_browser.lua
 @@ -107,7 +107,11 @@ function NetworkLobbyBrowser:update(dt)

@@ -77,8 +77,8 @@ uncompiled_files = []
 new_net_config_path = './new.network_config'
 
 for mod, _ in config_items:
-    tmp_compiled[mod] = os.path.join(os.path.relpath("./packager-tmp/compile/", start=cur_dir), mod) 
-    tmp_merging[mod] = os.path.join(os.path.relpath("./packager-tmp/merging/", start=cur_dir), mod) 
+    tmp_compiled[mod] = os.path.join(os.path.relpath("./packager-tmp/compile/", start=cur_dir), mod)
+    tmp_merging[mod] = os.path.join(os.path.relpath("./packager-tmp/merging/", start=cur_dir), mod)
 
     if os.path.exists(tmp_compiled[mod]):
         for f in os.listdir(tmp_compiled[mod]):

@@ -1,5 +1,5 @@
 diff --git a/foundation/scripts/util/strict.lua b/foundation/scripts/util/strict.lua
-index 756a1e3..06396db 100644
+index 2f41a1f..f444465 100644
 --- a/foundation/scripts/util/strict.lua
 +++ b/foundation/scripts/util/strict.lua
 @@ -55,7 +55,8 @@ function meta.__newindex(t, k, v)

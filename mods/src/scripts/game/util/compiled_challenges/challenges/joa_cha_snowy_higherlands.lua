@@ -1,5 +1,5 @@
 diff --git a/scripts/game/util/compiled_challenges/challenges/joa_cha_snowy_higherlands.lua b/scripts/game/util/compiled_challenges/challenges/joa_cha_snowy_higherlands.lua
-index da9b6da..c63c382 100644
+index 92e6bf5..eb918be 100644
 --- a/scripts/game/util/compiled_challenges/challenges/joa_cha_snowy_higherlands.lua
 +++ b/scripts/game/util/compiled_challenges/challenges/joa_cha_snowy_higherlands.lua
 @@ -2,6 +2,41 @@

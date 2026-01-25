@@ -1,5 +1,5 @@
 diff --git a/scripts/game/menu2/menu_statistics_ui.lua b/scripts/game/menu2/menu_statistics_ui.lua
-index b308b00..12a3979 100644
+index 7ab478e..ead3443 100644
 --- a/scripts/game/menu2/menu_statistics_ui.lua
 +++ b/scripts/game/menu2/menu_statistics_ui.lua
 @@ -163,7 +163,12 @@ local stats_to_show = {

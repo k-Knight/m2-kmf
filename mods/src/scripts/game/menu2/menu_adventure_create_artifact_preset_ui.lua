@@ -1,5 +1,5 @@
 diff --git a/scripts/game/menu2/menu_adventure_create_artifact_preset_ui.lua b/scripts/game/menu2/menu_adventure_create_artifact_preset_ui.lua
-index 29ac683..5cb986e 100644
+index 36859dd..e164125 100644
 --- a/scripts/game/menu2/menu_adventure_create_artifact_preset_ui.lua
 +++ b/scripts/game/menu2/menu_adventure_create_artifact_preset_ui.lua
 @@ -114,8 +114,19 @@ local Prefabs = {

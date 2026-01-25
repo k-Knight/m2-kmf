@@ -1,5 +1,5 @@
 diff --git a/scripts/game/network/network_gamemode_server_game.lua b/scripts/game/network/network_gamemode_server_game.lua
-index baa8c02..90d50f3 100644
+index 1d7fdf7..ef3d8d3 100644
 --- a/scripts/game/network/network_gamemode_server_game.lua
 +++ b/scripts/game/network/network_gamemode_server_game.lua
 @@ -24,6 +24,11 @@ function NetworkGameModeServerGame:init(context, story, level_name, gamemode, ga

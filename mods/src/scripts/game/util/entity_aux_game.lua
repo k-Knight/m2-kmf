@@ -1,5 +1,5 @@
 diff --git a/scripts/game/util/entity_aux_game.lua b/scripts/game/util/entity_aux_game.lua
-index 3185fd1..43fca14 100644
+index 34d7b97..8f7750e 100644
 --- a/scripts/game/util/entity_aux_game.lua
 +++ b/scripts/game/util/entity_aux_game.lua
 @@ -35,19 +35,24 @@ local function revert_rotation_speed(ext, smooth)
@@ -20,7 +20,7 @@ index 3185fd1..43fca14 100644
 +	ext.input.dirty_flag = true
 +	local new_effects = ext.input.new_effects
 +	if new_effects == nil then
-+		return 
++		return
 +	end
  
  	new_effects[#new_effects + 1] = effect_table

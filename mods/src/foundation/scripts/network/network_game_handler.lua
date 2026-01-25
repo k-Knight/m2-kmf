@@ -1,5 +1,5 @@
 diff --git a/foundation/scripts/network/network_game_handler.lua b/foundation/scripts/network/network_game_handler.lua
-index b383bc7..98d6268 100644
+index 95c2bf5..837e514 100644
 --- a/foundation/scripts/network/network_game_handler.lua
 +++ b/foundation/scripts/network/network_game_handler.lua
 @@ -53,6 +53,7 @@ end

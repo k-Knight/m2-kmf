@@ -1,5 +1,5 @@
 diff --git a/scripts/game/ui2/application_specific/ui_modal_manager.lua b/scripts/game/ui2/application_specific/ui_modal_manager.lua
-index 63d9f96..ddf9e0d 100644
+index 2ea2a2c..3eddc45 100644
 --- a/scripts/game/ui2/application_specific/ui_modal_manager.lua
 +++ b/scripts/game/ui2/application_specific/ui_modal_manager.lua
 @@ -93,11 +93,16 @@ function C:push_modal(desc)

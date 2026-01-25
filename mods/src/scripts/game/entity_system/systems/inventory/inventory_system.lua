@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/inventory/inventory_system.lua b/scripts/game/entity_system/systems/inventory/inventory_system.lua
-index 1538fd1..810b751 100644
+index 92d6bdb..5901ab5 100644
 --- a/scripts/game/entity_system/systems/inventory/inventory_system.lua
 +++ b/scripts/game/entity_system/systems/inventory/inventory_system.lua
 @@ -77,6 +77,9 @@ function InventorySystem:init(context)

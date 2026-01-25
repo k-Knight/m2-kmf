@@ -1,5 +1,5 @@
 diff --git a/scripts/game/player/player_manager.lua b/scripts/game/player/player_manager.lua
-index 27854e8..6538f87 100644
+index 73b2f21..36b1fb1 100644
 --- a/scripts/game/player/player_manager.lua
 +++ b/scripts/game/player/player_manager.lua
 @@ -119,13 +119,18 @@ function PlayerManager:post_request_add_local_player(slot_id, add_local_player_c

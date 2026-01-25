@@ -1,5 +1,5 @@
 diff --git a/foundation/scripts/network/network_lobby_handler.lua b/foundation/scripts/network/network_lobby_handler.lua
-index 5635f5e..aeed5c5 100644
+index f489a98..4523054 100644
 --- a/foundation/scripts/network/network_lobby_handler.lua
 +++ b/foundation/scripts/network/network_lobby_handler.lua
 @@ -59,6 +59,7 @@ function NetworkLobbyHandler:init(local_player_list, server_name)

@@ -1,5 +1,5 @@
 diff --git a/scripts/game/util/compiled_challenges/compiled_challenges.lua b/scripts/game/util/compiled_challenges/compiled_challenges.lua
-index 9c88db2..a12780f 100644
+index c8ebc6e..bccccc8 100644
 --- a/scripts/game/util/compiled_challenges/compiled_challenges.lua
 +++ b/scripts/game/util/compiled_challenges/compiled_challenges.lua
 @@ -27,7 +27,7 @@ CompiledChallenges = CompiledChallenges or {}

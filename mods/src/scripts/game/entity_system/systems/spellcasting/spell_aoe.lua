@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_aoe.lua b/scripts/game/entity_system/systems/spellcasting/spell_aoe.lua
-index e5db5d0..156972c 100644
+index 5ef132e..5b73dbc 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_aoe.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_aoe.lua
 @@ -66,7 +66,11 @@ Spells_Aoe = {

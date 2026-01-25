@@ -73,11 +73,11 @@ config_items = config.items()
 
 def rename_diff_header(diff_str, new_src_path):
     lines = diff_str.splitlines()
-    
+
     lines[0] = f"diff --git a/{new_src_path} b/{new_src_path}"
     lines[2] = f"--- a/{new_src_path}"
     lines[3] = f"+++ b/{new_src_path}"
-    
+
     return "\n".join(lines)
 
 def get_orig_file_name(file_path):

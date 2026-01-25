@@ -49,24 +49,24 @@ std::vector<std::pair<int, int>> outline_offests = {
     { 0,  1},
     {-1,  0},
     { 0, -1},
-    
+
     { 1,  1},
     {-1, -1},
     {-1,  1},
     { 1, -1},
-    
+
     { 2,  0},
     { 2, -1},
     { 2,  1},
-    
+
     {-2,  0},
     {-2, -1},
     {-2,  1},
-    
+
     { 0,  2},
     {-1,  2},
     { 1,  2},
-    
+
     { 0, -2},
     {-1, -2},
     { 1, -2}
@@ -250,7 +250,7 @@ static void open_sponsor_link() {
 
     if ((int)ShellExecuteW(0, 0, WTEXT(SPONSOR_LINK), 0, 0, SW_SHOW) > 32)
         return;
-    
+
     if ((int)ShellExecuteA(0, "open", SPONSOR_LINK, 0, 0, SW_SHOWNORMAL) > 32)
         return;
 
@@ -264,7 +264,7 @@ static void open_sponsor_link() {
         system("start " SPONSOR_LINK);
     }
 
-#undef SPONSOR_LINK 
+#undef SPONSOR_LINK
 }
 
 static void display_setting_help(MagicModSettingLabel *label, const std::string *setting) {
@@ -443,7 +443,7 @@ void DoubleBufferedTextCtrl::OnPaint(wxPaintEvent& event) {
 
         main_window->Redraw(GetParent());
     }
-    
+
     if (from != 0 || to != 0) {
         wx_before = wxString(wx_text.c_str(), from);
         wx_selected = wxString(wx_text.c_str() + from, to - from);
@@ -1087,7 +1087,7 @@ void ModList::OnMouseWheel(wxMouseEvent& event) {
         content_pos = 0;
     if (content_pos < -scrollable_height)
         content_pos = -scrollable_height;
-   
+
     double pos = (-content_pos) / (double)scrollable_height;
 
     scrollbar->SetPos(pos);
@@ -1208,7 +1208,7 @@ void ModDescription::OnMouseWheel(wxMouseEvent& event) {
         content_pos = 0;
     if (content_pos < -scrollable_height)
         content_pos = -scrollable_height;
-   
+
     double pos = (-content_pos) / (double)scrollable_height;
 
     scrollbar->SetPos(pos);
@@ -1405,7 +1405,7 @@ MagicModEnrty *MagicModEnrty::CreateMagicModEntry(wxWindow* parent, ModDataEntry
 
     MagicModDescButton::CreateMagicModDescButton(obj, data->name, { size.x - h_mod_desc_btn, (h_checkbox - h_mod_desc_btn) / 2 }, { h_mod_desc_btn, h_mod_desc_btn });
     MagicTextCheckbox::CreateMagicTextCheckbox(obj, data, { 0, 0 }, { size.x, h_checkbox });
-    
+
     new ImgPanel(
         obj,
         "resources_hor_bar_png",
@@ -1790,7 +1790,7 @@ static bool focus_already_opened(DWORD pid) {
     keyInput.ki.dwFlags = 0;   //0 for key press
     SendInput(1, &keyInput, sizeof(INPUT));
 
-    SetForegroundWindow(opened_exe_hwnd); //sets the focus 
+    SetForegroundWindow(opened_exe_hwnd); //sets the focus
 
     keyInput.ki.wVk = VK_MENU;
     keyInput.ki.dwFlags = KEYEVENTF_KEYUP;  //for key release

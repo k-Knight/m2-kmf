@@ -1,5 +1,5 @@
 diff --git a/scripts/game/menu2/menu_ui.lua b/scripts/game/menu2/menu_ui.lua
-index b260b12..edcc481 100644
+index 96563a2..9c23a20 100644
 --- a/scripts/game/menu2/menu_ui.lua
 +++ b/scripts/game/menu2/menu_ui.lua
 @@ -22,7 +22,8 @@ local MainMenuPrefabs = {

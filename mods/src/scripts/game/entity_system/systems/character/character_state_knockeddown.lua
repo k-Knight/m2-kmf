@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/character/character_state_knockeddown.lua b/scripts/game/entity_system/systems/character/character_state_knockeddown.lua
-index fa3b421..0566f0c 100644
+index 35e986a..65811a0 100644
 --- a/scripts/game/entity_system/systems/character/character_state_knockeddown.lua
 +++ b/scripts/game/entity_system/systems/character/character_state_knockeddown.lua
 @@ -20,6 +20,7 @@ local cancel_spell_list = {

@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/effect/iceprojectile_effect.lua b/scripts/game/entity_system/systems/effect/iceprojectile_effect.lua
-index 3bfe29e..0cf7c8a 100644
+index ccbabaa..3d647d1 100644
 --- a/scripts/game/entity_system/systems/effect/iceprojectile_effect.lua
 +++ b/scripts/game/entity_system/systems/effect/iceprojectile_effect.lua
 @@ -69,6 +69,12 @@ function IceProjectileEffect:init(context)

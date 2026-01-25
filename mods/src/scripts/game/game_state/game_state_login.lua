@@ -1,5 +1,5 @@
 diff --git a/scripts/game/game_state/game_state_login.lua b/scripts/game/game_state/game_state_login.lua
-index 58094cf..1c47134 100644
+index dd205cb..37faafe 100644
 --- a/scripts/game/game_state/game_state_login.lua
 +++ b/scripts/game/game_state/game_state_login.lua
 @@ -103,6 +103,9 @@ function GameStateLogin:on_enter(param_block)

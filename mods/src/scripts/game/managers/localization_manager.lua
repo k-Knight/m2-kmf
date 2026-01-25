@@ -1,5 +1,5 @@
 diff --git a/scripts/game/managers/localization_manager.lua b/scripts/game/managers/localization_manager.lua
-index 83bfaa3..61e878d 100644
+index 0b7fa4e..e2ba26b 100644
 --- a/scripts/game/managers/localization_manager.lua
 +++ b/scripts/game/managers/localization_manager.lua
 @@ -373,6 +373,11 @@ function LocalizationManager:lookup(text_id, no_error)

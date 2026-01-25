@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/character/character_state_base.lua b/scripts/game/entity_system/systems/character/character_state_base.lua
-index 443f441..ad55cb3 100644
+index e8cac73..f47d6f5 100644
 --- a/scripts/game/entity_system/systems/character/character_state_base.lua
 +++ b/scripts/game/entity_system/systems/character/character_state_base.lua
 @@ -188,6 +188,69 @@ function CharacterStateBase:handle_spellwheel_input(unit, input_data, internal,

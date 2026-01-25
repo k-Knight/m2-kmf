@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/ability/ability_system.lua b/scripts/game/entity_system/systems/ability/ability_system.lua
-index b4db467..cff900a 100644
+index 9c5ccf3..329e0fa 100644
 --- a/scripts/game/entity_system/systems/ability/ability_system.lua
 +++ b/scripts/game/entity_system/systems/ability/ability_system.lua
 @@ -150,6 +150,8 @@ function AbilitySystem:update(context)
@@ -15,14 +15,14 @@ index b4db467..cff900a 100644
  					else
  						local template = templates[name]
  
-+						
++
 +						if kmf.vars.funprove_enabled then
 +							local i_start, _ = string.find(name, "earth_projectile_", 1, true)
 +
 +							-- fun-balance :: buff elemental rock projectile aoe
 +							if i_start and args.damage_mul and boosted_damage_mul_tables[args.damage_mul] ~= true then
 +								boosted_damage_mul_tables[args.damage_mul] = true
-+								
++
 +								for k, v in pairs(args.damage_mul) do
 +									if k ~= "water" and k ~= "water_push" and k ~= "water_elevate" and k ~= "push" and k ~= "elevate" then
 +										args.damage_mul[k] = v * 2

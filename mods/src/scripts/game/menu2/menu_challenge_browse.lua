@@ -1,5 +1,5 @@
 diff --git a/scripts/game/menu2/menu_challenge_browse.lua b/scripts/game/menu2/menu_challenge_browse.lua
-index 708c48a..c367325 100644
+index 68e2ed5..1372269 100644
 --- a/scripts/game/menu2/menu_challenge_browse.lua
 +++ b/scripts/game/menu2/menu_challenge_browse.lua
 @@ -1214,7 +1214,17 @@ function C:on_enter_row(evt)
@@ -69,7 +69,7 @@ index 708c48a..c367325 100644
 +			local function callback_to_start_game_with_custom_artifacts()
 +				self.context.event_delegate:trigger2("on_menu2_create_challenge", challenge_data, "custom")
 +			end
-+	
++
 +			self.context.event_delegate:trigger5("on_show_menu_create_artifact_custom", "forward", self.title_text, mod_string, callback_to_come_back_here, callback_to_start_game_with_custom_artifacts)
 +			kmf.vars.pvp_gamemode = true
 +			if kmf.lobby_handler then

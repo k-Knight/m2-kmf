@@ -1,5 +1,5 @@
 diff --git a/scripts/game/managers/challenge_provider.lua b/scripts/game/managers/challenge_provider.lua
-index beef35f..9a18d3c 100644
+index c1f4e38..bb362a7 100644
 --- a/scripts/game/managers/challenge_provider.lua
 +++ b/scripts/game/managers/challenge_provider.lua
 @@ -23,7 +23,7 @@ end

@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/character/character_state_shock.lua b/scripts/game/entity_system/systems/character/character_state_shock.lua
-index a047eba..7e4d3e9 100644
+index db7908c..5c386e5 100644
 --- a/scripts/game/entity_system/systems/character/character_state_shock.lua
 +++ b/scripts/game/entity_system/systems/character/character_state_shock.lua
 @@ -7,7 +7,14 @@ function CharacterStateShock:init(context)

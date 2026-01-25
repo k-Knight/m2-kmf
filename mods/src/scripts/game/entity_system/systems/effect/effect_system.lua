@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/effect/effect_system.lua b/scripts/game/entity_system/systems/effect/effect_system.lua
-index 76b06e9..dd7c0f9 100644
+index 8c517a2..d397136 100644
 --- a/scripts/game/entity_system/systems/effect/effect_system.lua
 +++ b/scripts/game/entity_system/systems/effect/effect_system.lua
 @@ -33,6 +33,7 @@ function EffectSystem:init(context)

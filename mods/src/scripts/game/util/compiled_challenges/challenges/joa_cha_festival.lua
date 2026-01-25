@@ -1,5 +1,5 @@
 diff --git a/scripts/game/util/compiled_challenges/challenges/joa_cha_festival.lua b/scripts/game/util/compiled_challenges/challenges/joa_cha_festival.lua
-index 774d06a..1c9550f 100644
+index bace47a..bdeebd4 100644
 --- a/scripts/game/util/compiled_challenges/challenges/joa_cha_festival.lua
 +++ b/scripts/game/util/compiled_challenges/challenges/joa_cha_festival.lua
 @@ -2,6 +2,41 @@
@@ -23,17 +23,17 @@ index 774d06a..1c9550f 100644
 +			<artifactSet level="professor">
 +				<modifier name="EnemyHealth">3</modifier>
 +				<modifier name="EnemyMovementSpeed">3</modifier>
-+				<modifier name="EnemyHealthRegeneration">1</modifier>				
++				<modifier name="EnemyHealthRegeneration">1</modifier>
 +				<modifier name="WizardHealth">3</modifier>
-+				<modifier name="WSpeed">3</modifier>				
++				<modifier name="WSpeed">3</modifier>
 +				<modifier name="WFRegen">2</modifier>
 +			</artifactSet>
-+			<artifactSet level="sage">				
++			<artifactSet level="sage">
 +				<modifier name="EnemyHealth">4</modifier>
 +				<modifier name="EnemyMovementSpeed">4</modifier>
-+				<modifier name="EnemyHealthRegeneration">2</modifier>				
++				<modifier name="EnemyHealthRegeneration">2</modifier>
 +				<modifier name="WizardHealth">2</modifier>
-+				<modifier name="SpellWeight">2</modifier>				
++				<modifier name="SpellWeight">2</modifier>
 +				<modifier name="FRegenType">1</modifier>
 +				</artifactSet>
 +		</artifactSets>

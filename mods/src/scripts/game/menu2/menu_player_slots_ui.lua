@@ -1,5 +1,5 @@
 diff --git a/scripts/game/menu2/menu_player_slots_ui.lua b/scripts/game/menu2/menu_player_slots_ui.lua
-index 5d289ed..b1235fc 100644
+index 06da73c..c1340e2 100644
 --- a/scripts/game/menu2/menu_player_slots_ui.lua
 +++ b/scripts/game/menu2/menu_player_slots_ui.lua
 @@ -601,7 +601,9 @@ function C:update()

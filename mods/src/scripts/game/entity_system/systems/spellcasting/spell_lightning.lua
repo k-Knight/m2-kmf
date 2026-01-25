@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_lightning.lua b/scripts/game/entity_system/systems/spellcasting/spell_lightning.lua
-index d91da5b..2347a4d 100644
+index b1ef7a6..d0cc5d0 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_lightning.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_lightning.lua
 @@ -131,6 +131,9 @@ Spells_Lightning = {

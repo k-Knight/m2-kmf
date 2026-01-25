@@ -1,5 +1,5 @@
 diff --git a/scripts/game/util/compiled_challenges/challenges/joa_cha_alcatraz.lua b/scripts/game/util/compiled_challenges/challenges/joa_cha_alcatraz.lua
-index d1cc0b5..b72e9b9 100644
+index fd4f798..8f8bc45 100644
 --- a/scripts/game/util/compiled_challenges/challenges/joa_cha_alcatraz.lua
 +++ b/scripts/game/util/compiled_challenges/challenges/joa_cha_alcatraz.lua
 @@ -2,6 +2,41 @@
@@ -23,17 +23,17 @@ index d1cc0b5..b72e9b9 100644
 +			<artifactSet level="professor">
 +				<modifier name="EnemyHealth">3</modifier>
 +				<modifier name="EnemyMovementSpeed">3</modifier>
-+				<modifier name="EnemyHealthRegeneration">1</modifier>				
++				<modifier name="EnemyHealthRegeneration">1</modifier>
 +				<modifier name="WizardHealth">3</modifier>
-+				<modifier name="WSpeed">3</modifier>				
++				<modifier name="WSpeed">3</modifier>
 +				<modifier name="WFRegen">2</modifier>
 +			</artifactSet>
-+			<artifactSet level="sage">				
++			<artifactSet level="sage">
 +				<modifier name="EnemyHealth">4</modifier>
 +				<modifier name="EnemyMovementSpeed">4</modifier>
-+				<modifier name="EnemyHealthRegeneration">2</modifier>				
++				<modifier name="EnemyHealthRegeneration">2</modifier>
 +				<modifier name="WizardHealth">2</modifier>
-+				<modifier name="SpellWeight">2</modifier>				
++				<modifier name="SpellWeight">2</modifier>
 +				<modifier name="FRegenType">1</modifier>
 +			</artifactSet>
 +		</artifactSets>

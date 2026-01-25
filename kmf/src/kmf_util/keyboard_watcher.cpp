@@ -200,7 +200,7 @@ const std::map<key_function_t, uint8_t> &get_kbd_mapping() {
 }
 
 const char *get_key_function_name(const key_function_t &kf) {
-    for(const auto &entry : str2kf_map) 
+    for(const auto &entry : str2kf_map)
         if(entry.second == kf)
             return entry.first.c_str();
 
@@ -208,7 +208,7 @@ const char *get_key_function_name(const key_function_t &kf) {
 }
 
 const char *get_key_name(const uint8_t code) {
-    for(const auto &entry : str2vk) 
+    for(const auto &entry : str2vk)
         if(entry.second == code)
             return entry.first.c_str();
 
@@ -270,7 +270,7 @@ void order_inputs_by_time(char *elem_str) {
 
 bool try_init_keyboard_watcher() {
     debug_write("in try_init_keyboard_watcher()\n");
-    
+
     origin = hr_clock::now();
 
     HMODULE hMod = GetModuleHandleA(NULL);

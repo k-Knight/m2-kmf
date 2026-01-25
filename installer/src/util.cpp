@@ -80,7 +80,7 @@ void sprintf_to_string(std::string &dest, const char *fmt, ...)
     va_end(args);
 
     dest.resize(required + 1);
- 
+
     va_start(args, fmt);
     vsnprintf(dest.data(), dest.size(), fmt, args);
     va_end(args);

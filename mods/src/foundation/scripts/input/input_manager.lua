@@ -1,5 +1,5 @@
 diff --git a/foundation/scripts/input/input_manager.lua b/foundation/scripts/input/input_manager.lua
-index 9c51e4d..83b461f 100644
+index ef892f0..f466994 100644
 --- a/foundation/scripts/input/input_manager.lua
 +++ b/foundation/scripts/input/input_manager.lua
 @@ -35,6 +35,10 @@ function InputManager:_reset_mappings()

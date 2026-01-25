@@ -63,7 +63,7 @@ class MagicButton : public wxWindow {
 public:
     volatile bool drawGUI;
     volatile bool drop_shadow;
-    
+
     void SetColors(wxColour *normal, wxColour *highlight);
     static MagicButton *CreateMagicButton(wxWindow* parent, const char* label, void (*callback)(void), const wxPoint& pos, const wxSize& size);
 protected:

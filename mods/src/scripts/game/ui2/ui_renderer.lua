@@ -1,5 +1,5 @@
 diff --git a/scripts/game/ui2/ui_renderer.lua b/scripts/game/ui2/ui_renderer.lua
-index 1473a70..695b577 100644
+index f52088d..d0f6326 100644
 --- a/scripts/game/ui2/ui_renderer.lua
 +++ b/scripts/game/ui2/ui_renderer.lua
 @@ -407,6 +407,39 @@ function C:update(dt)
@@ -52,7 +52,7 @@ index 1473a70..695b577 100644
 +	if not font_size then
 +		font_size = 64
 +	end
-+	
++
  	local font_data = font_lookup[font]
  	local scale = font_data.inv_size * (font_size + (LocalizationManager:is_chinese() and 4 or 0))
  	local clamped_scale = math_min_clamp(scale, 0.375)

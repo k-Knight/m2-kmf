@@ -1,5 +1,5 @@
 diff --git a/scripts/game/util/compiled_challenges/challenges/joa_cha_trial_snowy_higherlands.lua b/scripts/game/util/compiled_challenges/challenges/joa_cha_trial_snowy_higherlands.lua
-index 3d26629..e59ea51 100644
+index 73f264a..cf6785f 100644
 --- a/scripts/game/util/compiled_challenges/challenges/joa_cha_trial_snowy_higherlands.lua
 +++ b/scripts/game/util/compiled_challenges/challenges/joa_cha_trial_snowy_higherlands.lua
 @@ -3,5 +3,40 @@
@@ -14,25 +14,25 @@ index 3d26629..e59ea51 100644
 +		<name>joa_trial_summary_2_name</name>
 +		<description>joa_trial_summary_2_desc</description>
 +		<victory>joa_trial_summary_2_victory</victory>
-+		<defeat>joa_trial_summary_2_defeat</defeat>		
++		<defeat>joa_trial_summary_2_defeat</defeat>
 +		<artifactSets>
 +			<artifactSet level="wizard">
 +			</artifactSet>
 +			<artifactSet level="professor">
 +				<modifier name="TimerDeathPenalty">2</modifier>
-+				<modifier name="EnemyHealth">3</modifier>								
-+				<modifier name="EnemyHealthRegeneration">1</modifier>							
++				<modifier name="EnemyHealth">3</modifier>
++				<modifier name="EnemyHealthRegeneration">1</modifier>
 +				<modifier name="WizardHealth">3</modifier>
-+				<modifier name="WSpeed">3</modifier>				
-+				<modifier name="WFRegen">2</modifier>				
++				<modifier name="WSpeed">3</modifier>
++				<modifier name="WFRegen">2</modifier>
 +			</artifactSet>
-+			<artifactSet level="sage">						
++			<artifactSet level="sage">
 +				<modifier name="TimerDeathPenalty">3</modifier>
 +				<modifier name="EnemyHealth">4</modifier>
-+				<modifier name="EnemyHealthRegeneration">2</modifier>						
++				<modifier name="EnemyHealthRegeneration">2</modifier>
 +				<modifier name="WizardHealth">2</modifier>
-+				<modifier name="SpellWeight">2</modifier>				
-+				<modifier name="FRegenType">1</modifier>	
++				<modifier name="SpellWeight">2</modifier>
++				<modifier name="FRegenType">1</modifier>
 +			</artifactSet>
 +		</artifactSets>
 +	</initialize>

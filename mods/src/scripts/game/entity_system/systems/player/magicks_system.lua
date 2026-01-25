@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/player/magicks_system.lua b/scripts/game/entity_system/systems/player/magicks_system.lua
-index b983651..9eb7296 100644
+index 920a63c..0e7d218 100644
 --- a/scripts/game/entity_system/systems/player/magicks_system.lua
 +++ b/scripts/game/entity_system/systems/player/magicks_system.lua
 @@ -205,6 +205,7 @@ function MagicksSystem:on_add_extension(u, extension_name, init_data, net_init_d

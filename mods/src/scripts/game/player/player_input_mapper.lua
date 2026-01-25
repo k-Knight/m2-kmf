@@ -1,5 +1,5 @@
 diff --git a/scripts/game/player/player_input_mapper.lua b/scripts/game/player/player_input_mapper.lua
-index 154fb97..b3eaae9 100644
+index d0b379f..78a1691 100644
 --- a/scripts/game/player/player_input_mapper.lua
 +++ b/scripts/game/player/player_input_mapper.lua
 @@ -103,9 +103,17 @@ function PlayerInputMapper:update_controller_activation(dt)

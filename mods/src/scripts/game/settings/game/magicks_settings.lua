@@ -1,5 +1,5 @@
 diff --git a/scripts/game/settings/game/magicks_settings.lua b/scripts/game/settings/game/magicks_settings.lua
-index 78ecdf3..b63cff3 100644
+index e47c80e..4498994 100644
 --- a/scripts/game/settings/game/magicks_settings.lua
 +++ b/scripts/game/settings/game/magicks_settings.lua
 @@ -197,6 +197,13 @@ MagicksSettings.force_prism = {

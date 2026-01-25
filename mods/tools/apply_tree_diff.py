@@ -96,7 +96,7 @@ def apply_patch_with_path_redirect(patch_path, target_path):
 
     with open(rel_patch_path, 'rb') as f:
         patch_content = f.read().decode('utf-8')
-    
+
     modified_patch_content = ""
     for line in patch_content.splitlines():
         if line.startswith('--- a/'):

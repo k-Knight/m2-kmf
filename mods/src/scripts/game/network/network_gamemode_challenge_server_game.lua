@@ -1,5 +1,5 @@
 diff --git a/scripts/game/network/network_gamemode_challenge_server_game.lua b/scripts/game/network/network_gamemode_challenge_server_game.lua
-index 59cfdbf..016f71e 100644
+index b80814a..2db95f4 100644
 --- a/scripts/game/network/network_gamemode_challenge_server_game.lua
 +++ b/scripts/game/network/network_gamemode_challenge_server_game.lua
 @@ -96,7 +96,7 @@ function NetworkGameModeChallengeServerGame:init(context, story, level_name, gam

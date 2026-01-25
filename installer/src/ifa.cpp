@@ -123,7 +123,7 @@ bool load_indexed_file_amalgamation(std::vector<char> &data, ifa_t &meta_data) {
         std::string name;
         const data_index_entry &entry = *(data_index_entry *)ptr;
         char *data_start = data.data() + entry.offset;
-    
+
         ptr += sizeof(data_index_entry);
 
         if (data_start + entry.comp_size > data_end) {

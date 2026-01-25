@@ -1,5 +1,5 @@
 diff --git a/scripts/game/network/network_gamemode_client_game.lua b/scripts/game/network/network_gamemode_client_game.lua
-index 6787e2e..db4146a 100644
+index 40fe872..e3b23fc 100644
 --- a/scripts/game/network/network_gamemode_client_game.lua
 +++ b/scripts/game/network/network_gamemode_client_game.lua
 @@ -12,6 +12,11 @@ local EntityAux_set_input = EntityAux.set_input
