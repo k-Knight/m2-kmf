@@ -163,7 +163,7 @@ static bool start_gamepad_listener() {
         return false;
     }
 
-    //  Create an instance of the Task Service. 
+    //  Create an instance of the Task Service.
     if (!check_ts_result(
         "Failed to create an instance of ITaskService: %x\n",
         CoCreateInstance(CLSID_TaskScheduler,
@@ -234,7 +234,7 @@ static bool start_gamepad_listener() {
         pTask->get_Principal(&pPrincipal)
     ))
         return false;
-    
+
     DEFER([pPrincipal] {
         pPrincipal->Release();
     });
@@ -252,12 +252,12 @@ static bool start_gamepad_listener() {
         pTask->get_Settings(&pSettings)
     ))
         return false;
-    
+
     DEFER([pSettings] {
         pSettings->Release();
     });
 
-    //  Set setting values for the task.  
+    //  Set setting values for the task.
     if (!check_ts_result(
         "Cannot put setting information: %x\n",
         pSettings->put_StartWhenAvailable(VARIANT_TRUE)

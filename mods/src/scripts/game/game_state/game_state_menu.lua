@@ -1,5 +1,5 @@
 diff --git a/scripts/game/game_state/game_state_menu.lua b/scripts/game/game_state/game_state_menu.lua
-index f544945..4045def 100644
+index b8cff8b..1caba54 100644
 --- a/scripts/game/game_state/game_state_menu.lua
 +++ b/scripts/game/game_state/game_state_menu.lua
 @@ -108,6 +108,8 @@ function GameStateMenu:on_enter(param_block)

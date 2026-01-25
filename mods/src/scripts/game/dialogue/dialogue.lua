@@ -1,5 +1,5 @@
 diff --git a/scripts/game/dialogue/dialogue.lua b/scripts/game/dialogue/dialogue.lua
-index f5f787a..a124090 100644
+index 17d5134..e22d24d 100644
 --- a/scripts/game/dialogue/dialogue.lua
 +++ b/scripts/game/dialogue/dialogue.lua
 @@ -848,6 +848,14 @@ function Dialogue:on_activate(entity_manager, ignore_sound)

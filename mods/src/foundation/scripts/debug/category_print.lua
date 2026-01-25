@@ -1,5 +1,5 @@
 diff --git a/foundation/scripts/debug/category_print.lua b/foundation/scripts/debug/category_print.lua
-index 72ae320..c0f6aad 100644
+index a21d760..6a70747 100644
 --- a/foundation/scripts/debug/category_print.lua
 +++ b/foundation/scripts/debug/category_print.lua
 @@ -162,7 +162,7 @@ local function _print_category_check_color(category, message)

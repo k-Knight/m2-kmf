@@ -1,5 +1,5 @@
 diff --git a/scripts/game/ui2/ui_context.lua b/scripts/game/ui2/ui_context.lua
-index 9deefe3..1b33b36 100644
+index b82e05b..0835072 100644
 --- a/scripts/game/ui2/ui_context.lua
 +++ b/scripts/game/ui2/ui_context.lua
 @@ -262,6 +262,11 @@ _UIContext = class(_UIContext)
@@ -59,7 +59,7 @@ index 9deefe3..1b33b36 100644
  
  	local input_data = self.input_data
  	local gamepad_input_target
-@@ -1151,6 +1164,26 @@ end
+@@ -1151,6 +1164,23 @@ end
  
  function C:render()
  	self.ui_scene:render(self.ui_renderer)
@@ -71,18 +71,15 @@ index 9deefe3..1b33b36 100644
 +		pcall(wrapper)
 +	end
 +
-+	if rawget(_G, "kmf") then
-+		local status, err = pcall(kmf.get_mod_settings)
++	local status, err = pcall(kmf.get_mod_settings)
 +
-+		if status ~= true then
-+			if _G.my_debugger then
-+				kmf_print("get_mod_settings()", err)
-+			end
++	if status ~= true then
++		if _G.my_debugger then
++			kmf_print("get_mod_settings()", err)
 +		end
-+
-+		kmf.on_reder()
-+		--kmf.task_scheduler.try_run_next_task()
 +	end
++
++	kmf.on_render()
  end
  
  function C:trigger_event_level(event_name)

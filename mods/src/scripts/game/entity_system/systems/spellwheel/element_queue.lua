@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellwheel/element_queue.lua b/scripts/game/entity_system/systems/spellwheel/element_queue.lua
-index a341018..b3b61de 100644
+index eb760d1..afa0b9b 100644
 --- a/scripts/game/entity_system/systems/spellwheel/element_queue.lua
 +++ b/scripts/game/entity_system/systems/spellwheel/element_queue.lua
 @@ -110,14 +110,109 @@ function ElementQueue:clear()

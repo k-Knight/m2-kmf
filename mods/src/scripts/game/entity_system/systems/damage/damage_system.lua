@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/damage/damage_system.lua b/scripts/game/entity_system/systems/damage/damage_system.lua
-index 2862baf..2bc670a 100644
+index 9e7b19f..92b74ef 100644
 --- a/scripts/game/entity_system/systems/damage/damage_system.lua
 +++ b/scripts/game/entity_system/systems/damage/damage_system.lua
 @@ -113,6 +113,9 @@ function DamageSystem:sync_self_shield(sender, go_id, active)

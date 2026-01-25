@@ -1,5 +1,5 @@
 diff --git a/scripts/game/managers/encounter_manager.lua b/scripts/game/managers/encounter_manager.lua
-index 105918d..c3914e4 100644
+index 1405897..c8eb1e0 100644
 --- a/scripts/game/managers/encounter_manager.lua
 +++ b/scripts/game/managers/encounter_manager.lua
 @@ -64,9 +64,16 @@ function EncounterManager:add_encounter_unit(sender, unit_id)

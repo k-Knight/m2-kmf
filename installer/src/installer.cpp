@@ -16,7 +16,7 @@
 #include "search_win.hpp"
 #include "resource.h"
 
-search_win::paths_t potential_magicka2_dirs; 
+search_win::paths_t potential_magicka2_dirs;
 
 void display_error(const wchar_t *format, const wchar_t *data, const wchar_t *advice) {
     wchar_t *buf;
@@ -188,7 +188,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 #endif // ENABLE_MASKING
 
     bInfo.hwndOwner = NULL;
-    bInfo.pidlRoot = NULL; 
+    bInfo.pidlRoot = NULL;
     bInfo.pszDisplayName = szDir; // Address of a buffer to receive the display name of the folder selected by the user
     bInfo.lpszTitle = L"Please select the Magicka 2 game's root directory";
     bInfo.ulFlags = BIF_USENEWUI | BIF_RETURNONLYFSDIRS | BIF_DONTGOBELOWDOMAIN;

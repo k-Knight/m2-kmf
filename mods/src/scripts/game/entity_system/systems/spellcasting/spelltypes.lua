@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spelltypes.lua b/scripts/game/entity_system/systems/spellcasting/spelltypes.lua
-index e5e685e..58ae89d 100644
+index 72fdd61..f89463b 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spelltypes.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spelltypes.lua
 @@ -90,12 +90,18 @@ function SpellTypes.self(context)

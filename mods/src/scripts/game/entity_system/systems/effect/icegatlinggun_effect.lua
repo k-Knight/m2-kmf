@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/effect/icegatlinggun_effect.lua b/scripts/game/entity_system/systems/effect/icegatlinggun_effect.lua
-index fe2a190..ba5cf8f 100644
+index 4bd07e7..cf3ad9e 100644
 --- a/scripts/game/entity_system/systems/effect/icegatlinggun_effect.lua
 +++ b/scripts/game/entity_system/systems/effect/icegatlinggun_effect.lua
 @@ -188,6 +188,114 @@ end
@@ -21,15 +21,15 @@ index fe2a190..ba5cf8f 100644
 +			end
 +
 +			self.kmf_targets = {}
-+	
++
 +			for i, actor in ipairs(actors) do
 +				repeat
 +					local unit = Actor.unit(actor)
-+	
++
 +					if not unit or unit == self._owner or not EntityAux.extension(unit, "damage_receiver") or not EntityAux.extension(unit, "character") then
 +						break
 +					end
-+	
++
 +					self.kmf_targets[unit] = true
 +				until true
 +			end
@@ -37,7 +37,7 @@ index fe2a190..ba5cf8f 100644
 +
 +		if unit and Unit.alive(unit) then
 +			local pos = Unit.world_position(unit, 0) + Quaternion.forward(Unit.world_rotation(unit, 0)) * 14
-+			
++
 +			kmf.this_frame_ice_gatling_query_done = true
 +			self.kmf_query_time = time
 +			self._world:physics_overlap(query_callback, "shape", "sphere", "position", pos, "size", 15, "types", "both", "collision_filter", "damage_query")
@@ -52,7 +52,7 @@ index fe2a190..ba5cf8f 100644
 +				targets_info[#targets_info + 1] = Vector3.box({}, Unit.world_position(target, 0))
 +			end
 +		end
-+		
++
 +		if #targets_info > 0 then
 +
 +			for my_unit, spawned in pairs(self._spawned_units) do
@@ -91,23 +91,23 @@ index fe2a190..ba5cf8f 100644
 +					if not target_pos or not my_actor then
 +						break
 +					end
-+					
++
 +					local my_z = Vector3.z(my_pos)
-+					
++
 +					if Vector3.z(target_pos) < my_z then
 +						Vector3.set_z(target_pos, my_z)
 +					end
-+					
++
 +					local dir = Vector3.normalize(target_pos - my_pos)
 +					dir = Vector3.lerp(my_dir, dir, 55 * context.dt)
 +
 +					local new_rot = Quaternion.look(dir, Vector3.up())
 +					if not new_rot then break end
-+					
++
 +					if Vector3.z(dir) < 0 then
 +						Vector3.set_z(dir, 0)
 +					end
-+					
++
 +					Actor.set_velocity(my_actor, dir * my_vel)
 +					Actor.teleport_rotation(my_actor, new_rot)
 +				until true

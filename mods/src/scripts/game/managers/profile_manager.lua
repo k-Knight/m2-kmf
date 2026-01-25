@@ -1,5 +1,5 @@
 diff --git a/scripts/game/managers/profile_manager.lua b/scripts/game/managers/profile_manager.lua
-index 3ea98a6..b361a9f 100644
+index b90836f..9b992ed 100644
 --- a/scripts/game/managers/profile_manager.lua
 +++ b/scripts/game/managers/profile_manager.lua
 @@ -59,6 +59,10 @@ function ProfileManager:get_player_name(index, queued_controller)

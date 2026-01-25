@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/effect/earthprojectile_effect.lua b/scripts/game/entity_system/systems/effect/earthprojectile_effect.lua
-index 95d33ff..05e646e 100644
+index 8693db4..892a879 100644
 --- a/scripts/game/entity_system/systems/effect/earthprojectile_effect.lua
 +++ b/scripts/game/entity_system/systems/effect/earthprojectile_effect.lua
 @@ -31,12 +31,23 @@ function EarthProjectileEffect:init(context)

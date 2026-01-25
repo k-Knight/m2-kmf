@@ -1,5 +1,5 @@
 diff --git a/scripts/game/chat/chat_handler.lua b/scripts/game/chat/chat_handler.lua
-index ca76630..20fd16f 100644
+index 31eb73f..0b19385 100644
 --- a/scripts/game/chat/chat_handler.lua
 +++ b/scripts/game/chat/chat_handler.lua
 @@ -5,6 +5,10 @@ require("scripts/game/chat/chat_buffer")

@@ -1,9 +1,9 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_spray.lua b/scripts/game/entity_system/systems/spellcasting/spell_spray.lua
-index a8e182a..2b7d0b0 100644
+index 46ab6ff..e6ff6c1 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_spray.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_spray.lua
 @@ -1,5 +1,7 @@
- ﻿-- chunkname: @scripts/game/entity_system/systems/spellcasting/spell_spray.lua
+ -- chunkname: @scripts/game/entity_system/systems/spellcasting/spell_spray.lua
  
 +local LENGTH_MULT = 1.15
 +

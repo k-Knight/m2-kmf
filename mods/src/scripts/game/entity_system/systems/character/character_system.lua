@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/character/character_system.lua b/scripts/game/entity_system/systems/character/character_system.lua
-index 74b2810..d5badbe 100644
+index 757c093..67a4353 100644
 --- a/scripts/game/entity_system/systems/character/character_system.lua
 +++ b/scripts/game/entity_system/systems/character/character_system.lua
 @@ -1678,6 +1678,30 @@ local function update_forced_move(input, internal, my_pos, unit_spawner)

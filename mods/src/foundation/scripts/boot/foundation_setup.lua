@@ -1,5 +1,5 @@
 diff --git a/foundation/scripts/boot/foundation_setup.lua b/foundation/scripts/boot/foundation_setup.lua
-index 08b496f..deb7470 100644
+index 1133d1d..1a6748e 100644
 --- a/foundation/scripts/boot/foundation_setup.lua
 +++ b/foundation/scripts/boot/foundation_setup.lua
 @@ -42,9 +42,9 @@ function Boot:setup(game_require_callback)

@@ -1,5 +1,5 @@
 diff --git a/scripts/game/game_state/game_state_ingame.lua b/scripts/game/game_state/game_state_ingame.lua
-index e2569f9..7efaeff 100644
+index 0fe3dbc..053d6b2 100644
 --- a/scripts/game/game_state/game_state_ingame.lua
 +++ b/scripts/game/game_state/game_state_ingame.lua
 @@ -32,22 +32,56 @@ local TIME_CHALLENGE_CLOCK_FINAL = "ui_signal_countdown_final"

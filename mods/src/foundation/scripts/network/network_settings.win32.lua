@@ -1,5 +1,5 @@
 diff --git a/foundation/scripts/network/network_settings.win32.lua b/foundation/scripts/network/network_settings.win32.lua
-index e25f9c8..26c4315 100644
+index ebff170..5cb585e 100644
 --- a/foundation/scripts/network/network_settings.win32.lua
 +++ b/foundation/scripts/network/network_settings.win32.lua
 @@ -8,3 +8,4573 @@ NetworkSettings = {
@@ -4494,7 +4494,7 @@ index e25f9c8..26c4315 100644
 +		end
 +	end
 +
-+	kmf.on_reder = function()
++	kmf.on_render = function()
 +		kmf.frame_camera = nil
 +		pcall(function()
 +			kmf.frame_camera = WorldManager:camera("players")

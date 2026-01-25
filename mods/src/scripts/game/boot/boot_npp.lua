@@ -1,5 +1,5 @@
 diff --git a/scripts/game/boot/boot_npp.lua b/scripts/game/boot/boot_npp.lua
-index e0d62dc..b16b251 100644
+index ee5b158..5f35a01 100644
 --- a/scripts/game/boot/boot_npp.lua
 +++ b/scripts/game/boot/boot_npp.lua
 @@ -180,6 +180,9 @@ local function parse_module(out, mod, mod_name)

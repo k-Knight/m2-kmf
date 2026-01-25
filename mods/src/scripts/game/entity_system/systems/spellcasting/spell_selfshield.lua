@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_selfshield.lua b/scripts/game/entity_system/systems/spellcasting/spell_selfshield.lua
-index b493a19..b5145af 100644
+index a226fe9..b3b4d26 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_selfshield.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_selfshield.lua
 @@ -3,15 +3,41 @@

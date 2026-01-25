@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellwheel/spellwheel_system.lua b/scripts/game/entity_system/systems/spellwheel/spellwheel_system.lua
-index aa8a3be..9dd083c 100644
+index ea1f0a4..5a46785 100644
 --- a/scripts/game/entity_system/systems/spellwheel/spellwheel_system.lua
 +++ b/scripts/game/entity_system/systems/spellwheel/spellwheel_system.lua
 @@ -57,8 +57,7 @@ SpellWheelAux = SpellWheelAux or {

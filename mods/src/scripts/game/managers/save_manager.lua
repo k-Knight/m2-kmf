@@ -1,5 +1,5 @@
 diff --git a/scripts/game/managers/save_manager.lua b/scripts/game/managers/save_manager.lua
-index f2a4ab5..799882f 100644
+index ae9056a..86f1fe2 100644
 --- a/scripts/game/managers/save_manager.lua
 +++ b/scripts/game/managers/save_manager.lua
 @@ -669,6 +669,10 @@ function SaveManager:update_generic(dt)

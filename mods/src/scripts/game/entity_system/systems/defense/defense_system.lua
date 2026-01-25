@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/defense/defense_system.lua b/scripts/game/entity_system/systems/defense/defense_system.lua
-index a3bd865..eb48c15 100644
+index fafd1a9..5ef0f44 100644
 --- a/scripts/game/entity_system/systems/defense/defense_system.lua
 +++ b/scripts/game/entity_system/systems/defense/defense_system.lua
 @@ -473,6 +473,7 @@ function DefenseSystem:update_defense(context)
@@ -33,7 +33,7 @@ index a3bd865..eb48c15 100644
 +								if last_kmf_res then
 +									if last_kmf_res.on_remove_res and last_kmf_res.check_amount then
 +										local found = false
-+	
++
 +										for _, value in ipairs(res_table) do
 +											if last_kmf_res:check_amount(element, value) then
 +												found = true

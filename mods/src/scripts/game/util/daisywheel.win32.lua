@@ -1,5 +1,5 @@
 diff --git a/scripts/game/util/daisywheel.win32.lua b/scripts/game/util/daisywheel.win32.lua
-index 2e54312..b596fc5 100644
+index 98d2a4a..8be5e86 100644
 --- a/scripts/game/util/daisywheel.win32.lua
 +++ b/scripts/game/util/daisywheel.win32.lua
 @@ -22,7 +22,7 @@ if DaisyWheel == nil then

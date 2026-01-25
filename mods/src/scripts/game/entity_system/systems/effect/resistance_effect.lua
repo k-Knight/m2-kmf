@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/effect/resistance_effect.lua b/scripts/game/entity_system/systems/effect/resistance_effect.lua
-index a37c2ad..b513c73 100644
+index 50751f4..83c7673 100644
 --- a/scripts/game/entity_system/systems/effect/resistance_effect.lua
 +++ b/scripts/game/entity_system/systems/effect/resistance_effect.lua
 @@ -43,7 +43,7 @@ local function sort_elements(elements)

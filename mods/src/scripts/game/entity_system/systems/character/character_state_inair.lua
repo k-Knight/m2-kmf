@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/character/character_state_inair.lua b/scripts/game/entity_system/systems/character/character_state_inair.lua
-index 4e7ec6b..952d534 100644
+index fb0ddc6..f34bf12 100644
 --- a/scripts/game/entity_system/systems/character/character_state_inair.lua
 +++ b/scripts/game/entity_system/systems/character/character_state_inair.lua
 @@ -15,9 +15,34 @@ function CharacterStateInAir:on_enter()
@@ -24,7 +24,7 @@ index 4e7ec6b..952d534 100644
 +		else
 +			if unit and Unit.alive(unit) then
 +				local char_ext = EntityAux.extension(unit, "character")
-+		
++
 +				if char_ext then
 +					char_ext.internal.kmf_push_elevate_resist = nil
 +				end

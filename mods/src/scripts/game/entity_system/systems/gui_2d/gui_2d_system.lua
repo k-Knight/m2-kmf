@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/gui_2d/gui_2d_system.lua b/scripts/game/entity_system/systems/gui_2d/gui_2d_system.lua
-index e7c5004..275eed8 100644
+index fbaa2aa..f69d3e1 100644
 --- a/scripts/game/entity_system/systems/gui_2d/gui_2d_system.lua
 +++ b/scripts/game/entity_system/systems/gui_2d/gui_2d_system.lua
 @@ -592,6 +592,28 @@ function Gui2DSystem:update(context)

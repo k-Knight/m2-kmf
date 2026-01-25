@@ -19,7 +19,7 @@ bool find_files(const std::filesystem::path &path, std::vector<file_info> &files
     if (std::filesystem::is_regular_file(path))
         files.push_back({path.filename().string(), path});
     else if (std::filesystem::is_directory(path)) {
-        for (std::filesystem::recursive_directory_iterator i(path), end; i != end; ++i) 
+        for (std::filesystem::recursive_directory_iterator i(path), end; i != end; ++i)
             if (!std::filesystem::is_directory(i->path())) {
                 files.push_back({i->path().lexically_relative(path).string(), i->path()});
             }

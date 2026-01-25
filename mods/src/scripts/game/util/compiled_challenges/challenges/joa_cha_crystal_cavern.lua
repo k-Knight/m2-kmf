@@ -1,5 +1,5 @@
 diff --git a/scripts/game/util/compiled_challenges/challenges/joa_cha_crystal_cavern.lua b/scripts/game/util/compiled_challenges/challenges/joa_cha_crystal_cavern.lua
-index 17495e0..51c7f8f 100644
+index 7308cff..5b8cdde 100644
 --- a/scripts/game/util/compiled_challenges/challenges/joa_cha_crystal_cavern.lua
 +++ b/scripts/game/util/compiled_challenges/challenges/joa_cha_crystal_cavern.lua
 @@ -2,6 +2,41 @@
@@ -23,17 +23,17 @@ index 17495e0..51c7f8f 100644
 +			<artifactSet level="professor">
 +				<modifier name="EnemyHealth">3</modifier>
 +				<modifier name="EnemyMovementSpeed">3</modifier>
-+				<modifier name="EnemyHealthRegeneration">1</modifier>				
++				<modifier name="EnemyHealthRegeneration">1</modifier>
 +				<modifier name="WizardHealth">3</modifier>
-+				<modifier name="WSpeed">3</modifier>				
++				<modifier name="WSpeed">3</modifier>
 +				<modifier name="WFRegen">2</modifier>
 +			</artifactSet>
-+			<artifactSet level="sage">				
++			<artifactSet level="sage">
 +				<modifier name="EnemyHealth">4</modifier>
 +				<modifier name="EnemyMovementSpeed">4</modifier>
-+				<modifier name="EnemyHealthRegeneration">2</modifier>				
++				<modifier name="EnemyHealthRegeneration">2</modifier>
 +				<modifier name="WizardHealth">2</modifier>
-+				<modifier name="SpellWeight">2</modifier>				
++				<modifier name="SpellWeight">2</modifier>
 +				<modifier name="FRegenType">1</modifier>
 +			</artifactSet>
 +		</artifactSets>

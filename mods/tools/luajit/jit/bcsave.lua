@@ -49,12 +49,12 @@ end
 local function readfile(input, ctx)
   if type(input) == "function" then return input end
   if input == "-" then input = nil end
-  
+
   if ctx and ctx.filename then
     local fp = assert(io.open(input, "rb"))
     data = assert(fp:read("*a"))
     assert(fp:close())
-    
+
     return check(load(data, ctx.filename))
   end
   return check(loadfile(input))

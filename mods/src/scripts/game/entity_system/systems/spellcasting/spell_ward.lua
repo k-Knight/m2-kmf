@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_ward.lua b/scripts/game/entity_system/systems/spellcasting/spell_ward.lua
-index f2a3df1..da3b2d6 100644
+index 8e1d276..da7943e 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_ward.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_ward.lua
 @@ -180,8 +180,10 @@ Spells_Ward = {

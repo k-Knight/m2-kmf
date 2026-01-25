@@ -60,7 +60,7 @@ Building the KMF utilities requires the following software and libraries:
 
 *   **Build Environment:** [Microsoft Build Tools](https://visualstudio.microsoft.com) or [Visual Studio](https://visualstudio.microsoft.com) (specifically `vcvarsall.bat` for x86 compilation).
 *   **Build Tools:** [CMake](https://cmake.org) and the [Clang compiler](https://llvm.org).
-*   **Libraries:** 
+*   **Libraries:**
     *   **wxWidgets:** Version 3.2.3.
     *   **Microsoft Detours:** Version 4.0.1 (required for debugging and third-party mod loading).
     *   **Steamworks SDK Headers:** Header files only.

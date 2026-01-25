@@ -1,5 +1,5 @@
 diff --git a/scripts/game/network/network_game_transport.lua b/scripts/game/network/network_game_transport.lua
-index ce375a4..fc94e97 100644
+index 3e7dbd0..2735fda 100644
 --- a/scripts/game/network/network_game_transport.lua
 +++ b/scripts/game/network/network_game_transport.lua
 @@ -428,6 +428,30 @@ function NetworkGameTransport:projectile_effect(sender, owner_id, effect_type, p
@@ -10,7 +10,7 @@ index ce375a4..fc94e97 100644
 +		local player_ext = EntityAux.extension(owner, "player")
 +		local last_time = Unit.get_data(owner, "kmf_projectile_effect")
 +		local time = os.clock()
-+		
++
 +		if player_ext and last_time then
 +
 +			if effect_name == "ice_gatling_gun" then
@@ -84,8 +84,6 @@ index ce375a4..fc94e97 100644
 -	if show_healthbar == nil then
 -		-- block empty
 -	end
--
--	var_83_1(var_83_0, var_83_2, var_83_3, var_83_4, var_83_5, var_83_6, var_83_7, show_healthbar, health == nil and 0 or health, max_health == nil and 0 or max_health, e1, e2, e3, e4, e5)
 +	pcall(function ()
 +		local var_83_0 = self
 +		local var_83_1 = self.transmit_all
@@ -95,11 +93,12 @@ index ce375a4..fc94e97 100644
 +		local var_83_5 = owner_id
 +		local var_83_6 = damage_replacer_id
 +		local var_83_7 = mine_time_before_explode
-+		
++
 +		if show_healthbar == nil then
 +			-- block empty
 +		end
-+	
+ 
+-	var_83_1(var_83_0, var_83_2, var_83_3, var_83_4, var_83_5, var_83_6, var_83_7, show_healthbar, health == nil and 0 or health, max_health == nil and 0 or max_health, e1, e2, e3, e4, e5)
 +		var_83_1(var_83_0, var_83_2, var_83_3, var_83_4, var_83_5, var_83_6, var_83_7, show_healthbar, health == nil and 0 or health, max_health == nil and 0 or max_health, e1, e2, e3, e4, e5)
  
 -	for i, _ in ipairs(temporary_queue) do
@@ -116,7 +115,7 @@ index ce375a4..fc94e97 100644
  	local is_level_unit = false
  	local hit_go_id
  
-+	
++
 +	if kmf.vars.bugfix_enabled and hit_unit and Unit.alive(hit_unit) then
 +		local time = os.clock()
 +		local last_time = Unit.get_data(hit_unit, "kmf_synced_proj_hit")

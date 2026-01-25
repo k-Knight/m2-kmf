@@ -211,7 +211,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
             PAINTSTRUCT ps;
             HDC         hdc;
             RECT        rc;
-    
+
             hdc = BeginPaint(hwnd, &ps);
 
             GetClientRect(hwnd, &rc);
@@ -286,7 +286,7 @@ int main(int argc, char *argv[ ]) {
             TranslateMessage(&Msg);
             DispatchMessage(&Msg);
         }
-        
+
         if (counter % 10 == 0) {
             if (gamepad_btn_pressed(gamepad_x))
                 printf("gamepad button x is pressed\n");

@@ -187,7 +187,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     if (gamepad_btn_status == NULL) {
         CloseHandle(hMapFile);
-    
+
         return 2;
     }
 
@@ -215,7 +215,7 @@ sdl_init:
     }
 
     window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1, 1, SDL_WINDOW_HIDDEN);
-    
+
     SDL_VERSION(&wmInfo.version);
     SDL_GetWindowWMInfo(window, &wmInfo);
     hwnd = wmInfo.info.win.window;
@@ -235,7 +235,7 @@ sdl_init:
     SDL_GameControllerEventState(SDL_ENABLE);
     SDL_JoystickUpdate();
     SDL_GameControllerUpdate();
-    
+
     SDL_StopTextInput();
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 

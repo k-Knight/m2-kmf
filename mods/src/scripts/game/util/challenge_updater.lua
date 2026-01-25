@@ -1,5 +1,5 @@
 diff --git a/scripts/game/util/challenge_updater.lua b/scripts/game/util/challenge_updater.lua
-index 9538a79..bb5b5a1 100644
+index 8245f4a..468d8a3 100644
 --- a/scripts/game/util/challenge_updater.lua
 +++ b/scripts/game/util/challenge_updater.lua
 @@ -13,7 +13,9 @@ local DEBUG_PRECALCING = false

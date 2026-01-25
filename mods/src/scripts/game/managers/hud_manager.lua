@@ -1,5 +1,5 @@
 diff --git a/scripts/game/managers/hud_manager.lua b/scripts/game/managers/hud_manager.lua
-index 70f5982..c0c4c5f 100644
+index a8d2892..73c0a4c 100644
 --- a/scripts/game/managers/hud_manager.lua
 +++ b/scripts/game/managers/hud_manager.lua
 @@ -327,6 +327,9 @@ function HudManager:init(context)

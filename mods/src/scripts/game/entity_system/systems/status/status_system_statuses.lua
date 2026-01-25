@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/status/status_system_statuses.lua b/scripts/game/entity_system/systems/status/status_system_statuses.lua
-index 5eb033e..ce6bb30 100644
+index 7fa995b..7273d13 100644
 --- a/scripts/game/entity_system/systems/status/status_system_statuses.lua
 +++ b/scripts/game/entity_system/systems/status/status_system_statuses.lua
 @@ -71,9 +71,9 @@ local ice_element_queue = {
@@ -138,65 +138,56 @@ index 5eb033e..ce6bb30 100644
  		end,
  		update = function(u, internal, status, network, context)
 -			local dt = context.dt
--
++			if not kmf.vars.funprove_enabled then
++				local dt = context.dt
+ 
 -			internal.poisoned_duration = internal.poisoned_duration - dt
 -			internal.poison_dot_timer = internal.poison_dot_timer + dt
--
++				internal.poisoned_duration = internal.poisoned_duration - dt
++				internal.poison_dot_timer = internal.poison_dot_timer + dt
+ 
 -			if internal.extension_timer > 0 then
 -				internal.extension_timer = internal.extension_timer - dt
 -			end
--
++				if internal.extension_timer > 0 then
++					internal.extension_timer = internal.extension_timer - dt
++				end
+ 
 -			if internal.poisoned_duration <= 0 or internal.immunities.poisoned or status.frozen then
 -				status.poisoned = nil
 -			elseif internal.poison_dot_timer > SpellSettings.status_poisoned_dot_timer then
 -				internal.poison_dot_timer = 0
 -				internal.poison_dot_ticks = internal.poison_dot_ticks + 1
 -				internal.poison_dot_percent = internal.poison_dot_percent + internal.poison_magnitude * 1 / internal.poison_dot_ticks * SpellSettings.status_poisoned_tick_diminishing * internal.poison_multiplier
--
--				local max_health = EntityAux.extension(u, "health").state.max_health
--
--				assert(max_health, "Poisoned unit does not have health extension")
--
--				local dot_value = math.clamp(max_health * internal.poison_dot_percent, 1, SpellSettings.status_poisoned_max_damage)
--				local damage_table = FrameTable.alloc_table()
--
--				damage_table.poison = dot_value
--
--				local poison_dealer_name = "other"
--				local poison_dealer = internal.last_poison_dealer
--
--				if poison_dealer then
--					if not Unit.alive(poison_dealer) then
--						internal.last_poison_dealer = nil
-+			if not kmf.vars.funprove_enabled then
-+				local dt = context.dt
-+	
-+				internal.poisoned_duration = internal.poisoned_duration - dt
-+				internal.poison_dot_timer = internal.poison_dot_timer + dt
-+	
-+				if internal.extension_timer > 0 then
-+					internal.extension_timer = internal.extension_timer - dt
-+				end
-+	
 +				if internal.poisoned_duration <= 0 or internal.immunities.poisoned or status.frozen then
 +					status.poisoned = nil
 +				elseif internal.poison_dot_timer > SpellSettings.status_poisoned_dot_timer then
 +					internal.poison_dot_timer = 0
 +					internal.poison_dot_ticks = internal.poison_dot_ticks + 1
 +					internal.poison_dot_percent = internal.poison_dot_percent + internal.poison_magnitude * 1 / internal.poison_dot_ticks * SpellSettings.status_poisoned_tick_diminishing * internal.poison_multiplier
-+	
+ 
+-				local max_health = EntityAux.extension(u, "health").state.max_health
 +					local max_health = EntityAux.extension(u, "health").state.max_health
-+	
+ 
+-				assert(max_health, "Poisoned unit does not have health extension")
 +					assert(max_health, "Poisoned unit does not have health extension")
-+	
+ 
+-				local dot_value = math.clamp(max_health * internal.poison_dot_percent, 1, SpellSettings.status_poisoned_max_damage)
+-				local damage_table = FrameTable.alloc_table()
 +					local dot_value = math.clamp(max_health * internal.poison_dot_percent, 1, SpellSettings.status_poisoned_max_damage)
 +					local damage_table = FrameTable.alloc_table()
-+	
+ 
+-				damage_table.poison = dot_value
 +					damage_table.poison = dot_value
-+	
+ 
+-				local poison_dealer_name = "other"
+-				local poison_dealer = internal.last_poison_dealer
 +					local poison_dealer_name = "other"
 +					local poison_dealer = internal.last_poison_dealer
-+	
+ 
+-				if poison_dealer then
+-					if not Unit.alive(poison_dealer) then
+-						internal.last_poison_dealer = nil
 +					if poison_dealer then
 +						if not Unit.alive(poison_dealer) then
 +							internal.last_poison_dealer = nil
@@ -214,33 +205,41 @@ index 5eb033e..ce6bb30 100644
 -					elseif Unit.alive(poison_dealer) then
 -						poison_dealer_name = EntityAux.get_unit_owner_name(poison_dealer)
 -						internal.last_poison_dealer_name = poison_dealer_name
-+					end
-+	
+-					else
+-						poison_dealer_name = internal.last_poison_dealer_name
+ 					end
+-				else
+-					poison_dealer = u
+-					poison_dealer_name = internal.last_poison_dealer_name and internal.last_poison_dealer_name or "other"
++
 +					ATTACKERS_TABLE[1] = poison_dealer
-+	
++
 +					EntityAux.add_damage(u, ATTACKERS_TABLE, damage_table, "dot", nil, nil, nil, poison_dealer_name)
-+	
++
 +					ATTACKERS_TABLE[1] = nil
-+				end
+ 				end
 +			else
 +				-- fun-balance :: new poison dot damage application
 +				local dt = context.dt
 +				local interval = kmf.vars.experimental_balance and 0.5 or 1
-+	
+ 
+-				ATTACKERS_TABLE[1] = poison_dealer
 +				internal.kmf_poisoned_damage_time = internal.kmf_poisoned_damage_time + dt or 1
-+	
+ 
+-				EntityAux.add_damage(u, ATTACKERS_TABLE, damage_table, "dot", nil, nil, nil, poison_dealer_name)
 +				if internal.kmf_poisoned_damage_time > interval then
 +					internal.kmf_poisoned_damage_time = 0
-+	
+ 
+-				ATTACKERS_TABLE[1] = nil
 +					local damage_table = FrameTable.alloc_table()
 +					local player_ext = EntityAux.extension(u, "player")
 +					local dot_dmg_mult = (player_ext and 1.5 or 1.0) / 2.8 -- divider has to be adjusted with flat poison multiplier in PvE / PvP multipliers section
-+	
++
 +					damage_table.poison = internal.kmf_poison_dps * dot_dmg_mult * interval
-+	
++
 +					local poison_dealer_name = "other"
 +					local poison_dealer = internal.last_poison_dealer
-+	
++
 +					if poison_dealer then
 +						if not Unit.alive(poison_dealer) then
 +							internal.last_poison_dealer = nil
@@ -252,39 +251,29 @@ index 5eb033e..ce6bb30 100644
 +						else
 +							poison_dealer_name = internal.last_poison_dealer_name
 +						end
- 					else
--						poison_dealer_name = internal.last_poison_dealer_name
++					else
 +						poison_dealer = u
 +						poison_dealer_name = internal.last_poison_dealer_name and internal.last_poison_dealer_name or "other"
- 					end
--				else
--					poison_dealer = u
--					poison_dealer_name = internal.last_poison_dealer_name and internal.last_poison_dealer_name or "other"
-+	
++					end
++
 +					ATTACKERS_TABLE[1] = poison_dealer
-+	
++
 +					EntityAux.add_damage(u, ATTACKERS_TABLE, damage_table, "dot", nil, nil, nil, poison_dealer_name)
-+	
++
 +					ATTACKERS_TABLE[1] = nil
-+	
++
 +					local old_dps = internal.kmf_poison_dps or 0
 +					local new_dps = old_dps - (SpellSettings.status_burning_dot_decrease_ammount * interval)
-+	
++
 +					if new_dps < 0 or internal.immunities.poisoned or status.frozen then
 +						status.poisoned = nil
 +						internal.kmf_poison_dps = 0
-+	
++
 +						return
 +					end
-+	
++
 +					internal.kmf_poison_dps = new_dps
- 				end
--
--				ATTACKERS_TABLE[1] = poison_dealer
--
--				EntityAux.add_damage(u, ATTACKERS_TABLE, damage_table, "dot", nil, nil, nil, poison_dealer_name)
--
--				ATTACKERS_TABLE[1] = nil
++				end
  			end
  		end,
  		on_damages = function(u, types, internal, status, network, damages, dealers)
@@ -298,55 +287,55 @@ index 5eb033e..ce6bb30 100644
  
 -					local time_extension = SpellSettings.status_poisoned_extend_duration
 -					local max_poisoned_duration = SpellSettings.status_poisoned_max_duration
-+					
+ 
+-					if max_poisoned_duration >= internal.total_time_poisoned + time_extension then
+-						local new_poison_magnitude = dmg_amount
 +					if not kmf.vars.funprove_enabled then
 +						if internal.extension_timer <= 0 then
 +							local time_extension = SpellSettings.status_poisoned_extend_duration
 +							local max_poisoned_duration = SpellSettings.status_poisoned_max_duration
 +							if max_poisoned_duration >= internal.total_time_poisoned + time_extension then
 +								local new_poison_magnitude = dmg_amount
-+		
+ 
+-						if new_poison_magnitude > internal.poison_magnitude then
+-							internal.poison_magnitude = new_poison_magnitude
 +								if new_poison_magnitude > internal.poison_magnitude then
 +									internal.poison_magnitude = new_poison_magnitude
 +								end
-+		
++
 +								internal.poisoned_duration = internal.poisoned_duration + time_extension
 +								internal.total_time_poisoned = internal.total_time_poisoned + time_extension
 +							end
-+	
++
 +							internal.extension_timer = 0.5
-+						end
+ 						end
 +					else
 +						-- fun-balance :: new poison dot stacking
 +						local old_dps = internal.kmf_poison_dps
 +						local fire_to_burning_factor = SpellSettings.status_burning_fire_to_burning_factor
  
--					if max_poisoned_duration >= internal.total_time_poisoned + time_extension then
--						local new_poison_magnitude = dmg_amount
+-						internal.poisoned_duration = internal.poisoned_duration + time_extension
+-						internal.total_time_poisoned = internal.total_time_poisoned + time_extension
+-					end
 +						for _, damage in ipairs(damages.damage) do
 +							if damage[1] == "poison" then
 +								local additive = math.floor(fire_to_burning_factor * damage[2])
 +								local time = kmf.world_proxy:time()
 +								local time_scale = (time - (internal.kmf_poison_tick_time or 0)) / 0.1
  
--						if new_poison_magnitude > internal.poison_magnitude then
--							internal.poison_magnitude = new_poison_magnitude
+-					internal.extension_timer = 0.5
 +								time_scale = math.min(time_scale * time_scale, 1.0)
 +								additive = additive * 2.0 * time_scale
 +								internal.kmf_poison_tick_time = time
 +
 +								internal.kmf_poison_dps = internal.kmf_poison_dps + additive
 +							end
- 						end
- 
--						internal.poisoned_duration = internal.poisoned_duration + time_extension
--						internal.total_time_poisoned = internal.total_time_poisoned + time_extension
++						end
++
 +						if internal.kmf_poison_dps > SpellSettings.status_poisoned_max_damage then
 +							internal.kmf_poison_dps = SpellSettings.status_poisoned_max_damage
 +						end
- 					end
--
--					internal.extension_timer = 0.5
++					end
  				end
  			end
  		end,

@@ -1,5 +1,5 @@
 diff --git a/scripts/game/network/network_gamemode_scenario_server_game.lua b/scripts/game/network/network_gamemode_scenario_server_game.lua
-index 5af8125..3a825e8 100644
+index a220501..6a6b744 100644
 --- a/scripts/game/network/network_gamemode_scenario_server_game.lua
 +++ b/scripts/game/network/network_gamemode_scenario_server_game.lua
 @@ -68,6 +68,10 @@ function NetworkGameModeScenarioServerGame:game_object_sync_done(peer_id)

@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_selfarmor.lua b/scripts/game/entity_system/systems/spellcasting/spell_selfarmor.lua
-index 141b935..ff77be5 100644
+index bcbf013..ce549ba 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_selfarmor.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_selfarmor.lua
 @@ -172,7 +172,7 @@ Spells_SelfArmor = {
@@ -23,7 +23,7 @@ index 141b935..ff77be5 100644
 +			if element_healths.ice then
 +				element_healths.ice = element_healths.ice * 1.5
 +			end
-+			
++
 +			total_health = total_health * 1.5
 +		end
 +

@@ -1,5 +1,5 @@
 diff --git a/scripts/game/managers/stat_manager.lua b/scripts/game/managers/stat_manager.lua
-index 1fc53c5..7ee9a5f 100644
+index 9ac4c02..3b88d5a 100644
 --- a/scripts/game/managers/stat_manager.lua
 +++ b/scripts/game/managers/stat_manager.lua
 @@ -28,31 +28,39 @@ function StatManager:set_stat(name, value)

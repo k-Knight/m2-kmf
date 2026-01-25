@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spellcasting_system.lua b/scripts/game/entity_system/systems/spellcasting/spellcasting_system.lua
-index ac9ce7b..d0aeec9 100644
+index 443717d..c3cf988 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spellcasting_system.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spellcasting_system.lua
 @@ -176,6 +176,14 @@ function SpellCastingSystem:init(context)

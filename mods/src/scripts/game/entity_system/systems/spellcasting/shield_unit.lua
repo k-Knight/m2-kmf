@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/shield_unit.lua b/scripts/game/entity_system/systems/spellcasting/shield_unit.lua
-index 8ce24e0..8341974 100644
+index 080cc57..353d11a 100644
 --- a/scripts/game/entity_system/systems/spellcasting/shield_unit.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/shield_unit.lua
 @@ -12,7 +12,6 @@ local BARRIER_EARTH_TIME = SpellSettings.barrier_time_alive_sec_per_earth

@@ -1,5 +1,5 @@
 diff --git a/foundation/scripts/network/network_unit_spawner.lua b/foundation/scripts/network/network_unit_spawner.lua
-index 86133a3..f74de28 100644
+index 355b4d4..87913a7 100644
 --- a/foundation/scripts/network/network_unit_spawner.lua
 +++ b/foundation/scripts/network/network_unit_spawner.lua
 @@ -221,9 +221,11 @@ function NetworkUnitSpawner:spawn_unit_local(unit_type, pos, rot)

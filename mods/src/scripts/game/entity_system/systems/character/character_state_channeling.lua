@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/character/character_state_channeling.lua b/scripts/game/entity_system/systems/character/character_state_channeling.lua
-index 8b178cf..33ba478 100644
+index 24f6637..894c4ca 100644
 --- a/scripts/game/entity_system/systems/character/character_state_channeling.lua
 +++ b/scripts/game/entity_system/systems/character/character_state_channeling.lua
 @@ -82,22 +82,25 @@ function CharacterStateChanneling:update(context)

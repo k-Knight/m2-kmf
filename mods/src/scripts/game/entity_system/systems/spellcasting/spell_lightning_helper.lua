@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_lightning_helper.lua b/scripts/game/entity_system/systems/spellcasting/spell_lightning_helper.lua
-index 970a473..11e10c8 100644
+index 864160e..822b83c 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_lightning_helper.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_lightning_helper.lua
 @@ -65,6 +65,10 @@ local function _sort_by_distance_and_resistance(a, b)
@@ -140,11 +140,11 @@ index 970a473..11e10c8 100644
 +
 +							if hits then
 +								local hit_count = #hits
-+					
++
 +								for i=1, hit_count do
 +									if hits[i] and hits[i][4] then
 +										local unit = Actor.unit(hits[i][4])
-+					
++
 +										if unit and Unit.alive(unit) then
 +											if target.unit == unit then
 +												break
@@ -152,7 +152,7 @@ index 970a473..11e10c8 100644
 +
 +											local is_elemental_wall = Unit.get_data(unit, "is_elemental_wall")
 +											local is_pure_shield = Unit.get_data(unit, "is_pure_shield")
-+					
++
 +											if is_elemental_wall or is_pure_shield then
 +												found_blocker = true
 +												break

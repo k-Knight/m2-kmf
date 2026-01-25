@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/player/player_system.lua b/scripts/game/entity_system/systems/player/player_system.lua
-index 4e290d8..42c59b2 100644
+index 7d90ee1..8eedc33 100644
 --- a/scripts/game/entity_system/systems/player/player_system.lua
 +++ b/scripts/game/entity_system/systems/player/player_system.lua
 @@ -108,6 +108,8 @@ function PlayerSystem:init(context)

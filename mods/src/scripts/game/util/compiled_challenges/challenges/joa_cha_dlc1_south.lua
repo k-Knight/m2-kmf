@@ -1,5 +1,5 @@
 diff --git a/scripts/game/util/compiled_challenges/challenges/joa_cha_dlc1_south.lua b/scripts/game/util/compiled_challenges/challenges/joa_cha_dlc1_south.lua
-index 4a70883..6df42ff 100644
+index 6079bcd..1c8aafa 100644
 --- a/scripts/game/util/compiled_challenges/challenges/joa_cha_dlc1_south.lua
 +++ b/scripts/game/util/compiled_challenges/challenges/joa_cha_dlc1_south.lua
 @@ -2,6 +2,42 @@

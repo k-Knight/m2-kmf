@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellwheel/element_queue_hud.lua b/scripts/game/entity_system/systems/spellwheel/element_queue_hud.lua
-index 56934fe..f7da5c0 100644
+index 67b402f..057c851 100644
 --- a/scripts/game/entity_system/systems/spellwheel/element_queue_hud.lua
 +++ b/scripts/game/entity_system/systems/spellwheel/element_queue_hud.lua
 @@ -8,7 +8,7 @@ local elementsMapping = {

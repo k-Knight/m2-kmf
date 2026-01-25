@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/effect/beam_effect.lua b/scripts/game/entity_system/systems/effect/beam_effect.lua
-index b6d6040..e6fc84e 100644
+index 0c18ae6..8fff188 100644
 --- a/scripts/game/entity_system/systems/effect/beam_effect.lua
 +++ b/scripts/game/entity_system/systems/effect/beam_effect.lua
 @@ -256,6 +256,40 @@ function BeamEffect:update(dt)
@@ -22,17 +22,17 @@ index b6d6040..e6fc84e 100644
 +			if beam_data == nil or beam_data.owner_unit == nil then
 +				return
 +			end
-+		
++
 +			beam_data.targets = {}
-+		
++
 +			for i, actor in ipairs(actors) do
 +				repeat
 +					local unit = Actor.unit(actor)
-+				
++
 +					if not unit or unit == beam_data.owner_unit or not EntityAux.extension(unit, "damage_receiver") or not EntityAux.extension(unit, "character") then
 +						break
 +					end
-+				
++
 +					beam_data.targets[unit] = true
 +				until true
 +			end

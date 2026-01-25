@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spelltype_magick_magicks.lua b/scripts/game/entity_system/systems/spellcasting/spelltype_magick_magicks.lua
-index eb50bc5..e4a3b3d 100644
+index 8aa0526..7634341 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spelltype_magick_magicks.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spelltype_magick_magicks.lua
 @@ -81,7 +81,10 @@ function get_spell_type(elements)

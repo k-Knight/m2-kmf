@@ -64,7 +64,7 @@ static bool check_names_exist(
     proc_names_t f_names;
 
     wstrs_to_strs(names, f_names);
-    
+
     if (!f_names.size())
         return false;
 

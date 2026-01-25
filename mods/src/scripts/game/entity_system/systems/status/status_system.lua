@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/status/status_system.lua b/scripts/game/entity_system/systems/status/status_system.lua
-index ff9a438..17aa770 100644
+index eb3b3f4..4ff630a 100644
 --- a/scripts/game/entity_system/systems/status/status_system.lua
 +++ b/scripts/game/entity_system/systems/status/status_system.lua
 @@ -456,6 +456,8 @@ function StatusSystem:update(context)

@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/shield/shield_system.lua b/scripts/game/entity_system/systems/shield/shield_system.lua
-index f1cdcd7..93e2d19 100644
+index f485add..cc7aa2b 100644
 --- a/scripts/game/entity_system/systems/shield/shield_system.lua
 +++ b/scripts/game/entity_system/systems/shield/shield_system.lua
 @@ -106,7 +106,7 @@ function ShieldSystem:sync_shield_stage(sender, go_id, stage)

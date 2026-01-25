@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/beam/beam_system.lua b/scripts/game/entity_system/systems/beam/beam_system.lua
-index addff73..9544c4d 100644
+index d96dfc6..a879cba 100644
 --- a/scripts/game/entity_system/systems/beam/beam_system.lua
 +++ b/scripts/game/entity_system/systems/beam/beam_system.lua
 @@ -46,6 +46,8 @@ function BeamSystem:init(context)

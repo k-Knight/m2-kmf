@@ -1,5 +1,5 @@
 diff --git a/scripts/game/util/compiled_challenges/challenges/joa_cha_time_alliance.lua b/scripts/game/util/compiled_challenges/challenges/joa_cha_time_alliance.lua
-index fb6cdab..121e488 100644
+index 6f3baa4..f9714e3 100644
 --- a/scripts/game/util/compiled_challenges/challenges/joa_cha_time_alliance.lua
 +++ b/scripts/game/util/compiled_challenges/challenges/joa_cha_time_alliance.lua
 @@ -3,5 +3,39 @@
@@ -16,23 +16,23 @@ index fb6cdab..121e488 100644
 +		<victory>joa_trial_summary_8_victory</victory>
 +		<defeat>joa_trial_summary_8_defeat</defeat>
 +		<artifactSets>
-+			<artifactSet level="wizard">				
++			<artifactSet level="wizard">
 +			</artifactSet>
 +			<artifactSet level="professor">
 +				<modifier name="TimerDeathPenalty">2</modifier>
-+				<modifier name="EnemyHealth">3</modifier>								
-+				<modifier name="EnemyHealthRegeneration">1</modifier>							
++				<modifier name="EnemyHealth">3</modifier>
++				<modifier name="EnemyHealthRegeneration">1</modifier>
 +				<modifier name="WizardHealth">3</modifier>
-+				<modifier name="WSpeed">3</modifier>				
-+				<modifier name="WFRegen">2</modifier>				
++				<modifier name="WSpeed">3</modifier>
++				<modifier name="WFRegen">2</modifier>
 +			</artifactSet>
-+			<artifactSet level="sage">						
++			<artifactSet level="sage">
 +				<modifier name="TimerDeathPenalty">3</modifier>
 +				<modifier name="EnemyHealth">4</modifier>
-+				<modifier name="EnemyHealthRegeneration">2</modifier>						
++				<modifier name="EnemyHealthRegeneration">2</modifier>
 +				<modifier name="WizardHealth">2</modifier>
-+				<modifier name="SpellWeight">2</modifier>				
-+				<modifier name="FRegenType">1</modifier>	
++				<modifier name="SpellWeight">2</modifier>
++				<modifier name="FRegenType">1</modifier>
 +			</artifactSet>
 +		</artifactSets>
 +	</initialize>
