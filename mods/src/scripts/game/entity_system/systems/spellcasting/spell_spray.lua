@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_spray.lua b/scripts/game/entity_system/systems/spellcasting/spell_spray.lua
-index 46ab6ff..e6ff6c1 100644
+index 46ab6ff..a7e5a50 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_spray.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_spray.lua
 @@ -1,5 +1,7 @@
@@ -43,3 +43,12 @@ index 46ab6ff..e6ff6c1 100644
  			duration = _duration,
  			idle_time = 1 / SETTINGS.spray_hits_per_second,
  			hit_units = {},
+@@ -518,7 +526,7 @@ Spells_Spray = {
+ 
+ 						ATTACKERS_TABLE[1] = caster
+ 
+-						EntityAux.add_damage(u, ATTACKERS_TABLE, new_damage or damage, "volume", data.scale_damage)
++						EntityAux.add_damage(u, ATTACKERS_TABLE, new_damage or damage, {"volume", "spray"}, data.scale_damage)
+ 
+ 						ATTACKERS_TABLE[1] = nil
+ 

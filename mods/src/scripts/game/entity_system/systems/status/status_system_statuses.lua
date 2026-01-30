@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/status/status_system_statuses.lua b/scripts/game/entity_system/systems/status/status_system_statuses.lua
-index 7fa995b..7273d13 100644
+index 7fa995b..fbef332 100644
 --- a/scripts/game/entity_system/systems/status/status_system_statuses.lua
 +++ b/scripts/game/entity_system/systems/status/status_system_statuses.lua
 @@ -71,9 +71,9 @@ local ice_element_queue = {
@@ -233,7 +233,7 @@ index 7fa995b..7273d13 100644
 -				ATTACKERS_TABLE[1] = nil
 +					local damage_table = FrameTable.alloc_table()
 +					local player_ext = EntityAux.extension(u, "player")
-+					local dot_dmg_mult = (player_ext and 1.5 or 1.0) / 2.8 -- divider has to be adjusted with flat poison multiplier in PvE / PvP multipliers section
++					local dot_dmg_mult = (player_ext and 1.5 or 1.0) / kmf.const.funbalance.poison_mult -- divider has to be adjusted with flat poison multiplier in PvE / PvP multipliers section
 +
 +					damage_table.poison = internal.kmf_poison_dps * dot_dmg_mult * interval
 +

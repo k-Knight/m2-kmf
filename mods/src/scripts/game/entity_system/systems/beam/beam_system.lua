@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/beam/beam_system.lua b/scripts/game/entity_system/systems/beam/beam_system.lua
-index d96dfc6..a879cba 100644
+index d96dfc6..be9aac8 100644
 --- a/scripts/game/entity_system/systems/beam/beam_system.lua
 +++ b/scripts/game/entity_system/systems/beam/beam_system.lua
 @@ -46,6 +46,8 @@ function BeamSystem:init(context)
@@ -157,3 +157,12 @@ index d96dfc6..a879cba 100644
  			beam_data.position_end = beam_data.position_start + Quaternion.forward(beam_data.rotation) * beam_data.length
  			beams_to_update[#beams_to_update + 1] = beam_data
  		until true
+@@ -1285,7 +1387,7 @@ function BeamSystem:deal_beam_damage(dt)
+ 				break
+ 			end
+ 
+-			EntityAux.add_damage(raycast_hit_unit, casters, damage, "beam", beam_data.scale_damage)
++			EntityAux.add_damage(raycast_hit_unit, casters, damage, {"beam", "beam"}, beam_data.scale_damage)
+ 
+ 			local status_ext = EntityAux.extension(raycast_hit_unit, "status")
+ 

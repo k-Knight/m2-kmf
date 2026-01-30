@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_lightningaoe.lua b/scripts/game/entity_system/systems/spellcasting/spell_lightningaoe.lua
-index 00610f0..fa19700 100644
+index 00610f0..dc89cad 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_lightningaoe.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_lightningaoe.lua
 @@ -39,10 +39,11 @@ Spells_LightningAoe = {
@@ -19,7 +19,7 @@ index 00610f0..fa19700 100644
  		local damage_interval = DAMAGE_INTERVAL * pvm:get_variable(caster, "lightning_interval")
  		local damage, magnitudes = SpellSettings:get_lightning_damage(pvm, caster, elements, damage_interval, true)
  
-+		-- fun-balance :: nerf ligthing aoe damage
++		-- fun-balance :: nerf lightning aoe damage
 +		if kmf.vars.funprove_enabled then
 +			for k, v in pairs(damage) do
 +				damage[k] = v / 2.0

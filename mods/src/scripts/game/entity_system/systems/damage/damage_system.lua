@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/damage/damage_system.lua b/scripts/game/entity_system/systems/damage/damage_system.lua
-index 9e7b19f..92b74ef 100644
+index 9e7b19f..87dbea9 100644
 --- a/scripts/game/entity_system/systems/damage/damage_system.lua
 +++ b/scripts/game/entity_system/systems/damage/damage_system.lua
 @@ -113,6 +113,9 @@ function DamageSystem:sync_self_shield(sender, go_id, active)
@@ -51,7 +51,24 @@ index 9e7b19f..92b74ef 100644
  				local inputdmg = input.damage
  				local damage_n = #inputdmg
  
-@@ -284,6 +294,18 @@ function DamageSystem:update_damage_receivers()
+@@ -277,13 +287,34 @@ function DamageSystem:update_damage_receivers()
+ 
+ 						inputdmg[damage_i] = nil
+ 
+-						local medium = damage_data.medium
++						local medium
++						local secondary_medium
++
++						if type(damage_data.medium) == "table" then
++							medium = damage_data.medium[1]
++							secondary_medium = damage_data.medium[2]
++						else
++							medium = damage_data.medium
++						end
++
+ 						local impact_location = damage_data.impact_location
+ 						local damage_owner_name = damage_data.damage_owner_name
+ 						local num_attackers = damage_data.num_attackers
  						local attacker = damage_data[1]
  
  						last_attacker = attacker
@@ -70,7 +87,7 @@ index 9e7b19f..92b74ef 100644
  
  						if state.has_disruptor then
  							handle_disruptor_taking_damage(u, attacker, medium, damage_data.damage)
-@@ -295,7 +317,7 @@ function DamageSystem:update_damage_receivers()
+@@ -295,7 +326,7 @@ function DamageSystem:update_damage_receivers()
  							if medium == "physical" or medium == "melee" then
  								local character_extension = extension.character_extension
  
@@ -79,7 +96,7 @@ index 9e7b19f..92b74ef 100644
  									set_input_by_extension(character_extension, "took_phys_damage", true)
  								end
  							end
-@@ -381,10 +403,70 @@ function DamageSystem:update_damage_receivers()
+@@ -381,10 +412,70 @@ function DamageSystem:update_damage_receivers()
  									local redirected_armor_damages = false
  									local redirected_damages
  									local ignore_multipliers = damage_data.ignore_multipliers
@@ -128,7 +145,7 @@ index 9e7b19f..92b74ef 100644
 +										local is_displacement_elem = element == "push" or element == "elevate" or element == "water_push" or element == "water_elevate"
 +
 +										if element == "poison" then
-+											damage = damage * 2.8
++											damage = damage * kmf.const.funbalance.poison_mult
 +										end
 +
 +										if is_barrier and (element == "life" or element == "arcane") then
@@ -150,7 +167,7 @@ index 9e7b19f..92b74ef 100644
  										end
  
  										local damage_redirected = false
-@@ -396,7 +478,7 @@ function DamageSystem:update_damage_receivers()
+@@ -396,7 +487,7 @@ function DamageSystem:update_damage_receivers()
  											end
  
  											if damage ~= 0 then
@@ -159,7 +176,7 @@ index 9e7b19f..92b74ef 100644
  													redirected_selfshield_damages = true
  
  													if redirected_damages == nil then
-@@ -412,7 +494,7 @@ function DamageSystem:update_damage_receivers()
+@@ -412,7 +503,7 @@ function DamageSystem:update_damage_receivers()
  													damage = 0
  													damage_data.damage[element] = nil
  													damage_redirected = true
@@ -168,7 +185,7 @@ index 9e7b19f..92b74ef 100644
  													if redirected_damages == nil then
  														redirected_damages = {}
  													end
-@@ -422,7 +504,7 @@ function DamageSystem:update_damage_receivers()
+@@ -422,7 +513,7 @@ function DamageSystem:update_damage_receivers()
  													damage_data.damage[element] = nil
  													damage_redirected = true
  													redirected_armor_damages = true
@@ -177,7 +194,7 @@ index 9e7b19f..92b74ef 100644
  													if redirected_damages == nil then
  														redirected_damages = {}
  													end
-@@ -433,6 +515,10 @@ function DamageSystem:update_damage_receivers()
+@@ -433,6 +524,10 @@ function DamageSystem:update_damage_receivers()
  													redirected_armor_damages = true
  												end
  
@@ -188,7 +205,18 @@ index 9e7b19f..92b74ef 100644
  												if not damage_redirected then
  													damage_taken = true
  
-@@ -562,7 +648,7 @@ function DamageSystem:update_damage_receivers()
+@@ -492,6 +587,10 @@ function DamageSystem:update_damage_receivers()
+ 												new_dmg[4] = medium
+ 												new_dmg[7] = damage_owner_name
+ 
++												if secondary_medium then
++													new_dmg[55] = secondary_medium
++												end
++
+ 												if impact_location then
+ 													new_dmg[66] = impact_location
+ 												end
+@@ -562,7 +661,7 @@ function DamageSystem:update_damage_receivers()
  										end
  									end
  

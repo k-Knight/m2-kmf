@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_lightning_helper.lua b/scripts/game/entity_system/systems/spellcasting/spell_lightning_helper.lua
-index 864160e..822b83c 100644
+index 864160e..792049c 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_lightning_helper.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_lightning_helper.lua
 @@ -65,6 +65,10 @@ local function _sort_by_distance_and_resistance(a, b)
@@ -17,7 +17,7 @@ index 864160e..822b83c 100644
  	end
  end
  
-+-- fun-balance :: make some obstacles block ligt path
++-- fun-balance :: make some obstacles block lightning path
 +function Spells_Lightning_Helper.cast_lightning_bolt_obstacle_respectful(data, start_pos_box, forward_box, caster, is_local, world, chain, base_range, arc_range, arc_width, effect_table, effect_manager, _this_id, is_standalone, z_lvl, prev_target)
 +	if not data.kmf_targets[_this_id] then
 +		data.kmf_targets[_this_id] = {}

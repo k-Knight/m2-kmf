@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_fissure.lua b/scripts/game/entity_system/systems/spellcasting/spell_fissure.lua
-index e2bb1c5..7568881 100644
+index e2bb1c5..a1a662a 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_fissure.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_fissure.lua
 @@ -112,7 +112,10 @@ Spells_Fissure = {
@@ -99,7 +99,7 @@ index e2bb1c5..7568881 100644
 +								data.kmf_fissure_hit_units[unit] = true
 +
 +								ATTACKERS_TABLE[1] = caster
-+								EntityAux.add_damage(unit, ATTACKERS_TABLE, damage, "force", data.scale_damage)
++								EntityAux.add_damage(unit, ATTACKERS_TABLE, damage, {"force", "fissure"}, data.scale_damage)
 +								ATTACKERS_TABLE[1] = nil
 +							end
  						end

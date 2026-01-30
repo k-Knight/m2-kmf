@@ -193,9 +193,9 @@ static const char *demurmur64(uint64_t type) {
   if (type == 0xcce8d5b5f5ae333f)
     return "shader";
   if (type == 0xcd4238c6a0c69e32)
-    return "texture";
+    return "texture"; // dds
   if (type == 0xd8b27864a97ffdd7)
-    return "sound_environmenta";
+    return "sound_environment";
   if (type == 0xdcfb9e18fff13984)
     return "animation_curves";
   if (type == 0xe0a48d0be9a7453f)

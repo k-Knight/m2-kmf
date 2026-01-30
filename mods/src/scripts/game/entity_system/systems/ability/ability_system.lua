@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/ability/ability_system.lua b/scripts/game/entity_system/systems/ability/ability_system.lua
-index 9c5ccf3..329e0fa 100644
+index 9c5ccf3..5ae70b4 100644
 --- a/scripts/game/entity_system/systems/ability/ability_system.lua
 +++ b/scripts/game/entity_system/systems/ability/ability_system.lua
 @@ -150,6 +150,8 @@ function AbilitySystem:update(context)
@@ -11,10 +11,12 @@ index 9c5ccf3..329e0fa 100644
  	for i = 1, entities_n do
  		repeat
  			local extension_data = entities[i]
-@@ -181,6 +183,37 @@ function AbilitySystem:update(context)
- 					else
- 						local template = templates[name]
+@@ -179,17 +181,45 @@ function AbilitySystem:update(context)
  
+ 						start_abilities[name] = nil
+ 					else
+-						local template = templates[name]
++						local template = kmf.before_start_ability(name, templates[name], u)
 +
 +						if kmf.vars.funprove_enabled then
 +							local i_start, _ = string.find(name, "earth_projectile_", 1, true)
@@ -37,7 +39,8 @@ index 9c5ccf3..329e0fa 100644
 +							-- fun-balance :: buff lightinging self electrecute heal
 +							elseif name == "conjure_electrify_self" then
 +								local tmp = table.clone(template)
-+
+ 
+-						assert(template, "Ability '" .. name .. "' not found in AbilityTemplates !")
 +								if tmp.deal_self_damage.damage then
 +									tmp.deal_self_damage.damage.lightning = tmp.deal_self_damage.damage.lightning * 1.5
 +								end
@@ -46,10 +49,19 @@ index 9c5ccf3..329e0fa 100644
 +							end
 +						end
 +
- 						assert(template, "Ability '" .. name .. "' not found in AbilityTemplates !")
++						assert(template, "[Abilities] template '" .. name .. "' not found in AbilityTemplates !")
  
  						ability_context.template_name = name
-@@ -197,6 +230,29 @@ function AbilitySystem:update(context)
+ 						ability_context.params = args
+ 
+ 						local update_funs = {}
+ 
+-						assert(template, sprintf("[Abilities] Error, %s template does not exist.", name))
+-
+ 						for ability_type, ability_data in pairs(template) do
+ 							ability_context.args = ability_data
+ 
+@@ -197,6 +227,29 @@ function AbilitySystem:update(context)
  
  							if ability then
  								if ability.on_activate then
@@ -79,7 +91,7 @@ index 9c5ccf3..329e0fa 100644
  									local update_fun = ability.on_activate(ability_context)
  
  									if update_fun then
-@@ -206,6 +262,7 @@ function AbilitySystem:update(context)
+@@ -206,6 +259,7 @@ function AbilitySystem:update(context)
  							else
  								cat_printf("Abilities", "Error in ability argument name %s: %s does not exist.", name, ability_type)
  							end
