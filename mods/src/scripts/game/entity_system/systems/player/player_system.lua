@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/player/player_system.lua b/scripts/game/entity_system/systems/player/player_system.lua
-index 7d90ee1..8eedc33 100644
+index 7d90ee1..0fb9bb5 100644
 --- a/scripts/game/entity_system/systems/player/player_system.lua
 +++ b/scripts/game/entity_system/systems/player/player_system.lua
 @@ -108,6 +108,8 @@ function PlayerSystem:init(context)
@@ -85,7 +85,7 @@ index 7d90ee1..8eedc33 100644
 +
 +				unit_faction = unit_faction_ext and unit_faction_ext.internal.faction or "player"
 +
-+				if not kmf.is_player_unit_dead(players[i].unit) then
++				if not kmf.is_unit_dead(players[i].unit) then
 +					team_counter[unit_faction] = team_counter[unit_faction] + 1
 +				end
 +			end

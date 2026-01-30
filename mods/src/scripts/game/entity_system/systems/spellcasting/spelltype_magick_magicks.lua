@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spelltype_magick_magicks.lua b/scripts/game/entity_system/systems/spellcasting/spelltype_magick_magicks.lua
-index 8aa0526..7634341 100644
+index 8aa0526..ef1d39d 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spelltype_magick_magicks.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spelltype_magick_magicks.lua
 @@ -81,7 +81,10 @@ function get_spell_type(elements)
@@ -1841,3 +1841,12 @@ index 8aa0526..7634341 100644
  			magick_context.world:unlink_unit(magick_context.caster_effect_unit)
  			magick_context.unit_spawner:mark_for_deletion(magick_context.caster_effect_unit)
  			set_input_by_extension(magick_context.caster_health_ext, "invulnerable", false)
+@@ -4820,7 +5326,7 @@ Magicks = {
+ 				local shield_type = "magick_area"
+ 				local unit_name = "content/units/effects/misc/shield_nullify_bubble"
+ 				local health = SpellSettings:pure_shield_health(shield_type)
+-				local max_health = SpellSettings:pure_shield_max_health(shield_type)
++				local max_health = SpellSettings:pure_shield_max_health(nil, caster, shield_type)
+ 				local position_to_spawn = Vector3.unbox(magick_context.magick_activate_position)
+ 				local pose = Unit.local_pose(caster, 0)
+ 

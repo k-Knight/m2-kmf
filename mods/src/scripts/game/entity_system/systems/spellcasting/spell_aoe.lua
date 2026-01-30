@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_aoe.lua b/scripts/game/entity_system/systems/spellcasting/spell_aoe.lua
-index 5ef132e..5b73dbc 100644
+index 5ef132e..0e9acd6 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_aoe.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_aoe.lua
 @@ -66,7 +66,11 @@ Spells_Aoe = {
@@ -24,3 +24,12 @@ index 5ef132e..5b73dbc 100644
  		return data, context.is_standalone
  	end,
  	update = function(data, context)
+@@ -154,7 +160,7 @@ Spells_Aoe = {
+ 					if EntityAux.extension(u, "damage_receiver") then
+ 						ATTACKERS_TABLE[1] = caster
+ 
+-						EntityAux.add_damage(u, ATTACKERS_TABLE, damage, "aoe", data.scale_damage, position)
++						EntityAux.add_damage(u, ATTACKERS_TABLE, damage, {"aoe", "aoe"}, data.scale_damage, position)
+ 					end
+ 
+ 					local status_ext = EntityAux.extension(u, "status")

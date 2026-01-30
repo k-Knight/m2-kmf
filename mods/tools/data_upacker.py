@@ -26,7 +26,7 @@ for root, dirs, files in os.walk(args.input):
 
 base_path, _ = os.path.split(args.output)
 script_directory = os.path.dirname(os.path.abspath(sys.argv[0]))
-bubble_path = script_directory + "/bubble_new/bubble.exe"
+bubble_path = script_directory + "/bubble/bubble.exe"
 
 for file in list_of_files:
     _, file_name = os.path.split(file)

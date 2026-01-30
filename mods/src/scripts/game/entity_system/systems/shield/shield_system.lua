@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/shield/shield_system.lua b/scripts/game/entity_system/systems/shield/shield_system.lua
-index f485add..cc7aa2b 100644
+index f485add..032348c 100644
 --- a/scripts/game/entity_system/systems/shield/shield_system.lua
 +++ b/scripts/game/entity_system/systems/shield/shield_system.lua
 @@ -106,7 +106,7 @@ function ShieldSystem:sync_shield_stage(sender, go_id, stage)
@@ -173,3 +173,63 @@ index f485add..cc7aa2b 100644
  		EntityAux.add_ability(unit, ability, ability_data)
  
  		local defense_ext = EntityAux.extension(unit, "defense")
+@@ -1687,11 +1800,54 @@ function ShieldSystem:shield_reflected_lightning(sender, caster_id, target_id, d
+ end
+ 
+ function ShieldSystem:local_shield_reflected_lightning(caster, target, damage)
+-	EntityAux.add_damage(target, {
+-		caster
+-	}, {
+-		lightning = damage
+-	}, "volume")
++	local group_id = Unit.get_data(caster, "kmf_shield_group")
++	local owner_id = Unit.get_data(caster, "kmf_shield_owner")
++	local my_shield_grouping
++	
++	if kmf.vars.bugfix_enabled and group_id and owner_id then
++		my_shield_grouping = {
++			owner = owner_id,
++			group_id = group_id,
++			type = 1
++		}
++	end
++	
++	EntityAux.add_damage(target, { caster }, { lightning = damage }, "volume", nil, nil, nil, nil, my_shield_grouping)
++	
++	if kmf.vars.funprove_enabled or kmf.vars.bugfix_enabled then
++		if kmf.effect_manager then
++			kmf.effect_manager:play_sound("play_spell_lightning_hit", target)
++		end
++	
++		local orig_unit = caster
++		local offset = Vector3(0, 0, 1)
++		local offset_mult = 2
++		local effect_table = {
++			effect_type = "lightning_effect",
++			elements = {
++				lightning = 1,
++	
++				fire = 0,
++				arcane = 0,
++				life = 0,
++				water = 0,
++				earth = 0,
++				shield = 0,
++				cold = 0,
++				steam = 0,
++				ice = 0,
++				poison = 0
++			},
++			kmf_color_mult = 0.25
++		}
++	
++		if EntityAux.extension(caster, "player") then
++			orig_unit = target
++			offset_mult = 1
++		end
++	
++		Spells_Lightning_Helper.spawn_lightning_effect(caster, Unit.world_position(orig_unit, 0) + (offset * offset_mult), Unit.world_position(target, 0) + offset, true, target, effect_table, false, true)
++	end
+ 
+ 	local spell_cast_ext = EntityAux.extension(target)
+ 

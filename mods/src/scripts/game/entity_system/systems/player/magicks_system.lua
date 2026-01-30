@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/player/magicks_system.lua b/scripts/game/entity_system/systems/player/magicks_system.lua
-index 920a63c..0e7d218 100644
+index 920a63c..79151b2 100644
 --- a/scripts/game/entity_system/systems/player/magicks_system.lua
 +++ b/scripts/game/entity_system/systems/player/magicks_system.lua
 @@ -205,6 +205,7 @@ function MagicksSystem:on_add_extension(u, extension_name, init_data, net_init_d
@@ -71,7 +71,7 @@ index 920a63c..0e7d218 100644
 +			local magick_data = tiered_magicks[i]
 +
 +			if kmf.vars.funprove_enabled and magick_data then
-+				base_regen_rate = SpellSettings.max_focus / (MagicksSettings[magick_data.name] and MagicksSettings[magick_data.name].cooldown or 4)
++				base_regen_rate = SpellSettings.max_focus / (MagicksSettings[magick_data.name] and MagicksSettings[magick_data.name].cooldown or 15)
 +			else
 +				base_regen_rate = SpellSettings.focus_regeneration(i, num_alive_players)
 +			end

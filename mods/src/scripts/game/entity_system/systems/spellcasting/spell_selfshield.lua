@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_selfshield.lua b/scripts/game/entity_system/systems/spellcasting/spell_selfshield.lua
-index a226fe9..b3b4d26 100644
+index a226fe9..c97e433 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_selfshield.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_selfshield.lua
 @@ -3,15 +3,41 @@
@@ -51,11 +51,12 @@ index a226fe9..b3b4d26 100644
  
  		internal.changed = true
  
-+
- 		if is_forced_by then
- 			local mh = SpellSettings:pure_shield_max_health("self")
--
+-		if is_forced_by then
+-			local mh = SpellSettings:pure_shield_max_health("self")
+ 
 -			internal.health, internal.max_health = mh, mh
++		if is_forced_by then
++			local mh = SpellSettings:pure_shield_max_health(pvm, caster, "self")
 +			internal.max_health = mh
 +			internal.health = mh
  		else

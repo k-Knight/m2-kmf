@@ -1,16 +1,17 @@
 diff --git a/scripts/game/entity_system/systems/effect/effect_system.lua b/scripts/game/entity_system/systems/effect/effect_system.lua
-index 8c517a2..d397136 100644
+index 8c517a2..a9c1e21 100644
 --- a/scripts/game/entity_system/systems/effect/effect_system.lua
 +++ b/scripts/game/entity_system/systems/effect/effect_system.lua
-@@ -33,6 +33,7 @@ function EffectSystem:init(context)
+@@ -33,6 +33,8 @@ function EffectSystem:init(context)
  
  	self:register_events(unpack(events))
  	self:register_network_messages("stop_effect_descriptor", "network_synced_projectile_hit", "stop_network_synced_projectile")
 +	kmf.effect_system = self
++	kmf.effect_manager = self._effect_manager
  end
  
  function EffectSystem:finalize_setup(context)
-@@ -190,12 +191,33 @@ function EffectSystem:update(context)
+@@ -190,12 +192,33 @@ function EffectSystem:update(context)
  
  	local effect_context = self._effect_context
  	local entities, entities_n = self:get_entities("effect_producer")

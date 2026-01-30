@@ -1,23 +1,20 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spellcasting_system.lua b/scripts/game/entity_system/systems/spellcasting/spellcasting_system.lua
-index 443717d..c3cf988 100644
+index 443717d..e4d5699 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spellcasting_system.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spellcasting_system.lua
-@@ -176,6 +176,14 @@ function SpellCastingSystem:init(context)
+@@ -176,6 +176,11 @@ function SpellCastingSystem:init(context)
  		spellcast_system = self
  	}
  
-+	if _G.kmf then
-+		--kmf.entity_manager = self.entity_manager
-+		kmf.network = self.network_transport
-+		kmf.unit_storage = self.unit_storage
-+		kmf.world = self.world_proxy
-+		kmf.spell_casting_system = self
-+	end
++	kmf.network = self.network_transport
++	kmf.unit_storage = self.unit_storage
++	kmf.world = self.world_proxy
++	kmf.spell_casting_system = self
 +
  	self.spell_context = spell_context
  	self.spell_update_context = {
  		dt = 0,
-@@ -455,6 +463,26 @@ function SpellCastingSystem:get_current_spell_name(caster)
+@@ -455,6 +460,26 @@ function SpellCastingSystem:get_current_spell_name(caster)
  	return nil
  end
  
@@ -44,7 +41,7 @@ index 443717d..c3cf988 100644
  function SpellCastingSystem:cast_spell_standalone(sender, go_id, cast_type_id, pos, agility, duration, show_chargeup, projectile_force, wall_health_mul, wall_decay_rate, wall_num_mul, spray_length, spray_width, elems, id, scale_damage)
  	local _agility = agility or 1
  	local _duration = duration > 0 and duration or math.huge
-@@ -532,10 +560,10 @@ function SpellCastingSystem:cast_spell(sender, go_id, cast_id, magick_id, eq_net
+@@ -532,10 +557,10 @@ function SpellCastingSystem:cast_spell(sender, go_id, cast_id, magick_id, eq_net
  		end
  	end
  
@@ -57,7 +54,7 @@ index 443717d..c3cf988 100644
  	if rand_seed == 0 then
  		rand_seed = nil
  	end
-@@ -561,10 +589,24 @@ function SpellCastingSystem:local_cast_spell(unit, cast_type, magick, element_qu
+@@ -561,10 +586,24 @@ function SpellCastingSystem:local_cast_spell(unit, cast_type, magick, element_qu
  	temp_input.override_skip_waiting = skip_waiting
  	temp_input.magick_activate_position = magick_activate_position
  
@@ -84,7 +81,7 @@ index 443717d..c3cf988 100644
  	if input.spell_type == "weapon" and state.melee_allowed == false then
  		return
  	end
-@@ -574,6 +616,53 @@ function SpellCastingSystem:_handle_spellcast(unit, input, internal, is_local, s
+@@ -574,6 +613,53 @@ function SpellCastingSystem:_handle_spellcast(unit, input, internal, is_local, s
  	local magick_casted = false
  	local magick_from_elements = input.spell_type == "magick_from_elements"
  	local player_ext = EntityAux.extension(unit, "player")
@@ -138,7 +135,7 @@ index 443717d..c3cf988 100644
  
  	if player_ext and input.element_queue then
  		local input_ext = EntityAux.extension(unit, "input_controller")
-@@ -586,14 +675,20 @@ function SpellCastingSystem:_handle_spellcast(unit, input, internal, is_local, s
+@@ -586,14 +672,20 @@ function SpellCastingSystem:_handle_spellcast(unit, input, internal, is_local, s
  			if magick_from_elements and controller_type == "keyboard" or controller_type ~= "keyboard" and input.spell_type == "weapon_imbue" and not magicks_cast_cooldown then
  				local magick_name, magick_tier = _magick_from_elements(input.element_queue)
  
@@ -166,7 +163,7 @@ index 443717d..c3cf988 100644
  
  						input.spell_type = nil
  						input.magick = nil
-@@ -604,9 +699,40 @@ function SpellCastingSystem:_handle_spellcast(unit, input, internal, is_local, s
+@@ -604,9 +696,40 @@ function SpellCastingSystem:_handle_spellcast(unit, input, internal, is_local, s
  						input.scale_damage = nil
  						magick_casted = true
  
@@ -209,7 +206,7 @@ index 443717d..c3cf988 100644
  					end
  				end
  			end
-@@ -699,6 +825,7 @@ function SpellCastingSystem:_handle_spellcast(unit, input, internal, is_local, s
+@@ -699,6 +822,7 @@ function SpellCastingSystem:_handle_spellcast(unit, input, internal, is_local, s
  	local current_imbued_spell_should_stop = was_weapon_cast and _csn and _csn ~= "Slash" or false
  	local weapon_unit
  
@@ -217,7 +214,7 @@ index 443717d..c3cf988 100644
  	if was_weapon_cast and spell_context.is_standalone then
  		spell_context.weapon_unit = nil
  		spell_name = SpellTypes[spell_type](spell_context)
-@@ -856,6 +983,28 @@ function SpellCastingSystem:_handle_spellcast(unit, input, internal, is_local, s
+@@ -856,6 +980,28 @@ function SpellCastingSystem:_handle_spellcast(unit, input, internal, is_local, s
  		spell_context.spell_damage_replacer = spell_damage_replacer
  	end
  
@@ -246,7 +243,7 @@ index 443717d..c3cf988 100644
  	local spell_data, skip_waiting = S[spell_name].init(spell_context, spell_type)
  
  	if spell_data then
-@@ -890,6 +1039,11 @@ function SpellCastingSystem:_handle_spellcast(unit, input, internal, is_local, s
+@@ -890,6 +1036,11 @@ function SpellCastingSystem:_handle_spellcast(unit, input, internal, is_local, s
  		elseif spell_context.scale_damage then
  			self.network_transport:send_cast_spell_scaled(unit, spell_type, magick, element_queue, target, input.magick_activate_position, spell_context.scale_damage, rand_seed)
  		else
@@ -258,7 +255,7 @@ index 443717d..c3cf988 100644
  			self.network_transport:send_cast_spell(unit, spell_type, magick, element_queue, target, input.magick_activate_position, rand_seed)
  		end
  
-@@ -902,7 +1056,7 @@ function SpellCastingSystem:_handle_spellcast(unit, input, internal, is_local, s
+@@ -902,7 +1053,7 @@ function SpellCastingSystem:_handle_spellcast(unit, input, internal, is_local, s
  		end
  	end
  
@@ -267,7 +264,7 @@ index 443717d..c3cf988 100644
  		if spell_type == "magick" then
  			self.statistics_keeper:add_magick_telemetry(unit, magick, "quick_slot")
  		else
-@@ -938,7 +1092,7 @@ function SpellCastingSystem:_handle_spellcast(unit, input, internal, is_local, s
+@@ -938,7 +1089,7 @@ function SpellCastingSystem:_handle_spellcast(unit, input, internal, is_local, s
  			end
  		end
  
@@ -276,7 +273,7 @@ index 443717d..c3cf988 100644
  			internal._waiting_spell.name = spell_name
  			internal._waiting_spell.data = spell_data
  		end
-@@ -958,6 +1112,19 @@ function SpellCastingSystem:add_to_active_spells(internal, spell_name, spell_dat
+@@ -958,6 +1109,19 @@ function SpellCastingSystem:add_to_active_spells(internal, spell_name, spell_dat
  		spell_table.on_cast(spell_data, spell_context)
  	end
  
@@ -296,7 +293,7 @@ index 443717d..c3cf988 100644
  	spells[#spells + 1] = spell_name
  
  	assert(spell_data, "Error: Received no spell_data")
-@@ -978,10 +1145,41 @@ function SpellCastingSystem:on_cast_spell(unit)
+@@ -978,10 +1142,41 @@ function SpellCastingSystem:on_cast_spell(unit)
  			return
  		end
  
@@ -338,7 +335,7 @@ index 443717d..c3cf988 100644
  		spells[#spells + 1] = ws.name
  		spells_data[#spells_data + 1] = ws.data
  
-@@ -1012,8 +1210,23 @@ function SpellCastingSystem:on_cast_spell(unit)
+@@ -1012,8 +1207,23 @@ function SpellCastingSystem:on_cast_spell(unit)
  	end
  end
  
@@ -362,21 +359,11 @@ index 443717d..c3cf988 100644
  
  	for n = 1, entities_n do
  		repeat
-@@ -1025,6 +1238,21 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
+@@ -1025,6 +1235,11 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
  			local channel_dur = internal.channel_duration
  			local input_channel = input.channel
  			local state = extension.state
 +			local splwhl_ext = EntityAux.extension(u, "spellwheel")
-+
-+			if kmf.vars.bugfix_enabled or kmf.vars.pvp_gamemode then
-+				local player_ext = EntityAux.extension(u, "player")
-+
-+				if player_ext then
-+					if kmf.is_player_unit_dead(u) then
-+						break
-+					end
-+				end
-+			end
 +
 +			if fix_enabled then
 +				kmf.reorder_spell_data(internal)
@@ -384,7 +371,7 @@ index 443717d..c3cf988 100644
  
  			if input.cancel_armor_component then
  				local element = input.cancel_armor_component
-@@ -1033,12 +1261,14 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
+@@ -1033,12 +1248,14 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
  
  				local did_something = false
  
@@ -400,7 +387,7 @@ index 443717d..c3cf988 100644
  						local spell_on_cancel_func = SpellTypes[spell].on_cancel_one
  
  						if spell_on_cancel_func then
-@@ -1051,6 +1281,10 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
+@@ -1051,6 +1268,10 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
  
  						red_text("Warning: SpellcastingSystem recieved 'cancel_armor_component' (" .. element .. ") and had '" .. spell .. "' active but it had no 'on_cancel_one'-func")
  
@@ -411,7 +398,7 @@ index 443717d..c3cf988 100644
  						break
  					end
  				end
-@@ -1061,7 +1295,7 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
+@@ -1061,7 +1282,7 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
  			end
  
  			if input.remove_imbuement then
@@ -420,7 +407,7 @@ index 443717d..c3cf988 100644
  
  				if internal.current_imbued_spell then
  					EntityAux.stop_effect(internal.current_imbued_spell.caster, "charged_weapon")
-@@ -1112,7 +1346,9 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
+@@ -1112,7 +1333,9 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
  			end
  
  			if internal.overload then
@@ -431,7 +418,7 @@ index 443717d..c3cf988 100644
  
  				state.overload = internal.overload.overload
  				state.max_overload = internal.overload.max_overload
-@@ -1130,6 +1366,20 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
+@@ -1130,6 +1353,20 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
  
  			local char_ext_state = char_ext and char_ext.state or nil
  
@@ -452,7 +439,7 @@ index 443717d..c3cf988 100644
  			if char_ext_state then
  				spell_update_context.target = char_ext_state.cursor_intersect_unit
  			end
-@@ -1158,7 +1408,10 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
+@@ -1158,7 +1395,10 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
  						break
  					end
  
@@ -464,7 +451,7 @@ index 443717d..c3cf988 100644
  
  					if val then
  						spells[j] = spell
-@@ -1188,7 +1441,7 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
+@@ -1188,7 +1428,7 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
  				if ws_name then
  					local spell_table = Spells[ws_name]
  
@@ -473,7 +460,7 @@ index 443717d..c3cf988 100644
  						local keep = spell_table.waiting_spell_update(ws_data, spell_update_context)
  
  						if not channeling and ws_data.needs_channel and input.chargeup_ended then
-@@ -1244,6 +1497,7 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
+@@ -1244,6 +1484,7 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
  				input.clear_overload = nil
  			end
  
@@ -481,7 +468,7 @@ index 443717d..c3cf988 100644
  			if input.spell_type ~= nil and input.spell_type ~= "" then
  				if #internal.spells ~= 0 then
  					local _curr_imbue_spell = internal.current_imbued_spell and internal.current_imbued_spell.spell_name or nil
-@@ -1282,6 +1536,10 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
+@@ -1282,6 +1523,10 @@ function SpellCastingSystem:update_spellcast_units(entities, entities_n, spell_u
  end
  
  function SpellCastingSystem:update(context)
@@ -492,7 +479,7 @@ index 443717d..c3cf988 100644
  	local dt = context.dt
  	local spell_update_context = self.spell_update_context
  
-@@ -1508,6 +1766,10 @@ function SpellCastingSystem:cancel_magick(unit, magick_name, ext, spell_update_c
+@@ -1508,6 +1753,10 @@ function SpellCastingSystem:cancel_magick(unit, magick_name, ext, spell_update_c
  end
  
  function SpellCastingSystem:cancel_all_spells(unit, ext, cancel_magicks)
@@ -503,7 +490,7 @@ index 443717d..c3cf988 100644
  	local SpellTypes = Spells
  
  	ext = ext or EntityAux.extension(unit, "spellcast")
-@@ -1527,6 +1789,10 @@ function SpellCastingSystem:cancel_all_spells(unit, ext, cancel_magicks)
+@@ -1527,6 +1776,10 @@ function SpellCastingSystem:cancel_all_spells(unit, ext, cancel_magicks)
  	local char_ext_state = char_ext and char_ext.state or nil
  	local num_spells = #spells
  
@@ -514,7 +501,7 @@ index 443717d..c3cf988 100644
  	for i = 1, num_spells do
  		repeat
  			local spell = spells[i]
-@@ -1669,6 +1935,9 @@ function SpellCastingSystem:create_damages_and_particles(sender, target_unit_id,
+@@ -1669,6 +1922,9 @@ function SpellCastingSystem:create_damages_and_particles(sender, target_unit_id,
  
  	local world = self.world_proxy
  
@@ -524,7 +511,7 @@ index 443717d..c3cf988 100644
  	if target_unit then
  		local _damages = FrameTable.alloc_table()
  
-@@ -1680,15 +1949,15 @@ function SpellCastingSystem:create_damages_and_particles(sender, target_unit_id,
+@@ -1680,15 +1936,15 @@ function SpellCastingSystem:create_damages_and_particles(sender, target_unit_id,
  			caster_unit
  		}, _damages, "force")
  

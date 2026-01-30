@@ -1,8 +1,14 @@
 diff --git a/foundation/scripts/network/network_settings.win32.lua b/foundation/scripts/network/network_settings.win32.lua
-index ebff170..5cb585e 100644
+index ebff170..c16e682 100644
 --- a/foundation/scripts/network/network_settings.win32.lua
 +++ b/foundation/scripts/network/network_settings.win32.lua
-@@ -8,3 +8,4573 @@ NetworkSettings = {
+@@ -1,4 +1,4 @@
+--- chunkname: @foundation/scripts/network/network_settings.win32.lua
++﻿-- chunkname: @foundation/scripts/network/network_settings.win32.lua
+ 
+ NetworkSettings = {
+ 	lobby_port = 51623,
+@@ -8,3 +8,4436 @@ NetworkSettings = {
  	max_num_players = 8,
  	game_type = "Change Me"
  }
@@ -202,7 +208,6 @@ index ebff170..5cb585e 100644
 +		void __cdecl display_settings_menu();
 +		void __cdecl launch_installer();
 +		bool __cdecl gamepad_btn_pressed(int btn);
-+		void __cdecl open_player_profile(char *hex_id);
 +		void __cdecl tmp_enable_mod(const char *name);
 +		void __cdecl tmp_disable_mod(const char *name);
 +		void __cdecl clear_tmp_mod_state();
@@ -241,54 +246,6 @@ index ebff170..5cb585e 100644
 +	else
 +		kmf.mod_settings_manager.c_mod_mngr = ffi.load(".\\libkmf_util.so")
 +	end
-+
-+	kmf.const.default_mod_config = [[
-+		[become spectator button]
-+
-+		[change equipment in-game]
-+
-+		[input queue convenience]
-+
-+		[optional bug fixes]
-+
-+		[balance fun-provements]
-+
-+		[equipment re-balance]
-+
-+		[experimental balance]
-+
-+		[remove magick hud]
-+
-+		[movement convenience]
-+		keyboard hotkey=alt
-+
-+		[gamepad aiming]
-+		gamepad hotkey=L2
-+	]]
-+
-+	kmf.settings['become spectator button'] = {enabled = false, options = {}}
-+	kmf.settings['change equipment in-game'] = {enabled = false, options = {}}
-+	kmf.settings['input queue convenience'] = {enabled = false, options = {}}
-+	kmf.settings['optional bug fixes'] = {enabled = false, options = {}}
-+	kmf.settings['balance fun-provements'] = {enabled = false, options = {}}
-+	kmf.settings['equipment re-balance'] = {enabled = false, options = {}}
-+	kmf.settings['experimental balance'] = {enabled = false, options = {}}
-+	kmf.settings['remove magick hud'] = {enabled = false, options = {}}
-+	kmf.settings['movement convenience'] = {enabled = false, options = {}}
-+	kmf.settings['gamepad aiming'] = {enabled = false, options = {}}
-+
-+	kmf.sync_mods = {
-+		"optional bug fixes",
-+		"balance fun-provements",
-+		"equipment re-balance",
-+		"experimental balance",
-+		"remove magick hud",
-+	}
-+
-+	local ffi_mod_config_str = ffi.new("char[?]", (#(kmf.const.default_mod_config)) + 1)
-+	ffi.copy(ffi_mod_config_str, kmf.const.default_mod_config)
-+	kmf.mod_settings_manager.c_mod_mngr.update_config_file(ffi_mod_config_str)
-+	kmf.mod_settings_manager.counter = 0
 +end
 +
 +status, err = pcall(load_settings_manager)
@@ -449,12 +406,6 @@ index ebff170..5cb585e 100644
 +	kmf.mod_settings_manager.c_mod_mngr.clear_tmp_mod_state()
 +end
 +
-+if rawget(_G, "kmf") ~= nil then
-+	kmf.check_available_kmf_version()
-+	kmf.kmf_version = 81
-+	print("kmf loaded, version " .. kmf.kmf_version)
-+end
-+
 +kmf_init_localisation = function()
 +	kmf_localisation = {}
 +	kmf_localisation["default"] = {
@@ -577,6 +528,40 @@ index ebff170..5cb585e 100644
 +function kmf_log_table(table, depth, indent)
 +	local res = kmf_log_table_helper(table, depth, indent)
 +	k_log(res)
++end
++
++function kmf_snitch_table(table, table_name, on_get, on_set)
++	local src = {}
++	local name = type(table_name) == "string" and "[" .. table_name .. "]" or ""
++
++	for k, v in pairs(table) do
++		src[k] = v
++		table[k] = nil
++	end
++
++	local mt = {
++		__index = function(t, k)
++			k_log(name .. " get :: " .. tostring(k))
++
++			if on_get then
++				on_get(src, t, k)
++			end
++
++			return src[k]
++		end,
++
++		__newindex = function(t, k, v)
++			k_log(name .. " set :: " .. tostring(k) .. " = " .. tostring(v))
++
++			if on_set then
++				on_set(src, t, k, v)
++			end
++
++			src[k] = v
++		end
++	}
++
++	setmetatable(table, mt)
 +end
 +
 +
@@ -903,6 +888,7 @@ index ebff170..5cb585e 100644
 +	kmf.vars.player_menu_buttons = {}
 +	kmf.vars.player_menu_btn_handlers = {}
 +	kmf.vars.on_cancel_all_spells_handlers = {}
++	kmf.vars.before_start_ability_filters = {}
 +
 +	kmf.get_number_of_local_players = function()
 +		kmf_print("in get_number_of_local_players()")
@@ -1111,10 +1097,7 @@ index ebff170..5cb585e 100644
 +				if  players[i] then
 +					if  players[i].extension and players[i].unit then
 +						if players[i].extension.is_local then
-+							local health_ext = EntityAux.extension(players[i].unit, "health")
-+							alive = health_ext and health_ext.state and health_ext.state.health > 0
-+
-+							return alive, players[i].unit
++							return (not kmf.is_unit_dead(players[i].unit)), players[i].unit
 +						end
 +					end
 +				end
@@ -1507,8 +1490,6 @@ index ebff170..5cb585e 100644
 +		end
 +
 +		if kmf.network_lobby_handler and kmf.network_lobby_handler.hosting then
-+			k_log("updating lobby data ...")
-+
 +			if kmf.network_lobby_handler.kmf_player_manager then
 +				kmf.network_lobby_handler:_update_public_lobby_data(kmf.network_lobby_handler.kmf_player_manager)
 +			end
@@ -1659,7 +1640,7 @@ index ebff170..5cb585e 100644
 +					damage_n = count
 +				}
 +
-+				local net_dmg_states =  kmf.vars.net_dmg_states[go_id] or {}
++				local net_dmg_states = kmf.vars.net_dmg_states[go_id] or {}
 +
 +				net_dmg_states[#net_dmg_states + 1] = dmg_state
 +
@@ -2689,7 +2670,7 @@ index ebff170..5cb585e 100644
 +
 +							if barrier_check_passed and unit and (not ignore_unit or unit ~= u) then
 +								if do_damage and EntityAux.extension(unit, "damage_receiver") and #dmg_dealers > 0 then
-+									EntityAux.add_damage(unit, dmg_dealers, damages, "volume", nil, position, ignore_multipliers, damage_source, my_shield_grouping)
++									EntityAux.add_damage(unit, dmg_dealers, damages, {"volume", "aoe_damage"}, nil, position, ignore_multipliers, damage_source, my_shield_grouping)
 +								end
 +
 +								if do_status and EntityAux.extension(unit, "status") then
@@ -2737,7 +2718,7 @@ index ebff170..5cb585e 100644
 +		end
 +	end
 +
-+	kmf.is_player_unit_dead = function(unit)
++	kmf.is_unit_dead = function(unit)
 +		if not unit or not Unit.alive(unit) then
 +			return true
 +		end
@@ -3179,221 +3160,6 @@ index ebff170..5cb585e 100644
 +		end
 +
 +		HudMagickMock.hide_magicks_selection  = function (self, tier, reset_focus_animator)
-+		end
-+	end
-+
-+	kmf.ward_resistence_mod_patch = function()
-+		local CONST_DURATION = SpellSettings.ward_duration
-+
-+		-- fun-balance :: ward buff
-+		local function resistance_effect_extract_data(elements, resistance_mul)
-+			local num_types = 0
-+			local wanted_elements = {}
-+			local types = {}
-+			local resistances = {}
-+			local largest = -1
-+			local largest_element = nil
-+			local magnitude = 0
-+
-+			local life_ward_res_elems = {
-+				"arcane",
-+				"cold",
-+				"fire",
-+				"lightning",
-+				"steam",
-+				"poison",
-+				"water",
-+				"water_push",
-+				"water_elevate",
-+			}
-+
-+			local funprove_enabled = kmf.vars.funprove_enabled
-+
-+			for elem, amt in pairs(elements) do
-+				if amt > 0 and elem ~= "shield" and elem ~= "earth" and elem ~= "ice" then
-+					magnitude = magnitude + amt
-+					local res = 0
-+
-+					if funprove_enabled and elem == "water" and amt then
-+						local index = #resistances + 1
-+						local mult = 1.0 / (amt / 2 + 1.25)
-+
-+						resistances[index] = {
-+							"water_push",
-+							"mul",
-+							mult
-+						}
-+						index = #resistances + 1
-+						resistances[index] = {
-+							"water_elevate",
-+							"mul",
-+							mult
-+						}
-+					end
-+
-+					if amt == 1 then
-+						res = funprove_enabled and 0.6 or SpellSettings.ward_resistance_1_elements
-+					end
-+
-+					if amt == 2 then
-+						res = funprove_enabled and 1.0 or SpellSettings.ward_resistance_2_elements
-+					end
-+
-+					if amt == 3 then
-+						res = funprove_enabled and 1.5 or SpellSettings.ward_resistance_3_elements
-+					end
-+
-+					if amt == 4 then
-+						res = funprove_enabled and 2.5 or SpellSettings.ward_resistance_4_elements
-+
-+						if elem == "water" then
-+							local index = #resistances + 1
-+							resistances[index] = {
-+								"water_push",
-+								"mul",
-+								0
-+							}
-+							index = #resistances + 1
-+							resistances[index] = {
-+								"water_elevate",
-+								"mul",
-+								0
-+							}
-+						end
-+					end
-+
-+					if funprove_enabled and elem == "life" then
-+						res = 0.125
-+						res = amt == 2 and 0.25 or res
-+						res = amt == 3 and 0.375 or res
-+						res = amt == 4 and 0.501 or res
-+
-+						for _, elem in ipairs(life_ward_res_elems) do
-+							local final_res = res * resistance_mul
-+							final_res = 1 - final_res
-+
-+							resistances[#resistances + 1] = {
-+								elem,
-+								"mul",
-+								final_res
-+							}
-+
-+							if final_res <= 0.5 then
-+								num_types = num_types + 1
-+								types[num_types] = elem
-+							end
-+						end
-+
-+						res = math.min(res * 3, 1)
-+					end
-+
-+					res = res * resistance_mul
-+					res = 1 - res
-+					resistances[#resistances + 1] = {
-+						elem,
-+						"mul",
-+						res
-+					}
-+
-+					if res <= 0.5 then
-+						num_types = num_types + 1
-+						types[num_types] = elem
-+					end
-+
-+					if largest < amt then
-+						largest = amt
-+						largest_element = elem
-+					end
-+
-+					wanted_elements[elem] = amt
-+				end
-+			end
-+
-+			if num_types == 0 then
-+				types = nil
-+			end
-+
-+			return wanted_elements, magnitude, largest_element, types, resistances
-+		end
-+
-+		Spells_Ward.init = function (context)
-+			local elements = context.elements
-+			local caster = context.caster
-+			local pvm = context.player_variable_manager
-+			local resistance_mul = pvm:get_variable(caster, "resistance_amount") or 1
-+			local magnitude, largest_element, types, resistances
-+			elements, magnitude, largest_element, types, resistances = resistance_effect_extract_data(elements, resistance_mul)
-+			local duration = CONST_DURATION
-+			duration = duration * (pvm:get_variable(caster, "resistance_duration") or 1)
-+			local data = {
-+				elements = elements,
-+				duration = duration,
-+				max_duration = duration,
-+				largest_element = largest_element,
-+				types = types,
-+				resistances = resistances,
-+				caster = caster
-+			}
-+			local effect_table = {
-+				effect_type = "resistance_effect",
-+				elements = elements,
-+				scale = data.duration
-+			}
-+
-+			EntityAux.add_effect(caster, effect_table)
-+
-+			local defense_ext = EntityAux.extension(caster, "defense")
-+
-+			EntityAux.set_input_by_extension(defense_ext, "add_resistance", resistances)
-+
-+			defense_ext.state.ward_effect_table = effect_table
-+
-+			if types ~= nil then
-+				local send_disable_list = {}
-+
-+				for i, v in ipairs(types) do
-+					local j = #send_disable_list + 1
-+
-+					if v == "fire" then
-+						send_disable_list[j] = "burning"
-+					elseif v == "cold" then
-+						send_disable_list[j] = "chilled"
-+					elseif v == "water" then
-+						send_disable_list[j] = "wet"
-+					elseif v == "lightning" then
-+						send_disable_list[j] = "stunned"
-+					elseif v == "poison" then
-+						send_disable_list[j] = "poisoned"
-+					end
-+				end
-+
-+				if #send_disable_list > 0 then
-+					context.network:send_remove_statuses(caster, send_disable_list)
-+				end
-+
-+				EntityAux.set_input(caster, "status", "add_immunity", types)
-+			end
-+
-+			if context.is_local then
-+				EntityAux.set_input(caster, "character", CSME.spell_cast, true)
-+				EntityAux.set_input(caster, "character", "args", "cast_force_shield")
-+
-+				if types ~= nil then
-+					local buffs = context.state.buffs
-+					local buffs_max = context.state.buffs_max
-+
-+					for i, element in ipairs(types) do
-+						local buff_name = res_buff_lookup[element]
-+
-+						if buff_name then
-+							buffs[buff_name] = duration
-+							buffs_max[buff_name] = duration
-+						end
-+					end
-+				end
-+			end
-+
-+			return data
 +		end
 +	end
 +
@@ -4017,6 +3783,9 @@ index ebff170..5cb585e 100644
 +		end
 +	end
 +
++	kmf.const.funbalance = {}
++	kmf.const.funbalance.poison_mult = 2.8
++
 +	kmf.pvp_patches = function()
 +		if not kmf.const.orig_magick_cds then
 +			kmf.const.orig_magick_cds = {}
@@ -4108,6 +3877,34 @@ index ebff170..5cb585e 100644
 +		end
 +	end
 +
++	kmf.before_start_ability = function(name, template, u)
++		for filter, handler in pairs(kmf.vars.before_start_ability_filters) do
++			if string.find(name, filter) then
++				template = handler(name, template, u)
++			end
++		end
++
++		return template
++	end
++
++	kmf.vars.before_start_ability_filters["^helltroll_%S+_foot_aoe$"] = function(name, template, u)
++		local is_right_foot = string.find(name, "right")
++		local temp = table.deep_clone(template)
++		local rot = Unit.local_rotation(u, 0)
++		local offset = Quaternion.rotate(rot, Vector3(is_right_foot and 1 or -1, 1.5 ,0))
++
++		temp.play_effect = {
++			effect = "blast_fire",
++			offset = {
++				offset.x,
++				offset.y,
++				0.5
++			}
++		}
++
++		return temp
++	end
++
 +	kmf.late_initialization_done = false
 +
 +	kmf.late_initialization = function()
@@ -4130,7 +3927,6 @@ index ebff170..5cb585e 100644
 +		kmf.runtime_bug_fixes()
 +		kmf.kbd_watcher_set_kbd_mapping()
 +		kmf.hotbar_disable_mod_patch()
-+		kmf.ward_resistence_mod_patch()
 +		kmf.balance_patches()
 +		kmf.pvp_patches()
 +		kmf.prepare_unlocks()
@@ -4280,6 +4076,8 @@ index ebff170..5cb585e 100644
 +			AccessoryTemplates.human_skeleton_magick.sword.inventory_type = "weapon_cheese_slicer"
 +			SpellSettings.shield_self_decay_rate = 0.05
 +			SpellSettings.shield_self_decay = 285
++			SpellSettings.elemental_wall_lightning_reflect_time = 0.1
++			SpellSettings.elemental_wall_lightning_reflect_damage = 10
 +		else
 +			SpellSettings.status_poisoned_speed_factor = 0.75
 +			SpellSettings.lightning_mult_on_wet = 3
@@ -4294,6 +4092,40 @@ index ebff170..5cb585e 100644
 +			AccessoryTemplates.human_skeleton_magick.sword.inventory_type = "npc_wpn_skeleton_magick_sword_00"
 +			SpellSettings.shield_self_decay_rate = 0.1
 +			SpellSettings.shield_self_decay = 35
++			SpellSettings.elemental_wall_lightning_reflect_time = 2
++			SpellSettings.elemental_wall_lightning_reflect_damage = 40
++		end
++
++		if status or kmf.vars.pvp_gamemode then
++			DamageNumberSettings.ttl_healing = 0.45
++			DamageNumberSettings.ttl_damage_direct = 0.45
++			DamageNumberSettings.ttl_status = 0.45
++			DamageNumberSettings.min_font_size = 18
++			DamageNumberSettings.max_font_size = 24
++			DamageNumberSettings.dissapear_time = 1
++			DamageNumberSettings.dissapear_time_animated = 1
++			DamageNumberSettings.font_size_step = 150
++			DamageNumberSettings.animate_category = {
++				damage_direct = true,
++				healing = true,
++				damage_direct_high = true
++			}
++			DamageNumberSettings.direct_damage_threshold.threshold = 1000
++		else
++			DamageNumberSettings.ttl_healing = 2
++			DamageNumberSettings.ttl_damage_direct = 2
++			DamageNumberSettings.ttl_status = 1
++			DamageNumberSettings.min_font_size = 22
++			DamageNumberSettings.max_font_size = 32
++			DamageNumberSettings.dissapear_time = 1
++			DamageNumberSettings.dissapear_time_animated = 2
++			DamageNumberSettings.font_size_step = 200
++			DamageNumberSettings.animate_category = {
++				damage_direct = false,
++				healing = true,
++				damage_direct_high = true
++			}
++			DamageNumberSettings.direct_damage_threshold.threshold = 3600
 +		end
 +	end
 +
@@ -4557,22 +4389,59 @@ index ebff170..5cb585e 100644
 +		return self.viewports[viewport_name]:camera()
 +	end
 +
-+	--SpellSettings = SpellSettings or {}
-+	--setmetatable(SpellSettings, {
-+	--	__newindex = function(t, k, v)
-+	--		if t and k then
-+	--			if k == "lightning_debug" then
-+	--				k_log("override")
-+	--				rawset(t, k, true)
-+	--			else
-+	--				rawset(t, k, v)
-+	--			end
-+	--		end
-+	--	end
-+	--})
-+
 +	kmf.const.me_peer = Steam.user_id()
 +end
 +
++kmf.add_mod_to_manager = function(name, settings, can_host_sync)
++	local config_string = "[" .. name .. "]\n"
++
++	for setting_name, setting_default in pairs(settings or {}) do
++		config_string = config_string .. setting_name .. "=" .. setting_default .. "\n"
++	end
++
++	kmf.const.default_mod_config = (kmf.const.default_mod_config or "") .. config_string
++	kmf.settings[name] = {enabled = false, options = {}}
++
++	if can_host_sync then
++		local sync_mods = kmf.const.sync_mods or {}
++
++		sync_mods[#sync_mods + 1] = name
++		kmf.const.sync_mods = sync_mods
++	end
++end
++
++kmf.update_mod_manager_config = function()
++	local ffi = kmf.mod_settings_manager.ffi
++	local ffi_mod_config_str = ffi.new("char[?]", (#(kmf.const.default_mod_config)) + 1)
++
++	ffi.copy(ffi_mod_config_str, kmf.const.default_mod_config)
++
++	kmf.mod_settings_manager.c_mod_mngr.update_config_file(ffi_mod_config_str)
++	kmf.mod_settings_manager.counter = 0
++end
++
++
++kmf.add_mod_to_manager("become spectator button")
++kmf.add_mod_to_manager("change equipment in-game")
++kmf.add_mod_to_manager("input queue convenience")
++kmf.add_mod_to_manager("optional bug fixes", nil, true)
++kmf.add_mod_to_manager("balance fun-provements", nil, true)
++kmf.add_mod_to_manager("equipment re-balance", nil, true)
++kmf.add_mod_to_manager("experimental balance", nil, true)
++kmf.add_mod_to_manager("remove magick hud", nil, true)
++kmf.add_mod_to_manager("movement convenience", {
++	["keyboard hotkey"] = "alt"
++}, true)
++kmf.add_mod_to_manager("gamepad aiming", {
++	["gamepad hotkey"] = "L2"
++}, true)
++
++
++kmf.update_mod_manager_config()
++
++
++kmf.check_available_kmf_version()
++kmf.kmf_version = 82
++print("kmf loaded, version " .. kmf.kmf_version)
 +
 +return

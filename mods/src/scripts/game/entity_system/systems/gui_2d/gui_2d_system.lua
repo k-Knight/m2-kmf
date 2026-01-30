@@ -1,8 +1,16 @@
 diff --git a/scripts/game/entity_system/systems/gui_2d/gui_2d_system.lua b/scripts/game/entity_system/systems/gui_2d/gui_2d_system.lua
-index fbaa2aa..f69d3e1 100644
+index fbaa2aa..e9c5af6 100644
 --- a/scripts/game/entity_system/systems/gui_2d/gui_2d_system.lua
 +++ b/scripts/game/entity_system/systems/gui_2d/gui_2d_system.lua
-@@ -592,6 +592,28 @@ function Gui2DSystem:update(context)
+@@ -425,6 +425,7 @@ function Gui2DSystem:update(context)
+ 			pos.z = 50
+ 
+ 			self:draw_elements(input.element_hud, input.elements, pos, unit, context.dt)
++			self:draw_magick_cds(unit)
+ 		end
+ 
+ 		if internal.is_husk_player or internal.is_player or internal.name_template then
+@@ -592,6 +593,28 @@ function Gui2DSystem:update(context)
  	gui_manager:update(context.dt)
  end
  
@@ -31,7 +39,7 @@ index fbaa2aa..f69d3e1 100644
  function Gui2DSystem:draw_magick_name(ui_renderer, position, unit, hud_magicks, elements, element_queue_hud, show_template)
  	local selected_magick_template = false
  	local magick_name, magick_tier = _magick_from_elements(elements)
-@@ -623,7 +645,22 @@ function Gui2DSystem:draw_magick_name(ui_renderer, position, unit, hud_magicks,
+@@ -623,7 +646,16 @@ function Gui2DSystem:draw_magick_name(ui_renderer, position, unit, hud_magicks,
  			local spellwheel_ext = EntityAux.extension(unit, "spellwheel")
  
  			if spellwheel_ext then
@@ -45,17 +53,37 @@ index fbaa2aa..f69d3e1 100644
 +					if not magick_cast_cooldown then
 +						magick_cast_cooldown = internal.magick_cds[magick_name]
 +					end
-+
-+					local slot = 0
-+					for magick_name, cd in pairs(internal.magick_cds) do
-+						kmf.draw_cooldown_magick(ui_renderer, magick_name, cd, slot)
-+						slot = slot + 1
-+					end
 +				end
  			end
  
  			if SpellSettings.elemental_magicks_cooldown and not hud_magicks:is_magick_button_enabled(magick_tier) or magick_cast_cooldown or selected_magick_template then
-@@ -647,7 +684,12 @@ function Gui2DSystem:draw_elements(element_queue_hud, elements, position, unit,
+@@ -637,6 +669,25 @@ function Gui2DSystem:draw_magick_name(ui_renderer, position, unit, hud_magicks,
+ 	end
+ end
+ 
++function Gui2DSystem:draw_magick_cds(unit)
++	local ui_renderer = ui.ui_renderer
++	local spellwheel_ext = EntityAux.extension(unit, "spellwheel")
++
++	if spellwheel_ext then
++		local internal = spellwheel_ext.internal
++
++		-- fun-balance :: magick cds
++		if kmf.vars.funprove_enabled and internal.magick_cds then
++			local slot = 0
++
++			for magick_name, cd in pairs(internal.magick_cds) do
++				kmf.draw_cooldown_magick(ui_renderer, magick_name, cd, slot)
++				slot = slot + 1
++			end
++		end
++	end
++end
++
+ function Gui2DSystem:draw_elements(element_queue_hud, elements, position, unit, dt)
+ 	if element_queue_hud:empty() and not self.highlighted_spell_queue then
+ 		return
+@@ -647,7 +698,12 @@ function Gui2DSystem:draw_elements(element_queue_hud, elements, position, unit,
  	assert(hud_magicks)
  
  	local magick_name, magick_tier = _magick_from_elements(element_queue_hud:get_selected_magick_template_elements())

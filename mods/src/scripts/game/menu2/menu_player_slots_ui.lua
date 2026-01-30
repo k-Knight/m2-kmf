@@ -1,5 +1,5 @@
 diff --git a/scripts/game/menu2/menu_player_slots_ui.lua b/scripts/game/menu2/menu_player_slots_ui.lua
-index 06da73c..c1340e2 100644
+index 06da73c..c16c862 100644
 --- a/scripts/game/menu2/menu_player_slots_ui.lua
 +++ b/scripts/game/menu2/menu_player_slots_ui.lua
 @@ -601,7 +601,9 @@ function C:update()
@@ -203,7 +203,7 @@ index 06da73c..c1340e2 100644
 +				local me_peer = kmf.lobby_handler:local_peer()
 +				local members = kmf.lobby_handler.connected_peers
 +
-+				for _, mod in ipairs(kmf.sync_mods) do
++				for _, mod in ipairs(kmf.const.sync_mods) do
 +					local state = kmf.check_mod_enabled(mod)
 +					local msg_type = (state and "m-enbl" or "m-dsbl")
 +					local msg = mod
@@ -230,7 +230,7 @@ index 06da73c..c1340e2 100644
 -			if event == "on_show_menu_equipment" or event == "on_show_menu_stats" then
 -				self.context.event_delegate:trigger2("on_remove_nav_guide", Alias)
 +			for _, player_menu_btn_handler in pairs(kmf.vars.player_menu_btn_handlers) do
-+				if player_menu_btn_handler(id) then
++				if player_menu_btn_handler(evt, id) then
 +					handled = true
 +					break
 +				end
