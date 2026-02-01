@@ -212,6 +212,7 @@ extern "C" {
     static int __cdecl (*lua_isstring)(void *state, int index) = nullptr;
     static int __cdecl (*luaL_loadbufferx)(void *state, const char *buff, size_t sz, const char *name, const char *mode) = nullptr;
     static int __cdecl (*luaL_error)(void *state, const char *fmt, ...) = nullptr;
+    static int __cdecl (*bitsquid_script_game_session_rpc)(void *state) = nullptr;
 
     struct function_byte_signature_t {
         const char *name;
@@ -311,6 +312,13 @@ extern "C" {
             "xxxxxxxxxxxxxxxxxxxxxxxx",
             true
         },
+        //{
+        //    "bitsquid_script_game_session_rpc",
+        //    (void **)&bitsquid_script_game_session_rpc,
+        //    (unsigned char[]){0x81, 0xEC, 0x94, 0x09, 0x00, 0x00, 0x53, 0x55, 0x56, 0x8B, 0xB4, 0x24, 0xA4, 0x09, 0x00, 0x00, 0x57, 0x68, 0xED, 0xD8, 0xFF, 0xFF, 0x56, 0x89},
+        //    "xxxxxxxxxxxxxxxxxxxxxxxx",
+        //    false
+        //}
     };
 
     static void *lua_state = 0;

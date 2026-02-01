@@ -1,5 +1,5 @@
 diff --git a/foundation/scripts/network/network_settings.win32.lua b/foundation/scripts/network/network_settings.win32.lua
-index ebff170..c16e682 100644
+index ebff170..ebb05d8 100644
 --- a/foundation/scripts/network/network_settings.win32.lua
 +++ b/foundation/scripts/network/network_settings.win32.lua
 @@ -1,4 +1,4 @@
@@ -8,7 +8,7 @@ index ebff170..c16e682 100644
  
  NetworkSettings = {
  	lobby_port = 51623,
-@@ -8,3 +8,4436 @@ NetworkSettings = {
+@@ -8,3 +8,4449 @@ NetworkSettings = {
  	max_num_players = 8,
  	game_type = "Change Me"
  }
@@ -1209,20 +1209,33 @@ index ebff170..c16e682 100644
 +		return nil, nil
 +	end
 +
++	kmf.screen_2_dir = function(x, y)
++		if not kmf.frame_camera or not kmf.frame_camera.camera then
++			return nil
++		end
++
++		local pos_1 = Camera.screen_to_world(kmf.frame_camera.camera, Vector3(x, 0 , y))
++		local pos_2 = Camera.screen_to_world(kmf.frame_camera.camera, Vector3(x, 1 , y))
++		local dir = Vector3.normalize(pos_2 - pos_1)
++
++		return pos_1, dir
++	end
++
 +	kmf.screen_2_world = function(x, y, anchor_unit)
-+		if not kmf.frame_camera or not kmf.frame_camera.camera or not anchor_unit then
++		if not (anchor_unit and Unit.alive(anchor_unit)) then
++			return nil
++		end
++
++		local pos_1, dir = kmf.screen_2_dir(x, y)
++
++		if not (pos_1 and dir) then
 +			return nil
 +		end
 +
 +		local pos = Unit.world_position(anchor_unit, 0)
 +		local z_level = pos.z
-+
-+		local pos_1 = Camera.screen_to_world(kmf.frame_camera.camera, Vector3(x, 0 , y))
-+		local pos_2 = Camera.screen_to_world(kmf.frame_camera.camera, Vector3(x, 1 , y))
-+		local dir = Vector3.normalize(pos_2 - pos_1)
 +		local cam_z = pos_1.z
 +		local dir_z = dir.z
-+
 +		local intersect_point
 +
 +		if z_level < cam_z and dir_z < 0 then
@@ -4441,7 +4454,7 @@ index ebff170..c16e682 100644
 +
 +
 +kmf.check_available_kmf_version()
-+kmf.kmf_version = 82
++kmf.kmf_version = 83
 +print("kmf loaded, version " .. kmf.kmf_version)
 +
 +return
