@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_ward.lua b/scripts/game/entity_system/systems/spellcasting/spell_ward.lua
-index 8e1d276..b71dc79 100644
+index 8e1d276..8e59993 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_ward.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_ward.lua
 @@ -22,71 +22,116 @@ res_buff_lookup = {
@@ -210,7 +210,7 @@ index 8e1d276..b71dc79 100644
  		return true
  	end,
  	on_cancel = function(data, context)
-@@ -253,5 +317,365 @@ Spells_Ward = {
+@@ -253,5 +317,377 @@ Spells_Ward = {
  			context.network:send_stop_elemental_ward_effect(caster, "resistance_effect")
  			EntityAux.stop_effect(caster, "resistance_effect")
  		end
@@ -337,32 +337,40 @@ index 8e1d276..b71dc79 100644
 +	self._initialized = true
 +
 +	if kmf.effect_manager then
-+		local sound_pos_offset = Vector3(0, 0, -25)
++		local sound_offset_mult
++		local x, y = kmf.world_2_screen(position)
++		local pos, dir = kmf.screen_2_dir(x, y)
 +		local sfx_name
 +
 +		if aura_element == "water" then
 +			sfx_name = "play_spell_beam_water_addon"
-+			sound_pos_offset = Vector3(0, 0, -26)
++			sound_offset_mult = 29.25
 +		elseif aura_element == "fire" then
 +			sfx_name = "play_spell_beam_fire_addon"
++			sound_offset_mult = 28.5
 +		elseif aura_element == "cold" then
 +			sfx_name = "play_spell_beam_cold_addon"
++			sound_offset_mult = 27.75
 +		elseif aura_element == "lightning" then
 +			sfx_name = "play_spell_beam_lightning_addon"
-+			sound_pos_offset = Vector3(0, 0, -26)
++			sound_offset_mult = 29.25
 +		elseif aura_element == "steam" then
 +			sfx_name = "play_spell_beam_steam_addon"
++			sound_offset_mult = 25.3125
 +		elseif aura_element == "poison" then
 +			sfx_name = "play_spell_beam_poison_addon"
++			sound_offset_mult = 28.125
 +		elseif aura_element == "life" then
 +			sfx_name = "play_spell_beam_life_loop"
-+			sound_pos_offset = Vector3(0, 0, -26)
++			sound_offset_mult = 29.25
 +		else
++			sound_offset_mult = 28.875
 +			sfx_name = "play_spell_beam_arcane_loop"
 +		end
 +
-+		self.sound_pos_offset = Vector3.box({}, sound_pos_offset)
-+		self.dummy_sound_unit = kmf.unit_spawner:spawn_unit_local("content/units/effects/misc/beam_dummy", position + sound_pos_offset, Quaternion.identity())
++		local sound_unit_pos = position + dir * sound_offset_mult
++		self.sound_offset_mult = sound_offset_mult
++		self.dummy_sound_unit = kmf.unit_spawner:spawn_unit_local("content/units/effects/misc/beam_dummy", sound_unit_pos, Quaternion.identity())
 +		self.sound_id = kmf.effect_manager:play_sound(sfx_name, self.dummy_sound_unit)
 +	end
 +end
@@ -386,7 +394,11 @@ index 8e1d276..b71dc79 100644
 +	local dmg_radius = self.scale / 2.1
 +
 +	if self.dummy_sound_unit then
-+		Unit.teleport_local_position(self.dummy_sound_unit, 0, position + Vector3.unbox(self.sound_pos_offset))
++		local x, y = kmf.world_2_screen(position)
++		local pos, dir = kmf.screen_2_dir(x, y)
++		local sound_unit_pos = position + dir * self.sound_offset_mult
++
++		Unit.teleport_local_position(self.dummy_sound_unit, 0, sound_unit_pos)
 +	end
 +
 +	if self.is_life_aura then
@@ -413,7 +425,7 @@ index 8e1d276..b71dc79 100644
 +		dir = Vector3(math.cos(angle), math.sin(angle), 0)
 +		aura_rot = Quaternion.look(dir)
 +	end
-+	
++
 +	angle = self._duration * 1 * math.pi
 +	dir = Vector3(math.cos(angle), math.sin(angle), 0)
 +	local aura_pulse_rot = Quaternion.look(dir)
@@ -446,14 +458,14 @@ index 8e1d276..b71dc79 100644
 +						local damage_receiver = EntityAux.extension(unit, "damage_receiver")
 +						local status_ext = EntityAux.extension(unit, "status")
 +						local victim_pos = Unit.world_position(unit, 0)
-+	
++
 +						if damage_receiver then
 +							victims[unit] = true
 +
 +							if self.dmg_interval < 0 then
 +								local damages = {}
 +								local water_force_strength = (1 - (Vector3.length(victim_pos - position) / dmg_radius)) * 2.0
-+								
++
 +								for k, v in pairs(self.damages) do
 +									damages[k] = v * context.dt * water_force_strength
 +								end
@@ -462,7 +474,7 @@ index 8e1d276..b71dc79 100644
 +							else
 +								EntityAux.add_damage(unit, { self.caster }, self.damages, "aura", nil, position)
 +							end
-+	
++
 +							if do_apply_status and status_ext then
 +								EntityAux.add_status_magnitude_by_extension(status_ext, self.magnitudes, self.caster)
 +							end

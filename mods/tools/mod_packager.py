@@ -129,8 +129,8 @@ def run_mod_packaging(mod, files):
     subprocess.run(["echo", "packaging mod [" + mod + "] ..."])
     print_lock.release()
 
-    new_lua_files = [os.path.join(tmp_compiled[mod], f) for f in os.listdir(tmp_compiled[mod]) if os.path.isfile(os.path.join(tmp_compiled[mod], f))]
-    subprocess.run(["tools/bubble/bubble.exe", "R", "./m2-data/" + mod, out_path + "/" + mod, *new_lua_files], stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+    new_files = [os.path.join(tmp_merging[mod], f) for f in os.listdir(tmp_merging[mod]) if os.path.isfile(os.path.join(tmp_merging[mod], f))]
+    subprocess.run(["tools/bubble/bubble.exe", "R", "./m2-data/" + mod, out_path + "/" + mod, *new_files], stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
 
 threads = []
 
