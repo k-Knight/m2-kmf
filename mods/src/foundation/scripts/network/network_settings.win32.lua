@@ -1,5 +1,5 @@
 diff --git a/foundation/scripts/network/network_settings.win32.lua b/foundation/scripts/network/network_settings.win32.lua
-index ebff170..ebb05d8 100644
+index ebff170..4cb64e9 100644
 --- a/foundation/scripts/network/network_settings.win32.lua
 +++ b/foundation/scripts/network/network_settings.win32.lua
 @@ -1,4 +1,4 @@
@@ -4454,7 +4454,7 @@ index ebff170..ebb05d8 100644
 +
 +
 +kmf.check_available_kmf_version()
-+kmf.kmf_version = 83
++kmf.kmf_version = 84
 +print("kmf loaded, version " .. kmf.kmf_version)
 +
 +return

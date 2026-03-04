@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/shield_unit.lua b/scripts/game/entity_system/systems/spellcasting/shield_unit.lua
-index 080cc57..6308303 100644
+index 080cc57..a379d8e 100644
 --- a/scripts/game/entity_system/systems/spellcasting/shield_unit.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/shield_unit.lua
 @@ -2,21 +2,17 @@
@@ -108,7 +108,7 @@ index 080cc57..6308303 100644
  	end
  
 +	local change_delepte_health = kmf.vars.bugfix_enabled or kmf.vars.funprove_enabled
-+	local elem_health = change_delepte_health and 200 or self.health / 3
++	local elem_health = change_delepte_health and 200 or (self.health and self.health / 3 or 200)
 +
  	if self.is_elemental_wall then
  		Unit.set_data(self.unit, "elemental_wall", true)
