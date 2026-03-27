@@ -1,5 +1,5 @@
 diff --git a/foundation/scripts/network/network_settings.win32.lua b/foundation/scripts/network/network_settings.win32.lua
-index ebff170..744b2c5 100644
+index ebff170..f5e3c00 100644
 --- a/foundation/scripts/network/network_settings.win32.lua
 +++ b/foundation/scripts/network/network_settings.win32.lua
 @@ -1,4 +1,4 @@
@@ -8,7 +8,7 @@ index ebff170..744b2c5 100644
  
  NetworkSettings = {
  	lobby_port = 51623,
-@@ -8,3 +8,4412 @@ NetworkSettings = {
+@@ -8,3 +8,4411 @@ NetworkSettings = {
  	max_num_players = 8,
  	game_type = "Change Me"
  }
@@ -395,11 +395,11 @@ index ebff170..744b2c5 100644
 +end
 +
 +kmf.tmp_enable_mod = function(name)
-+	kmf.mod_settings_manager.void_c_str_call(kmf.mod_settings_manager.c_mod_mngr.tmp_enable_mod, name)
++	kmf.mod_settings_manager.tmp_enable_mod(name)
 +end
 +
 +kmf.tmp_disable_mod = function(name)
-+	kmf.mod_settings_manager.void_c_str_call(kmf.mod_settings_manager.c_mod_mngr.tmp_disable_mod, name)
++	kmf.mod_settings_manager.tmp_disable_mod(name)
 +end
 +
 +kmf.clear_tmp_mod_state = function(name)
@@ -4407,17 +4407,16 @@ index ebff170..744b2c5 100644
 +kmf.add_mod_to_manager("remove magick hud", nil, true)
 +kmf.add_mod_to_manager("movement convenience", {
 +	["keyboard hotkey"] = "alt"
-+}, true)
++})
 +kmf.add_mod_to_manager("gamepad aiming", {
 +	["gamepad hotkey"] = "L2"
-+}, true)
-+
++})
 +
 +kmf.update_mod_manager_config()
 +
 +
 +kmf.check_available_kmf_version()
-+kmf.kmf_version = 85
++kmf.kmf_version = 86
 +print("kmf loaded, version " .. kmf.kmf_version)
 +
 +return
