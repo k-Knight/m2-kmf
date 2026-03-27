@@ -1,8 +1,8 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_selfshield.lua b/scripts/game/entity_system/systems/spellcasting/spell_selfshield.lua
-index a226fe9..c97e433 100644
+index a226fe9..272d967 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_selfshield.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_selfshield.lua
-@@ -3,15 +3,41 @@
+@@ -3,20 +3,50 @@
  local EntityAux_set_input = EntityAux.set_input
  local EntityAux_set_input_by_extension = EntityAux.set_input_by_extension
  local Unit_set_data = Unit.set_data
@@ -47,7 +47,16 @@ index a226fe9..c97e433 100644
  		local world = context.world
  		local caster = context.caster
  		local pvm = context.player_variable_manager
-@@ -48,17 +74,16 @@ Spells_SelfShield = {
+ 		local is_forced_by = context.is_forced_by
+ 
++		if not caster then
++			return
++		end
++
+ 		context.is_forced_by = nil
+ 
+ 		local char_ext = EntityAux.extension(caster, "character")
+@@ -48,17 +78,16 @@ Spells_SelfShield = {
  
  		internal.changed = true
  
@@ -69,7 +78,7 @@ index a226fe9..c97e433 100644
  			internal.max_health = max_health
  		end
  
-@@ -83,13 +108,11 @@ Spells_SelfShield = {
+@@ -83,13 +112,11 @@ Spells_SelfShield = {
  			_sound_id = nil
  		end
  
@@ -88,7 +97,7 @@ index a226fe9..c97e433 100644
  
  		EntityAux_set_input(caster, "selfshield", "stop", nil)
  		EntityAux_set_input(caster, "selfshield", "start", true)
-@@ -120,7 +143,7 @@ Spells_SelfShield = {
+@@ -120,9 +147,13 @@ Spells_SelfShield = {
  
  		return data, true
  	end,
@@ -96,8 +105,14 @@ index a226fe9..c97e433 100644
 +	on_cancel = function (data, context, do_not_notify)
  		local caster = data.caster
  
++		if not caster then
++			return
++		end
++
  		Unit_set_data(caster, "spray_blocker", nil)
-@@ -170,11 +193,30 @@ Spells_SelfShield = {
+ 		Unit_set_data(caster, "reflector", false)
+ 
+@@ -170,11 +201,30 @@ Spells_SelfShield = {
  			context.network:send_cancel_spell(caster, "SelfShield")
  			context.network:send_sync_self_shield(caster, false)
  		end
@@ -129,7 +144,7 @@ index a226fe9..c97e433 100644
  		local dt = context.dt
  		local shield_ext = data.shield_ext
  		local internal = shield_ext.internal
-@@ -190,6 +232,10 @@ Spells_SelfShield = {
+@@ -190,6 +240,10 @@ Spells_SelfShield = {
  					dmg = 0
  				end
  
@@ -140,7 +155,7 @@ index a226fe9..c97e433 100644
  				if dmg and dmg > 0 then
  					dmg = dmg * (data.resistances and data.resistances[element] or 1)
  				end
-@@ -207,6 +253,8 @@ Spells_SelfShield = {
+@@ -207,6 +261,8 @@ Spells_SelfShield = {
  
  		if decay_allowed then
  			local det_timer = internal.deteriorate_timer + dt

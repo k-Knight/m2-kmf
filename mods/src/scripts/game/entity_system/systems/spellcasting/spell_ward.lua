@@ -1,5 +1,5 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_ward.lua b/scripts/game/entity_system/systems/spellcasting/spell_ward.lua
-index 8e1d276..8e59993 100644
+index 8e1d276..6f6fece 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_ward.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_ward.lua
 @@ -22,71 +22,116 @@ res_buff_lookup = {
@@ -162,7 +162,19 @@ index 8e1d276..8e59993 100644
  	if num_types == 0 then
  		types = nil
  	end
-@@ -180,8 +221,10 @@ Spells_Ward = {
+@@ -116,6 +157,11 @@ Spells_Ward = {
+ 	init = function(context)
+ 		local elements = context.elements
+ 		local caster = context.caster
++
++		if not caster then
++			return
++		end
++
+ 		local pvm = context.player_variable_manager
+ 		local resistance_mul = pvm:get_variable(caster, "resistance_amount") or 1
+ 		local magnitude, largest_element, types, resistances
+@@ -180,8 +226,10 @@ Spells_Ward = {
  		end
  
  		if context.is_local then
@@ -175,7 +187,7 @@ index 8e1d276..8e59993 100644
  
  			if types ~= nil then
  				local buffs = context.state.buffs
-@@ -198,6 +241,16 @@ Spells_Ward = {
+@@ -198,6 +246,16 @@ Spells_Ward = {
  			end
  		end
  
@@ -192,7 +204,7 @@ index 8e1d276..8e59993 100644
  		return data
  	end,
  	update = function(data, context)
-@@ -223,6 +276,17 @@ Spells_Ward = {
+@@ -223,10 +281,26 @@ Spells_Ward = {
  
  		data.duration = dur
  
@@ -210,7 +222,16 @@ index 8e1d276..8e59993 100644
  		return true
  	end,
  	on_cancel = function(data, context)
-@@ -253,5 +317,377 @@ Spells_Ward = {
+ 		local caster = data.caster
++
++		if not caster then
++			return
++		end
++
+ 		local defense_ext = EntityAux.extension(caster, "defense")
+ 
+ 		EntityAux_set_input_by_extension(defense_ext, "remove_resistance", data.resistances)
+@@ -253,5 +327,385 @@ Spells_Ward = {
  			context.network:send_stop_elemental_ward_effect(caster, "resistance_effect")
  			EntityAux.stop_effect(caster, "resistance_effect")
  		end
@@ -230,6 +251,10 @@ index 8e1d276..8e59993 100644
 +KMFAuraEffect = class(KMFAuraEffect)
 +
 +function KMFAuraEffect:init(context, duration)
++	if not context.caster then
++		return
++	end
++
 +	self.caster = context.caster
 +	self.world = context.world
 +	self.unit_spawner = context.unit_spawner
@@ -376,6 +401,10 @@ index 8e1d276..8e59993 100644
 +end
 +
 +function KMFAuraEffect:update(context)
++	if not self.caster then
++		return
++	end
++
 +	if not self._initialized then
 +		return
 +	end

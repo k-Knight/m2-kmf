@@ -1,5 +1,5 @@
 diff --git a/foundation/scripts/network/network_settings.win32.lua b/foundation/scripts/network/network_settings.win32.lua
-index ebff170..4cb64e9 100644
+index ebff170..744b2c5 100644
 --- a/foundation/scripts/network/network_settings.win32.lua
 +++ b/foundation/scripts/network/network_settings.win32.lua
 @@ -1,4 +1,4 @@
@@ -8,7 +8,7 @@ index ebff170..4cb64e9 100644
  
  NetworkSettings = {
  	lobby_port = 51623,
-@@ -8,3 +8,4449 @@ NetworkSettings = {
+@@ -8,3 +8,4412 @@ NetworkSettings = {
  	max_num_players = 8,
  	game_type = "Change Me"
  }
@@ -2256,42 +2256,6 @@ index ebff170..4cb64e9 100644
 +	end
 +
 +	kmf.bugfixes = {}
-+	kmf.bugfixes.damage_comms_fix = function()
-+		if not Spells_SelfArmor._old_on_cancel then
-+			Spells_SelfArmor._old_on_cancel = Spells_SelfArmor.on_cancel
-+		end
-+		Spells_SelfArmor.on_cancel = function (data, context)
-+			local time = os.clock()
-+			local ret = Spells_SelfArmor._old_on_cancel(data, context)
-+
-+			if data and data.damage_ext then
-+				data.damage_ext.state.selfarmored_earth_end = time
-+				data.damage_ext.state.selfarmored_ice_end = time
-+			end
-+		end
-+
-+		if not Spells_SelfArmor._old_on_cancel_one then
-+			Spells_SelfArmor._old_on_cancel_one = Spells_SelfArmor.on_cancel_one
-+		end
-+		Spells_SelfArmor.on_cancel_one = function (element, data, context, notify)
-+			local time = os.clock()
-+			local ret = Spells_SelfArmor._old_on_cancel_one(element, data, context, notify)
-+
-+			for elem, amt in pairs(data.elements) do
-+				if elem == element then
-+					if elem == "ice" then
-+						if data and data.damage_ext then
-+							data.damage_ext.state.selfarmored_ice_end = time
-+						end
-+					elseif elem == "earth" then
-+						if data and data.damage_ext then
-+							data.damage_ext.state.selfarmored_earth_end = time
-+						end
-+					end
-+				end
-+			end
-+		end
-+	end
 +	kmf.bugfixes.shield_unit_fixes = function()
 +		function flow_callback_mine_explode(params)
 +			local unit = params.unit
@@ -4312,7 +4276,6 @@ index ebff170..4cb64e9 100644
 +				if pad then
 +					local axis_state = pad.axis(Pad1.axis_index("right"), Pad1.RAW, 3)
 +
-+
 +					local pecent_change = 3 * dt
 +					local raw_w, raw_h = Application.resolution()
 +
@@ -4454,7 +4417,7 @@ index ebff170..4cb64e9 100644
 +
 +
 +kmf.check_available_kmf_version()
-+kmf.kmf_version = 84
++kmf.kmf_version = 85
 +print("kmf loaded, version " .. kmf.kmf_version)
 +
 +return

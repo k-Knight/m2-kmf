@@ -1,8 +1,8 @@
 diff --git a/scripts/game/entity_system/systems/spellcasting/spell_armorward.lua b/scripts/game/entity_system/systems/spellcasting/spell_armorward.lua
-index eedd28c..3c58010 100644
+index eedd28c..da38c46 100644
 --- a/scripts/game/entity_system/systems/spellcasting/spell_armorward.lua
 +++ b/scripts/game/entity_system/systems/spellcasting/spell_armorward.lua
-@@ -6,53 +6,101 @@ require("scripts/game/entity_system/systems/spellcasting/spell_ward")
+@@ -6,53 +6,105 @@ require("scripts/game/entity_system/systems/spellcasting/spell_ward")
  Spells_ArmorWard = {
  	init = function(context)
  		local data = {}
@@ -35,13 +35,17 @@ index eedd28c..3c58010 100644
 +		else
 +			local caster = context.caster
 +
++			if not caster then
++				return
++			end
+ 
+-		return data
 +			data.kmf_elements = elements
 +			data.kmf_status = 0
 +			data.kmf_context = {}
 +			data.kmf_time_to_cast = 0.25
 +			data.kmf_spell_init_data_time = kmf.world_proxy:time()
- 
--		return data
++
 +			for k, v in pairs(context) do
 +				data.kmf_context[k] = v
 +			end
@@ -75,18 +79,18 @@ index eedd28c..3c58010 100644
 +			end
 +
 +			local n_ward_elements = (elements.fire or 0) + (elements.cold or 0) + (elements.life or 0) + (elements.arcane or 0) + (elements.water or 0) + (elements.steam or 0) + (elements.lightning or 0) + (elements.poison or 0)
++
++			if n_ward_elements >= 1 then
++				data.ward_data = Spells_Ward.init(old_context)
++			end
++
++			data.kmf_status = 1
  
 -			if not keep_armor then
 -				data.armor_data = nil
-+			if n_ward_elements >= 1 then
-+				data.ward_data = Spells_Ward.init(old_context)
- 			end
-+
-+			data.kmf_status = 1
-+
 +			if data.kmf_need_on_cast then
 +				Spells_ArmorWard.on_cast(data, old_context)
-+			end
+ 			end
 +
 +			return true
  		else
@@ -130,3 +134,12 @@ index eedd28c..3c58010 100644
  	end,
  	on_cancel_one = function(element, data, context, notify)
  		if data.armor_data then
+@@ -72,7 +124,7 @@ Spells_ArmorWard = {
+ 
+ 		data.ward_data = nil
+ 
+-		if context.is_local then
++		if context.is_local and context.caster then
+ 			context.network:send_cancel_spell(context.caster, "ArmorWard")
+ 		end
+ 	end
